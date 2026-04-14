@@ -3,7 +3,7 @@ from django.utils import timezone
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny
 from rest_framework import viewsets
 from simple_history.models import HistoricalRecords
 
@@ -120,7 +120,7 @@ class BaseModel(models.Model):
 
 class BaseModelViewSet(viewsets.ModelViewSet):
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
 
     def destroy(self, request, *args, **kwargs):

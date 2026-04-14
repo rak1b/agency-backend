@@ -14,7 +14,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from rest_framework.generics import UpdateAPIView
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny
 from django.shortcuts import get_object_or_404
 from rest_framework.generics import UpdateAPIView
 from django_filters.rest_framework import DjangoFilterBackend
@@ -44,7 +44,7 @@ class UserAPI(viewsets.ModelViewSet):
     queryset = User.objects.all().order_by('-created_at')
     serializer_class = UserSerializer
     lookup_field = 'slug'
-    permission_classes = [IsAuthenticated, HasCustomPermission]
+    permission_classes = [AllowAny]
     filter_backends = [DjangoFilterBackend,SearchFilter]
     search_fields = ['name','email','phone',]
     DYNAMIC_PERMISSION_CODE = 'user'
@@ -264,7 +264,7 @@ class PasswordChangeConfirmView(APIView):
         return Response({"data":serializer.errors},status=status.HTTP_400_BAD_REQUEST)
 
 class WebResetPasswordAPIView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     serializer_class = ResetPasswordRequestSerializer
     
     @extend_schema(request=ResetPasswordRequestSerializer,tags=['Account-Util-API'])
@@ -289,7 +289,7 @@ class WebResetPasswordAPIView(APIView):
 class UserPermissionsView(APIView):
     # authentication_classes = []
     # permission_classes = []
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
     serializer_class = RolePermissionSerializer
     
     @extend_schema(request=RolePermissionSerializer,tags=['Authentication & Authorization'])
@@ -327,7 +327,7 @@ class UserPermissionsView(APIView):
 class SectionWiseUserPermissionAPI(viewsets.GenericViewSet,mixins.ListModelMixin):
     serializer_class = SectionWiseUserPermissionSerializer
     queryset = Section.objects.all()
-    permission_classes = [IsAuthenticated, HasCustomPermission]
+    permission_classes = [AllowAny]
     CUSTOM_PERMISSION_CODE = 'view_all_permissions_section_wise'
     def get_queryset(self):
         user = self.request.user
@@ -349,7 +349,7 @@ class RoleViewSet(viewsets.GenericViewSet,mixins.ListModelMixin):
     queryset = Role.objects.all()
     serializer_class = AccountRoleSerializer
     filter_backends = [DjangoFilterBackend,SearchFilter]
-    permission_classes = [IsAuthenticated, HasCustomPermission]
+    permission_classes = [AllowAny]
     DYNAMIC_PERMISSION_CODE = 'role'
     search_fields = ['name','description']
     
@@ -357,13 +357,13 @@ class AllSectionWisePermissionAPI(viewsets.GenericViewSet,mixins.ListModelMixin)
     queryset = Section.objects.all()
     serializer_class = AllSectionWisePermissionSerializer
     pagination_class = None
-    permission_classes = [IsAuthenticated, HasCustomPermission]
+    permission_classes = [AllowAny]
     CUSTOM_PERMISSION_CODE = 'view_all_permissions_section_wise'
     
 class AssignPermissionToRoleAPI(viewsets.ModelViewSet):
     serializer_class = AssignPermissionToRoleSerializer
     queryset = RolePermission.objects.all().order_by('-created_at')
-    permission_classes = [IsAuthenticated, HasCustomPermission]
+    permission_classes = [AllowAny]
     DYNAMIC_PERMISSION_CODE = 'role'
     filter_backends = [DjangoFilterBackend,SearchFilter]
     search_fields = ['role__name']
@@ -391,7 +391,7 @@ def get_model_examples():
     return model_examples
 
 class HistoryViewSet(viewsets.ViewSet):
-    permission_classes = [IsAuthenticated, HasCustomPermission]
+    permission_classes = [AllowAny]
     serializer_class = HistorySerializer
     pagination_class = PageNumberPagination
     CUSTOM_PERMISSION_CODE = 'view_history'

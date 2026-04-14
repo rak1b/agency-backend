@@ -6,6 +6,7 @@ from drf_spectacular.utils import extend_schema
 from django.utils.decorators import method_decorator
 from security.decorators import login_attempt_limit
 from rest_framework.generics import UpdateAPIView
+from rest_framework.permissions import AllowAny
 
 # Static Variable Response
 SUCCESS_RESPONSE = 'Successful'
@@ -125,7 +126,7 @@ class UserList(ListAPIView):
 
 class UpdateAccountView(UpdateAPIView):
     serializer_class = AccountPropertiesSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def get_object(self):
         return self.request.user
@@ -222,7 +223,7 @@ class MerchantLoginView(APIView):
 class ProfileDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Merchant.objects.all()
     serializer_class = MerchantSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def get_object(self):
         # Override to return the profile for the authenticated user
