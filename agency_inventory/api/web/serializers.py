@@ -4,6 +4,7 @@ from ...models import (
     Agency,
     Customer,
     OfficeCost,
+    StudentFile,
     StudentCost,
     University,
     UniversityIntake,
@@ -51,18 +52,42 @@ class CustomerSerializer(serializers.ModelSerializer):
         ]
 
 
+class StudentFileSerializer(serializers.ModelSerializer):
+    agency_name = serializers.CharField(source="agency.name", read_only=True)
+    created_by_name = serializers.CharField(source="created_by.name", read_only=True)
+
+    class Meta:
+        model = StudentFile
+        exclude = ["deleted_at", "deleted_by", "is_deleted"]
+        read_only_fields = [
+            "student_file_id",
+            "slug",
+            "created_at",
+            "updated_at",
+            "created_by",
+            "agency_name",
+            "created_by_name",
+        ]
+
+    def create(self, validated_data):
+        request = self.context.get("request")
+        if request and hasattr(request, "user"):
+            validated_data["created_by"] = request.user
+        return super().create(validated_data)
+
+
 class UniversityIntakeSerializer(serializers.ModelSerializer):
     class Meta:
         model = UniversityIntake
         exclude = ["deleted_at", "deleted_by", "is_deleted"]
-        read_only_fields = ["created_at", "updated_at"]
+        read_only_fields = ["slug", "created_at", "updated_at"]
 
 
 class UniversityProgramSerializer(serializers.ModelSerializer):
     class Meta:
         model = UniversityProgram
         exclude = ["deleted_at", "deleted_by", "is_deleted"]
-        read_only_fields = ["created_at", "updated_at"]
+        read_only_fields = ["slug", "created_at", "updated_at"]
 
 
 class UniversitySerializer(serializers.ModelSerializer):

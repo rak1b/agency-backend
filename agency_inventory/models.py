@@ -92,6 +92,49 @@ class Customer(BaseModel):
         super().save(*args, **kwargs)
 
 
+class StudentFile(BaseModel):
+    """
+    Dedicated student file entity aligned with the student-file creation form.
+    """
+
+    student_file_id = models.CharField(max_length=20, unique=True, blank=True, null=True)
+    slug = models.SlugField(max_length=255, unique=True, null=True, blank=True, editable=False)
+    agency = models.ForeignKey(Agency, on_delete=models.CASCADE, related_name="student_files")
+    passport_number = models.CharField(max_length=100, unique=True)
+    passport_copy_url = models.URLField(max_length=1000, blank=True, null=True)
+    surname = models.CharField(max_length=100)
+    given_name = models.CharField(max_length=100)
+    middle_name = models.CharField(max_length=100, blank=True, null=True)
+    phone_whatsapp = models.CharField(max_length=30)
+    facebook_id_link = models.URLField(max_length=1000, blank=True, null=True)
+    email = models.EmailField(blank=True, null=True)
+    date_of_birth = models.DateField()
+    father_name = models.CharField(max_length=150)
+    mother_name = models.CharField(max_length=150)
+    current_status = models.CharField(
+        max_length=20,
+        choices=CustomerStatusChoice.choices,
+        default=CustomerStatusChoice.FILE_RECEIVED,
+    )
+    file_from = models.CharField(max_length=20, choices=FileFromChoice.choices, default=FileFromChoice.AGENCY_OWN)
+    created_by = models.ForeignKey("authentication.User", on_delete=models.SET_NULL, null=True, blank=True)
+    notes = models.TextField(blank=True, null=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.student_file_id or 'STUDENT_FILE'} - {self.given_name} {self.surname}".strip()
+
+    def save(self, *args, **kwargs):
+        if not self.student_file_id:
+            self.student_file_id = generate_unique_code(StudentFile, field_name="student_file_id", prefix="STF", number_length=8)
+        if not self.slug:
+            slug_source = f"{self.given_name}-{self.surname}-{self.passport_number}"
+            self.slug = generate_unique_slug(slug_source, self)
+        super().save(*args, **kwargs)
+
+
 class University(BaseModel):
     """
     University base profile grouped by country.
@@ -122,6 +165,7 @@ class UniversityIntake(BaseModel):
     Intake periods available under a university (e.g. June, March, September).
     """
 
+    slug = models.SlugField(max_length=255, unique=True, null=True, blank=True, editable=False)
     university = models.ForeignKey(University, on_delete=models.CASCADE, related_name="intakes")
     intake_name = models.CharField(max_length=50)
 
@@ -134,12 +178,18 @@ class UniversityIntake(BaseModel):
     def __str__(self):
         return f"{self.university.name} - {self.intake_name}"
 
+    def save(self, *args, **kwargs):
+        if not self.slug and self.university_id:
+            self.slug = generate_unique_slug(f"{self.university_id}-{self.intake_name}", self)
+        super().save(*args, **kwargs)
+
 
 class UniversityProgram(BaseModel):
     """
     Program options enabled for a university.
     """
 
+    slug = models.SlugField(max_length=255, unique=True, null=True, blank=True, editable=False)
     university = models.ForeignKey(University, on_delete=models.CASCADE, related_name="programs")
     program = models.CharField(max_length=20, choices=UniversityProgramChoice.choices)
 
@@ -151,6 +201,11 @@ class UniversityProgram(BaseModel):
 
     def __str__(self):
         return f"{self.university.name} - {self.program}"
+
+    def save(self, *args, **kwargs):
+        if not self.slug and self.university_id:
+            self.slug = generate_unique_slug(f"{self.university_id}-{self.program}", self)
+        super().save(*args, **kwargs)
 
 
 class OfficeCost(BaseModel):

@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Agency, Customer, University, UniversityIntake, UniversityProgram
+from .models import Agency, Customer, StudentFile, University, UniversityIntake, UniversityProgram
 
 
 @admin.register(Agency)
@@ -16,6 +16,23 @@ class CustomerAdmin(admin.ModelAdmin):
     list_display = ("id", "customer_id", "given_name", "surname", "agency", "current_status", "passport_number", "created_at")
     list_filter = ("current_status", "gender", "agency", "file_from", "is_active", "is_deleted")
     search_fields = ("customer_id", "passport_number", "given_name", "surname", "email", "phone_whatsapp")
+    readonly_fields = ("slug", "created_at", "updated_at")
+
+
+@admin.register(StudentFile)
+class StudentFileAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "student_file_id",
+        "given_name",
+        "surname",
+        "agency",
+        "current_status",
+        "passport_number",
+        "created_at",
+    )
+    list_filter = ("current_status", "agency", "file_from", "is_active", "is_deleted")
+    search_fields = ("student_file_id", "passport_number", "given_name", "surname", "email", "phone_whatsapp")
     readonly_fields = ("slug", "created_at", "updated_at")
 
 

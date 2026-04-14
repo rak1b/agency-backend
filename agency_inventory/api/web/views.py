@@ -3,12 +3,13 @@ from rest_framework import filters
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.permissions import IsAuthenticated
 
-from ...models import Agency, Customer, OfficeCost, StudentCost, University, UniversityIntake, UniversityProgram
+from ...models import Agency, Customer, OfficeCost, StudentCost, StudentFile, University, UniversityIntake, UniversityProgram
 from .serializers import (
     AgencySerializer,
     CustomerSerializer,
     OfficeCostSerializer,
     StudentCostSerializer,
+    StudentFileSerializer,
     UniversityIntakeSerializer,
     UniversityProgramSerializer,
     UniversitySerializer,
@@ -37,6 +38,17 @@ class CustomerViewSet(BaseModelViewSet):
     ordering_fields = ["created_at", "updated_at", "given_name", "current_status"]
 
 
+class StudentFileViewSet(BaseModelViewSet):
+    queryset = StudentFile.objects.select_related("agency", "created_by").all()
+    serializer_class = StudentFileSerializer
+    permission_classes = [IsAuthenticated]
+    lookup_field = "slug"
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ["agency", "current_status", "file_from", "created_by", "is_active"]
+    search_fields = ["student_file_id", "passport_number", "given_name", "surname", "email", "phone_whatsapp"]
+    ordering_fields = ["created_at", "updated_at", "given_name", "current_status"]
+
+
 class UniversityViewSet(BaseModelViewSet):
     queryset = University.objects.all()
     serializer_class = UniversitySerializer
@@ -52,6 +64,7 @@ class UniversityIntakeViewSet(BaseModelViewSet):
     queryset = UniversityIntake.objects.select_related("university").all()
     serializer_class = UniversityIntakeSerializer
     permission_classes = [IsAuthenticated]
+    lookup_field = "slug"
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ["university", "intake_name", "is_active"]
     search_fields = ["intake_name", "university__name", "university__country"]
@@ -62,6 +75,7 @@ class UniversityProgramViewSet(BaseModelViewSet):
     queryset = UniversityProgram.objects.select_related("university").all()
     serializer_class = UniversityProgramSerializer
     permission_classes = [IsAuthenticated]
+    lookup_field = "slug"
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ["university", "program", "is_active"]
     search_fields = ["program", "university__name", "university__country"]

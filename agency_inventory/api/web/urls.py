@@ -5,6 +5,7 @@ from . import views
 router = DefaultRouter()
 router.register(r'agencies', views.AgencyViewSet, basename='agencies')
 router.register(r'customers', views.CustomerViewSet, basename='customers')
+router.register(r'student-files', views.StudentFileViewSet, basename='student-files')
 router.register(r'universities', views.UniversityViewSet, basename='universities')
 router.register(r'university-intakes', views.UniversityIntakeViewSet, basename='university-intakes')
 router.register(r'university-programs', views.UniversityProgramViewSet, basename='university-programs')
