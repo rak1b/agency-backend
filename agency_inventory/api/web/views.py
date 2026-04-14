@@ -1,7 +1,7 @@
 from authentication.base import BaseModelViewSet
 from rest_framework import filters
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import IsAuthenticated 
 
 from ...models import Agency, Customer, OfficeCost, StudentCost, StudentFile, University, UniversityIntake, UniversityProgram
 from .serializers import (
@@ -19,7 +19,7 @@ from .serializers import (
 class AgencyViewSet(BaseModelViewSet):
     queryset = Agency.objects.select_related("created_by").all()
     serializer_class = AgencySerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated ]
     lookup_field = "slug"
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ["status", "is_active", "owner_name"]
@@ -30,7 +30,7 @@ class AgencyViewSet(BaseModelViewSet):
 class CustomerViewSet(BaseModelViewSet):
     queryset = Customer.objects.select_related("agency", "assigned_counselor").all()
     serializer_class = CustomerSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated ]
     lookup_field = "slug"
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ["agency", "current_status", "file_from", "assigned_counselor", "gender", "is_active"]
@@ -41,7 +41,7 @@ class CustomerViewSet(BaseModelViewSet):
 class StudentFileViewSet(BaseModelViewSet):
     queryset = StudentFile.objects.select_related("agency", "created_by").all()
     serializer_class = StudentFileSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated ]
     lookup_field = "slug"
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ["agency", "current_status", "file_from", "created_by", "is_active"]
@@ -52,7 +52,7 @@ class StudentFileViewSet(BaseModelViewSet):
 class UniversityViewSet(BaseModelViewSet):
     queryset = University.objects.all()
     serializer_class = UniversitySerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated ]
     lookup_field = "slug"
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ["country", "is_active"]
@@ -63,7 +63,7 @@ class UniversityViewSet(BaseModelViewSet):
 class UniversityIntakeViewSet(BaseModelViewSet):
     queryset = UniversityIntake.objects.select_related("university").all()
     serializer_class = UniversityIntakeSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated ]
     lookup_field = "slug"
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ["university", "intake_name", "is_active"]
@@ -74,7 +74,7 @@ class UniversityIntakeViewSet(BaseModelViewSet):
 class UniversityProgramViewSet(BaseModelViewSet):
     queryset = UniversityProgram.objects.select_related("university").all()
     serializer_class = UniversityProgramSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated ]
     lookup_field = "slug"
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ["university", "program", "is_active"]
@@ -85,7 +85,7 @@ class UniversityProgramViewSet(BaseModelViewSet):
 class OfficeCostViewSet(BaseModelViewSet):
     queryset = OfficeCost.objects.select_related("agency", "created_by").all()
     serializer_class = OfficeCostSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated ]
     lookup_field = "slug"
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ["agency", "created_by", "is_active"]
@@ -96,7 +96,7 @@ class OfficeCostViewSet(BaseModelViewSet):
 class StudentCostViewSet(BaseModelViewSet):
     queryset = StudentCost.objects.select_related("agency", "customer", "created_by").all()
     serializer_class = StudentCostSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated ]
     lookup_field = "slug"
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ["agency", "customer", "created_by", "is_active"]
