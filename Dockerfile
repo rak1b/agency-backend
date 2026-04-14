@@ -1,5 +1,6 @@
 # Use Python base image
-FROM python:3.10-slim
+# Keep runtime aligned with local development (Django 6.x requires Python >=3.12).
+FROM python:3.12-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
