@@ -1,0 +1,744 @@
+Internal Server Error: /
+Traceback (most recent call last):
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/db/backends/utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/db/backends/sqlite3/base.py", line 360, in execute
+    return super().execute(query, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such table: security_blockedip
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/utils/deprecation.py", line 119, in __call__
+    response = self.process_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/security/middlewares/securityMiddleware.py", line 8, in process_request
+    if BlockedIP.objects.filter(ip_address=ip_addr).exists():
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/db/models/query.py", line 1296, in exists
+    return self.query.has_results(using=self.db)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/db/models/sql/query.py", line 674, in has_results
+    return compiler.has_results()
+           ^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/db/models/sql/compiler.py", line 1591, in has_results
+    return bool(self.execute_sql(SINGLE))
+                ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/db/models/sql/compiler.py", line 1623, in execute_sql
+    cursor.execute(sql, params)
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/db/backends/utils.py", line 122, in execute
+    return super().execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/db/backends/utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/db/backends/utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/db/backends/utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/db/utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/db/backends/utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/db/backends/sqlite3/base.py", line 360, in execute
+    return super().execute(query, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+django.db.utils.OperationalError: no such table: security_blockedip
+"GET / HTTP/1.1" 500 141060
+Internal Server Error: /favicon.ico
+Traceback (most recent call last):
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/db/backends/utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/db/backends/sqlite3/base.py", line 360, in execute
+    return super().execute(query, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such table: security_blockedip
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/utils/deprecation.py", line 119, in __call__
+    response = self.process_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/security/middlewares/securityMiddleware.py", line 8, in process_request
+    if BlockedIP.objects.filter(ip_address=ip_addr).exists():
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/db/models/query.py", line 1296, in exists
+    return self.query.has_results(using=self.db)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/db/models/sql/query.py", line 674, in has_results
+    return compiler.has_results()
+           ^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/db/models/sql/compiler.py", line 1591, in has_results
+    return bool(self.execute_sql(SINGLE))
+                ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/db/models/sql/compiler.py", line 1623, in execute_sql
+    cursor.execute(sql, params)
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/db/backends/utils.py", line 122, in execute
+    return super().execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/db/backends/utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/db/backends/utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/db/backends/utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/db/utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/db/backends/utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/db/backends/sqlite3/base.py", line 360, in execute
+    return super().execute(query, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+django.db.utils.OperationalError: no such table: security_blockedip
+"GET /favicon.ico HTTP/1.1" 500 141048
+Internal Server Error: /api/v1/order/web/additional-order/
+Traceback (most recent call last):
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/db/backends/utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/db/backends/sqlite3/base.py", line 360, in execute
+    return super().execute(query, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such table: order_additionalorder
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/views/decorators/csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/rest_framework/viewsets.py", line 125, in view
+    return self.dispatch(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/rest_framework/views.py", line 515, in dispatch
+    response = self.handle_exception(exc)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/rest_framework/views.py", line 475, in handle_exception
+    self.raise_uncaught_exception(exc)
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/rest_framework/views.py", line 486, in raise_uncaught_exception
+    raise exc
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/rest_framework/views.py", line 512, in dispatch
+    response = handler(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/rest_framework/mixins.py", line 40, in list
+    page = self.paginate_queryset(queryset)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/rest_framework/generics.py", line 175, in paginate_queryset
+    return self.paginator.paginate_queryset(queryset, self.request, view=self)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/rest_framework/pagination.py", line 211, in paginate_queryset
+    self.page = paginator.page(page_number)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/core/paginator.py", line 89, in page
+    number = self.validate_number(number)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/core/paginator.py", line 70, in validate_number
+    if number > self.num_pages:
+                ^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/utils/functional.py", line 47, in __get__
+    res = instance.__dict__[self.name] = self.func(instance)
+                                         ^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/core/paginator.py", line 116, in num_pages
+    if self.count == 0 and not self.allow_empty_first_page:
+       ^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/utils/functional.py", line 47, in __get__
+    res = instance.__dict__[self.name] = self.func(instance)
+                                         ^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/core/paginator.py", line 110, in count
+    return c()
+           ^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/db/models/query.py", line 604, in count
+    return self.query.get_count(using=self.db)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/db/models/sql/query.py", line 644, in get_count
+    return obj.get_aggregation(using, {"__count": Count("*")})["__count"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/db/models/sql/query.py", line 626, in get_aggregation
+    result = compiler.execute_sql(SINGLE)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/db/models/sql/compiler.py", line 1623, in execute_sql
+    cursor.execute(sql, params)
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/db/backends/utils.py", line 122, in execute
+    return super().execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/db/backends/utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/db/backends/utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/db/backends/utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/db/utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/db/backends/utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/db/backends/sqlite3/base.py", line 360, in execute
+    return super().execute(query, params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+django.db.utils.OperationalError: no such table: order_additionalorder
+"GET /api/v1/order/web/additional-order/ HTTP/1.1" 500 31973
+Internal Server Error: /api/schema/
+Traceback (most recent call last):
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/views/decorators/csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/views/generic/base.py", line 105, in view
+    return self.dispatch(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/contrib/auth/mixins.py", line 73, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/rest_framework/views.py", line 515, in dispatch
+    response = self.handle_exception(exc)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/rest_framework/views.py", line 475, in handle_exception
+    self.raise_uncaught_exception(exc)
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/rest_framework/views.py", line 486, in raise_uncaught_exception
+    raise exc
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/rest_framework/views.py", line 512, in dispatch
+    response = handler(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/views.py", line 84, in get
+    return self._get_schema_response(request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/views.py", line 92, in _get_schema_response
+    data=generator.get_schema(request=request, public=self.serve_public),
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/generators.py", line 285, in get_schema
+    paths=self.parse(request, public),
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/generators.py", line 256, in parse
+    operation = view.schema.get_operation(
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/openapi.py", line 112, in get_operation
+    operation['responses'] = self._get_response_bodies()
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/openapi.py", line 1397, in _get_response_bodies
+    return {'200': self._get_response_for_code(response_serializers, '200', direction=direction)}
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/openapi.py", line 1453, in _get_response_for_code
+    component = self.resolve_serializer(serializer, direction)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/openapi.py", line 1648, in resolve_serializer
+    component.schema = self._map_serializer(serializer, direction, bypass_extensions)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/openapi.py", line 949, in _map_serializer
+    schema = self._map_basic_serializer(serializer, direction)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/openapi.py", line 1048, in _map_basic_serializer
+    schema = self._map_serializer_field(field, direction)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/openapi.py", line 679, in _map_serializer_field
+    schema = self._unwrap_list_serializer(field, direction)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/openapi.py", line 1429, in _unwrap_list_serializer
+    result = self._unwrap_list_serializer(serializer.child, direction)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/openapi.py", line 1426, in _unwrap_list_serializer
+    component = self.resolve_serializer(serializer, direction)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/openapi.py", line 1648, in resolve_serializer
+    component.schema = self._map_serializer(serializer, direction, bypass_extensions)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/openapi.py", line 949, in _map_serializer
+    schema = self._map_basic_serializer(serializer, direction)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/openapi.py", line 1042, in _map_basic_serializer
+    for field in serializer.fields.values():
+                 ^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/utils/functional.py", line 47, in __get__
+    res = instance.__dict__[self.name] = self.func(instance)
+                                         ^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/rest_framework/serializers.py", line 374, in fields
+    for key, value in self.get_fields().items():
+                      ^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/rest_framework/serializers.py", line 1105, in get_fields
+    field_class, field_kwargs = self.build_field(
+                                ^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/rest_framework/serializers.py", line 1251, in build_field
+    return self.build_unknown_field(field_name, model_class)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/rest_framework/serializers.py", line 1369, in build_unknown_field
+    raise ImproperlyConfigured(
+django.core.exceptions.ImproperlyConfigured: Field name `has_serial_number` is not valid for model `AdditionalOrderAccessories` in `order.api.web.serializers.AdditionalOrderAccessoriesSerializer`.
+"GET /api/schema/ HTTP/1.1" 500 238328
+Internal Server Error: /api/schema/
+Traceback (most recent call last):
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/views/decorators/csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/views/generic/base.py", line 105, in view
+    return self.dispatch(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/contrib/auth/mixins.py", line 73, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/rest_framework/views.py", line 515, in dispatch
+    response = self.handle_exception(exc)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/rest_framework/views.py", line 475, in handle_exception
+    self.raise_uncaught_exception(exc)
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/rest_framework/views.py", line 486, in raise_uncaught_exception
+    raise exc
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/rest_framework/views.py", line 512, in dispatch
+    response = handler(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/views.py", line 84, in get
+    return self._get_schema_response(request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/views.py", line 92, in _get_schema_response
+    data=generator.get_schema(request=request, public=self.serve_public),
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/generators.py", line 285, in get_schema
+    paths=self.parse(request, public),
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/generators.py", line 256, in parse
+    operation = view.schema.get_operation(
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/openapi.py", line 112, in get_operation
+    operation['responses'] = self._get_response_bodies()
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/openapi.py", line 1397, in _get_response_bodies
+    return {'200': self._get_response_for_code(response_serializers, '200', direction=direction)}
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/openapi.py", line 1453, in _get_response_for_code
+    component = self.resolve_serializer(serializer, direction)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/openapi.py", line 1648, in resolve_serializer
+    component.schema = self._map_serializer(serializer, direction, bypass_extensions)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/openapi.py", line 949, in _map_serializer
+    schema = self._map_basic_serializer(serializer, direction)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/openapi.py", line 1048, in _map_basic_serializer
+    schema = self._map_serializer_field(field, direction)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/openapi.py", line 679, in _map_serializer_field
+    schema = self._unwrap_list_serializer(field, direction)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/openapi.py", line 1429, in _unwrap_list_serializer
+    result = self._unwrap_list_serializer(serializer.child, direction)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/openapi.py", line 1426, in _unwrap_list_serializer
+    component = self.resolve_serializer(serializer, direction)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/openapi.py", line 1648, in resolve_serializer
+    component.schema = self._map_serializer(serializer, direction, bypass_extensions)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/openapi.py", line 949, in _map_serializer
+    schema = self._map_basic_serializer(serializer, direction)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/openapi.py", line 1042, in _map_basic_serializer
+    for field in serializer.fields.values():
+                 ^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/utils/functional.py", line 47, in __get__
+    res = instance.__dict__[self.name] = self.func(instance)
+                                         ^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/rest_framework/serializers.py", line 374, in fields
+    for key, value in self.get_fields().items():
+                      ^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/rest_framework/serializers.py", line 1105, in get_fields
+    field_class, field_kwargs = self.build_field(
+                                ^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/rest_framework/serializers.py", line 1251, in build_field
+    return self.build_unknown_field(field_name, model_class)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/rest_framework/serializers.py", line 1369, in build_unknown_field
+    raise ImproperlyConfigured(
+django.core.exceptions.ImproperlyConfigured: Field name `has_serial_number` is not valid for model `AdditionalOrderAccessories` in `order.api.web.serializers.AdditionalOrderAccessoriesSerializer`.
+"GET /api/schema/ HTTP/1.1" 500 238328
+Internal Server Error: /api/schema/
+Traceback (most recent call last):
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/views/decorators/csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/views/generic/base.py", line 105, in view
+    return self.dispatch(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/contrib/auth/mixins.py", line 73, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/rest_framework/views.py", line 515, in dispatch
+    response = self.handle_exception(exc)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/rest_framework/views.py", line 475, in handle_exception
+    self.raise_uncaught_exception(exc)
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/rest_framework/views.py", line 486, in raise_uncaught_exception
+    raise exc
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/rest_framework/views.py", line 512, in dispatch
+    response = handler(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/views.py", line 84, in get
+    return self._get_schema_response(request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/views.py", line 92, in _get_schema_response
+    data=generator.get_schema(request=request, public=self.serve_public),
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/generators.py", line 285, in get_schema
+    paths=self.parse(request, public),
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/generators.py", line 256, in parse
+    operation = view.schema.get_operation(
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/openapi.py", line 112, in get_operation
+    operation['responses'] = self._get_response_bodies()
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/openapi.py", line 1397, in _get_response_bodies
+    return {'200': self._get_response_for_code(response_serializers, '200', direction=direction)}
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/openapi.py", line 1453, in _get_response_for_code
+    component = self.resolve_serializer(serializer, direction)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/openapi.py", line 1648, in resolve_serializer
+    component.schema = self._map_serializer(serializer, direction, bypass_extensions)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/openapi.py", line 949, in _map_serializer
+    schema = self._map_basic_serializer(serializer, direction)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/openapi.py", line 1048, in _map_basic_serializer
+    schema = self._map_serializer_field(field, direction)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/openapi.py", line 679, in _map_serializer_field
+    schema = self._unwrap_list_serializer(field, direction)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/openapi.py", line 1429, in _unwrap_list_serializer
+    result = self._unwrap_list_serializer(serializer.child, direction)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/openapi.py", line 1426, in _unwrap_list_serializer
+    component = self.resolve_serializer(serializer, direction)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/openapi.py", line 1648, in resolve_serializer
+    component.schema = self._map_serializer(serializer, direction, bypass_extensions)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/openapi.py", line 949, in _map_serializer
+    schema = self._map_basic_serializer(serializer, direction)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/openapi.py", line 1042, in _map_basic_serializer
+    for field in serializer.fields.values():
+                 ^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/utils/functional.py", line 47, in __get__
+    res = instance.__dict__[self.name] = self.func(instance)
+                                         ^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/rest_framework/serializers.py", line 374, in fields
+    for key, value in self.get_fields().items():
+                      ^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/rest_framework/serializers.py", line 1105, in get_fields
+    field_class, field_kwargs = self.build_field(
+                                ^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/rest_framework/serializers.py", line 1251, in build_field
+    return self.build_unknown_field(field_name, model_class)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/rest_framework/serializers.py", line 1369, in build_unknown_field
+    raise ImproperlyConfigured(
+django.core.exceptions.ImproperlyConfigured: Field name `has_serial_number` is not valid for model `AdditionalOrderAccessories` in `order.api.web.serializers.AdditionalOrderAccessoriesSerializer`.
+"GET /api/schema/ HTTP/1.1" 500 238328
+Internal Server Error: /api/schema/
+Traceback (most recent call last):
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/views/decorators/csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/views/generic/base.py", line 105, in view
+    return self.dispatch(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/contrib/auth/mixins.py", line 73, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/rest_framework/views.py", line 515, in dispatch
+    response = self.handle_exception(exc)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/rest_framework/views.py", line 475, in handle_exception
+    self.raise_uncaught_exception(exc)
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/rest_framework/views.py", line 486, in raise_uncaught_exception
+    raise exc
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/rest_framework/views.py", line 512, in dispatch
+    response = handler(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/views.py", line 84, in get
+    return self._get_schema_response(request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/views.py", line 92, in _get_schema_response
+    data=generator.get_schema(request=request, public=self.serve_public),
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/generators.py", line 285, in get_schema
+    paths=self.parse(request, public),
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/generators.py", line 256, in parse
+    operation = view.schema.get_operation(
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/openapi.py", line 112, in get_operation
+    operation['responses'] = self._get_response_bodies()
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/openapi.py", line 1397, in _get_response_bodies
+    return {'200': self._get_response_for_code(response_serializers, '200', direction=direction)}
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/openapi.py", line 1453, in _get_response_for_code
+    component = self.resolve_serializer(serializer, direction)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/openapi.py", line 1648, in resolve_serializer
+    component.schema = self._map_serializer(serializer, direction, bypass_extensions)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/openapi.py", line 949, in _map_serializer
+    schema = self._map_basic_serializer(serializer, direction)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/openapi.py", line 1048, in _map_basic_serializer
+    schema = self._map_serializer_field(field, direction)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/openapi.py", line 679, in _map_serializer_field
+    schema = self._unwrap_list_serializer(field, direction)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/openapi.py", line 1429, in _unwrap_list_serializer
+    result = self._unwrap_list_serializer(serializer.child, direction)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/openapi.py", line 1426, in _unwrap_list_serializer
+    component = self.resolve_serializer(serializer, direction)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/openapi.py", line 1648, in resolve_serializer
+    component.schema = self._map_serializer(serializer, direction, bypass_extensions)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/openapi.py", line 949, in _map_serializer
+    schema = self._map_basic_serializer(serializer, direction)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/openapi.py", line 1042, in _map_basic_serializer
+    for field in serializer.fields.values():
+                 ^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/utils/functional.py", line 47, in __get__
+    res = instance.__dict__[self.name] = self.func(instance)
+                                         ^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/rest_framework/serializers.py", line 374, in fields
+    for key, value in self.get_fields().items():
+                      ^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/rest_framework/serializers.py", line 1105, in get_fields
+    field_class, field_kwargs = self.build_field(
+                                ^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/rest_framework/serializers.py", line 1251, in build_field
+    return self.build_unknown_field(field_name, model_class)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/rest_framework/serializers.py", line 1369, in build_unknown_field
+    raise ImproperlyConfigured(
+django.core.exceptions.ImproperlyConfigured: Field name `has_serial_number` is not valid for model `AdditionalOrderAccessories` in `order.api.web.serializers.AdditionalOrderAccessoriesSerializer`.
+"GET /api/schema/ HTTP/1.1" 500 238328
+Internal Server Error: /api/schema/
+Traceback (most recent call last):
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/views/decorators/csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/views/generic/base.py", line 105, in view
+    return self.dispatch(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/contrib/auth/mixins.py", line 73, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/rest_framework/views.py", line 515, in dispatch
+    response = self.handle_exception(exc)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/rest_framework/views.py", line 475, in handle_exception
+    self.raise_uncaught_exception(exc)
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/rest_framework/views.py", line 486, in raise_uncaught_exception
+    raise exc
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/rest_framework/views.py", line 512, in dispatch
+    response = handler(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/views.py", line 84, in get
+    return self._get_schema_response(request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/views.py", line 92, in _get_schema_response
+    data=generator.get_schema(request=request, public=self.serve_public),
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/generators.py", line 285, in get_schema
+    paths=self.parse(request, public),
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/generators.py", line 256, in parse
+    operation = view.schema.get_operation(
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/openapi.py", line 112, in get_operation
+    operation['responses'] = self._get_response_bodies()
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/openapi.py", line 1397, in _get_response_bodies
+    return {'200': self._get_response_for_code(response_serializers, '200', direction=direction)}
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/openapi.py", line 1453, in _get_response_for_code
+    component = self.resolve_serializer(serializer, direction)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/openapi.py", line 1648, in resolve_serializer
+    component.schema = self._map_serializer(serializer, direction, bypass_extensions)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/openapi.py", line 949, in _map_serializer
+    schema = self._map_basic_serializer(serializer, direction)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/openapi.py", line 1048, in _map_basic_serializer
+    schema = self._map_serializer_field(field, direction)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/openapi.py", line 679, in _map_serializer_field
+    schema = self._unwrap_list_serializer(field, direction)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/openapi.py", line 1429, in _unwrap_list_serializer
+    result = self._unwrap_list_serializer(serializer.child, direction)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/openapi.py", line 1426, in _unwrap_list_serializer
+    component = self.resolve_serializer(serializer, direction)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/openapi.py", line 1648, in resolve_serializer
+    component.schema = self._map_serializer(serializer, direction, bypass_extensions)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/openapi.py", line 949, in _map_serializer
+    schema = self._map_basic_serializer(serializer, direction)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/openapi.py", line 1042, in _map_basic_serializer
+    for field in serializer.fields.values():
+                 ^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/utils/functional.py", line 47, in __get__
+    res = instance.__dict__[self.name] = self.func(instance)
+                                         ^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/rest_framework/serializers.py", line 374, in fields
+    for key, value in self.get_fields().items():
+                      ^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/rest_framework/serializers.py", line 1081, in get_fields
+    field_names = self.get_field_names(declared_fields, info)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/rest_framework/serializers.py", line 1146, in get_field_names
+    assert not (fields and exclude), (
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Cannot set both 'fields' and 'exclude' options on serializer AdditionalOrderAccessoriesSerializer.
+"GET /api/schema/ HTTP/1.1" 500 230963
+Internal Server Error: /api/schema/
+Traceback (most recent call last):
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/views/decorators/csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/views/generic/base.py", line 105, in view
+    return self.dispatch(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/contrib/auth/mixins.py", line 73, in dispatch
+    return super().dispatch(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/rest_framework/views.py", line 515, in dispatch
+    response = self.handle_exception(exc)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/rest_framework/views.py", line 475, in handle_exception
+    self.raise_uncaught_exception(exc)
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/rest_framework/views.py", line 486, in raise_uncaught_exception
+    raise exc
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/rest_framework/views.py", line 512, in dispatch
+    response = handler(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/views.py", line 84, in get
+    return self._get_schema_response(request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/views.py", line 92, in _get_schema_response
+    data=generator.get_schema(request=request, public=self.serve_public),
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/generators.py", line 285, in get_schema
+    paths=self.parse(request, public),
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/generators.py", line 256, in parse
+    operation = view.schema.get_operation(
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/openapi.py", line 112, in get_operation
+    operation['responses'] = self._get_response_bodies()
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/openapi.py", line 1397, in _get_response_bodies
+    return {'200': self._get_response_for_code(response_serializers, '200', direction=direction)}
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/openapi.py", line 1453, in _get_response_for_code
+    component = self.resolve_serializer(serializer, direction)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/openapi.py", line 1648, in resolve_serializer
+    component.schema = self._map_serializer(serializer, direction, bypass_extensions)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/openapi.py", line 949, in _map_serializer
+    schema = self._map_basic_serializer(serializer, direction)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/openapi.py", line 1048, in _map_basic_serializer
+    schema = self._map_serializer_field(field, direction)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/openapi.py", line 679, in _map_serializer_field
+    schema = self._unwrap_list_serializer(field, direction)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/openapi.py", line 1429, in _unwrap_list_serializer
+    result = self._unwrap_list_serializer(serializer.child, direction)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/openapi.py", line 1426, in _unwrap_list_serializer
+    component = self.resolve_serializer(serializer, direction)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/openapi.py", line 1648, in resolve_serializer
+    component.schema = self._map_serializer(serializer, direction, bypass_extensions)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/openapi.py", line 949, in _map_serializer
+    schema = self._map_basic_serializer(serializer, direction)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/drf_spectacular/openapi.py", line 1042, in _map_basic_serializer
+    for field in serializer.fields.values():
+                 ^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/django/utils/functional.py", line 47, in __get__
+    res = instance.__dict__[self.name] = self.func(instance)
+                                         ^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/rest_framework/serializers.py", line 374, in fields
+    for key, value in self.get_fields().items():
+                      ^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/rest_framework/serializers.py", line 1081, in get_fields
+    field_names = self.get_field_names(declared_fields, info)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Project_and_Practices/Devsstream_Projects/Devsstream2025/ps-Inventory-Backend/.venv/lib/python3.12/site-packages/rest_framework/serializers.py", line 1146, in get_field_names
+    assert not (fields and exclude), (
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Cannot set both 'fields' and 'exclude' options on serializer AdditionalOrderAccessoriesSerializer.
+"GET /api/schema/ HTTP/1.1" 500 230963

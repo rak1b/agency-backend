@@ -1,0 +1,4957 @@
+{'status': 'error', 'message': 'supplier_id is required as query/body param'}
+{'status': 'error', 'errors': ['Missing required columns: serial number, part number']}
+{'status': 'error', 'errors': ['Missing required columns: serial number, part number']}
+{'status': 'error', 'errors': ['Row 1: Product model with title A35-000-A6-0U-MG1 not found', 'Row 2: Product model with title A35-000-A6-0U-MG1 not found', 'Row 3: Product model with title A35-000-A6-0U-MG1 not found', 'Row 4: Product model with title A35-000-A6-0U-MG1 not found', 'Row 5: Product model with title A35-000-A6-0U-MG1 not found', 'Row 6: Product model with title A35-000-A6-0U-MG1 not found', 'Row 7: Product model with title A35-000-A6-0U-MG1 not found', 'Row 8: Product model with title A35-000-A6-0U-MG1 not found', 'Row 9: Product model with title A35-000-A6-0U-MG1 not found', 'Row 10: Product model with title A35-000-A6-0U-MG1 not found', 'Row 11: Product model with title A35-000-A6-0U-MG1 not found', 'Row 12: Product model with title A35-000-A6-0U-MG1 not found', 'Row 13: Product model with title A35-000-A6-0U-MG1 not found', 'Row 14: Product model with title A35-000-A6-0U-MG1 not found', 'Row 15: Product model with title A35-000-A6-0U-MG1 not found', 'Row 16: Product model with title A35-000-A6-0U-MG1 not found', 'Row 17: Product model with title A35-000-A6-0U-MG1 not found', 'Row 18: Product model with title A35-000-A6-0U-MG1 not found', 'Row 19: Product model with title A35-000-A6-0U-MG1 not found', 'Row 20: Product model with title A35-000-A6-0U-MG1 not found', 'Row 21: Product model with title A35-000-A6-0U-MG1 not found', 'Row 22: Product model with title A35-000-A6-0U-MG1 not found', 'Row 23: Product model with title A35-000-A6-0U-MG1 not found', 'Row 24: Product model with title A35-000-A6-0U-MG1 not found', 'Row 25: Product model with title A35-000-A6-0U-MG1 not found', 'Row 26: Product model with title A35-000-A6-0U-MG1 not found', 'Row 27: Product model with title A35-000-A6-0U-MG1 not found', 'Row 28: Product model with title A35-000-A6-0U-MG1 not found', 'Row 29: Product model with title A35-000-A6-0U-MG1 not found', 'Row 30: Product model with title A35-000-A6-0U-MG1 not found', 'Row 31: Product model with title A920PRO-2AW-A6-MU not found', 'Row 32: Product model with title A920PRO-2AW-A6-MU not found', 'Row 33: Product model with title A920PRO-2AW-A6-MU not found', 'Row 34: Product model with title A920PRO-2AW-A6-MU not found', 'Row 35: Product model with title A920PRO-2AW-A6-MU not found', 'Row 36: Product model with title A920PRO-2AW-A6-MU not found', 'Row 37: Product model with title A920PRO-2AW-A6-MU not found', 'Row 38: Product model with title A920PRO-2AW-A6-MU not found', 'Row 39: Product model with title A920PRO-2AW-A6-MU not found', 'Row 40: Product model with title A920PRO-2AW-A6-MU not found', 'Row 41: Product model with title A920PRO-2AW-A6-MU not found', 'Row 42: Product model with title A920PRO-2AW-A6-MU not found', 'Row 43: Product model with title A920PRO-2AW-A6-MU not found', 'Row 44: Product model with title A920PRO-2AW-A6-MU not found', 'Row 45: Product model with title A920PRO-2AW-A6-MU not found', 'Row 46: Product model with title A920PRO-2AW-A6-MU not found', 'Row 47: Product model with title A920PRO-2AW-A6-MU not found', 'Row 48: Product model with title A920PRO-2AW-A6-MU not found', 'Row 49: Product model with title A920PRO-2AW-A6-MU not found', 'Row 50: Product model with title A920PRO-2AW-A6-MU not found', 'Row 51: Product model with title A920PRO-2AW-A6-MU not found', 'Row 52: Product model with title A920PRO-2AW-A6-MU not found', 'Row 53: Product model with title A920PRO-2AW-A6-MU not found', 'Row 54: Product model with title A920PRO-2AW-A6-MU not found', 'Row 55: Product model with title A920PRO-2AW-A6-MU not found', 'Row 56: Product model with title A920PRO-2AW-A6-MU not found', 'Row 57: Product model with title A920PRO-2AW-A6-MU not found', 'Row 58: Product model with title A920PRO-2AW-A6-MU not found', 'Row 59: Product model with title A920PRO-2AW-A6-MU not found', 'Row 60: Product model with title A920PRO-2AW-A6-MU not found', 'Row 61: Product model with title A920PRO-2AW-A6-MU not found', 'Row 62: Product model with title A920PRO-2AW-A6-MU not found', 'Row 63: Product model with title A920PRO-2AW-A6-MU not found', 'Row 64: Product model with title A920PRO-2AW-A6-MU not found', 'Row 65: Product model with title A920PRO-2AW-A6-MU not found', 'Row 66: Product model with title A920PRO-2AW-A6-MU not found', 'Row 67: Product model with title A920PRO-2AW-A6-MU not found', 'Row 68: Product model with title A920PRO-2AW-A6-MU not found', 'Row 69: Product model with title A920PRO-2AW-A6-MU not found', 'Row 70: Product model with title A920PRO-2AW-A6-MU not found', 'Row 71: Product model with title A920PRO-2AW-A6-MU not found', 'Row 72: Product model with title A920PRO-2AW-A6-MU not found', 'Row 73: Product model with title A920PRO-2AW-A6-MU not found', 'Row 74: Product model with title A920PRO-2AW-A6-MU not found', 'Row 75: Product model with title A920PRO-2AW-A6-MU not found', 'Row 76: Product model with title A920PRO-2AW-A6-MU not found', 'Row 77: Product model with title A920PRO-2AW-A6-MU not found', 'Row 78: Product model with title A920PRO-2AW-A6-MU not found', 'Row 79: Product model with title A920PRO-2AW-A6-MU not found', 'Row 80: Product model with title A920PRO-2AW-A6-MU not found', 'Row 81: Product model with title A920PRO-2AW-A6-MU not found', 'Row 82: Product model with title A920PRO-2AW-A6-MU not found', 'Row 83: Product model with title A920PRO-2AW-A6-MU not found', 'Row 84: Product model with title A920PRO-2AW-A6-MU not found', 'Row 85: Product model with title A920PRO-2AW-A6-MU not found', 'Row 86: Product model with title A920PRO-2AW-A6-MU not found', 'Row 87: Product model with title A920PRO-2AW-A6-MU not found', 'Row 88: Product model with title A920PRO-2AW-A6-MU not found', 'Row 89: Product model with title A920PRO-2AW-A6-MU not found', 'Row 90: Product model with title A920PRO-2AW-A6-MU not found', 'Row 91: Product model with title A920PRO-2AW-A6-MU not found', 'Row 92: Product model with title A920PRO-2AW-A6-MU not found', 'Row 93: Product model with title A920PRO-2AW-A6-MU not found', 'Row 94: Product model with title A920PRO-2AW-A6-MU not found', 'Row 95: Product model with title A920PRO-2AW-A6-MU not found', 'Row 96: Product model with title A920PRO-2AW-A6-MU not found', 'Row 97: Product model with title A920PRO-2AW-A6-MU not found', 'Row 98: Product model with title A920PRO-2AW-A6-MU not found', 'Row 99: Product model with title A920PRO-2AW-A6-MU not found', 'Row 100: Product model with title A920PRO-2AW-A6-MU not found', 'Row 101: Product model with title A920PRO-2AW-A6-MU not found', 'Row 102: Product model with title A920PRO-2AW-A6-MU not found', 'Row 103: Product model with title A920PRO-2AW-A6-MU not found', 'Row 104: Product model with title A920PRO-2AW-A6-MU not found', 'Row 105: Product model with title A920PRO-2AW-A6-MU not found', 'Row 106: Product model with title A920PRO-2AW-A6-MU not found', 'Row 107: Product model with title A920PRO-2AW-A6-MU not found', 'Row 108: Product model with title A920PRO-2AW-A6-MU not found', 'Row 109: Product model with title A920PRO-2AW-A6-MU not found', 'Row 110: Product model with title A920PRO-2AW-A6-MU not found', 'Row 111: Product model with title A920PRO-2AW-A6-MU not found', 'Row 112: Product model with title A920PRO-2AW-A6-MU not found', 'Row 113: Product model with title A920PRO-2AW-A6-MU not found', 'Row 114: Product model with title A920PRO-2AW-A6-MU not found', 'Row 115: Product model with title A920PRO-2AW-A6-MU not found', 'Row 116: Product model with title A920PRO-2AW-A6-MU not found', 'Row 117: Product model with title A920PRO-2AW-A6-MU not found', 'Row 118: Product model with title A920PRO-2AW-A6-MU not found', 'Row 119: Product model with title A920PRO-2AW-A6-MU not found', 'Row 120: Product model with title A920PRO-2AW-A6-MU not found', 'Row 121: Product model with title A920PRO-2AW-A6-MU not found', 'Row 122: Product model with title A920PRO-2AW-A6-MU not found', 'Row 123: Product model with title A920PRO-2AW-A6-MU not found', 'Row 124: Product model with title A920PRO-2AW-A6-MU not found', 'Row 125: Product model with title A920PRO-2AW-A6-MU not found', 'Row 126: Product model with title A920PRO-2AW-A6-MU not found', 'Row 127: Product model with title A920PRO-2AW-A6-MU not found', 'Row 128: Product model with title A920PRO-2AW-A6-MU not found', 'Row 129: Product model with title A920PRO-2AW-A6-MU not found', 'Row 130: Product model with title A920PRO-2AW-A6-MU not found']}
+
+
+----------------------------------------
+2025-09-18 09:26:08 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:08 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:08 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:08 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:08 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:08 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:08 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:08 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:08 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:08 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:08 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:08 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:08 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:08 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:08 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:08 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:08 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:08 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:08 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:08 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:08 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:08 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:08 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:08 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:08 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:08 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:08 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:08 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:08 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:08 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+{'status': 'error', 'errors': ['Row 31: Product model with title A920PRO not found', 'Row 32: Product model with title A920PRO not found', 'Row 33: Product model with title A920PRO not found', 'Row 34: Product model with title A920PRO not found', 'Row 35: Product model with title A920PRO not found', 'Row 36: Product model with title A920PRO not found', 'Row 37: Product model with title A920PRO not found', 'Row 38: Product model with title A920PRO not found', 'Row 39: Product model with title A920PRO not found', 'Row 40: Product model with title A920PRO not found', 'Row 41: Product model with title A920PRO not found', 'Row 42: Product model with title A920PRO not found', 'Row 43: Product model with title A920PRO not found', 'Row 44: Product model with title A920PRO not found', 'Row 45: Product model with title A920PRO not found', 'Row 46: Product model with title A920PRO not found', 'Row 47: Product model with title A920PRO not found', 'Row 48: Product model with title A920PRO not found', 'Row 49: Product model with title A920PRO not found', 'Row 50: Product model with title A920PRO not found', 'Row 51: Product model with title A920PRO not found', 'Row 52: Product model with title A920PRO not found', 'Row 53: Product model with title A920PRO not found', 'Row 54: Product model with title A920PRO not found', 'Row 55: Product model with title A920PRO not found', 'Row 56: Product model with title A920PRO not found', 'Row 57: Product model with title A920PRO not found', 'Row 58: Product model with title A920PRO not found', 'Row 59: Product model with title A920PRO not found', 'Row 60: Product model with title A920PRO not found', 'Row 61: Product model with title A920PRO not found', 'Row 62: Product model with title A920PRO not found', 'Row 63: Product model with title A920PRO not found', 'Row 64: Product model with title A920PRO not found', 'Row 65: Product model with title A920PRO not found', 'Row 66: Product model with title A920PRO not found', 'Row 67: Product model with title A920PRO not found', 'Row 68: Product model with title A920PRO not found', 'Row 69: Product model with title A920PRO not found', 'Row 70: Product model with title A920PRO not found', 'Row 71: Product model with title A920PRO not found', 'Row 72: Product model with title A920PRO not found', 'Row 73: Product model with title A920PRO not found', 'Row 74: Product model with title A920PRO not found', 'Row 75: Product model with title A920PRO not found', 'Row 76: Product model with title A920PRO not found', 'Row 77: Product model with title A920PRO not found', 'Row 78: Product model with title A920PRO not found', 'Row 79: Product model with title A920PRO not found', 'Row 80: Product model with title A920PRO not found', 'Row 81: Product model with title A920PRO not found', 'Row 82: Product model with title A920PRO not found', 'Row 83: Product model with title A920PRO not found', 'Row 84: Product model with title A920PRO not found', 'Row 85: Product model with title A920PRO not found', 'Row 86: Product model with title A920PRO not found', 'Row 87: Product model with title A920PRO not found', 'Row 88: Product model with title A920PRO not found', 'Row 89: Product model with title A920PRO not found', 'Row 90: Product model with title A920PRO not found', 'Row 91: Product model with title A920PRO not found', 'Row 92: Product model with title A920PRO not found', 'Row 93: Product model with title A920PRO not found', 'Row 94: Product model with title A920PRO not found', 'Row 95: Product model with title A920PRO not found', 'Row 96: Product model with title A920PRO not found', 'Row 97: Product model with title A920PRO not found', 'Row 98: Product model with title A920PRO not found', 'Row 99: Product model with title A920PRO not found', 'Row 100: Product model with title A920PRO not found', 'Row 101: Product model with title A920PRO not found', 'Row 102: Product model with title A920PRO not found', 'Row 103: Product model with title A920PRO not found', 'Row 104: Product model with title A920PRO not found', 'Row 105: Product model with title A920PRO not found', 'Row 106: Product model with title A920PRO not found', 'Row 107: Product model with title A920PRO not found', 'Row 108: Product model with title A920PRO not found', 'Row 109: Product model with title A920PRO not found', 'Row 110: Product model with title A920PRO not found', 'Row 111: Product model with title A920PRO not found', 'Row 112: Product model with title A920PRO not found', 'Row 113: Product model with title A920PRO not found', 'Row 114: Product model with title A920PRO not found', 'Row 115: Product model with title A920PRO not found', 'Row 116: Product model with title A920PRO not found', 'Row 117: Product model with title A920PRO not found', 'Row 118: Product model with title A920PRO not found', 'Row 119: Product model with title A920PRO not found', 'Row 120: Product model with title A920PRO not found', 'Row 121: Product model with title A920PRO not found', 'Row 122: Product model with title A920PRO not found', 'Row 123: Product model with title A920PRO not found', 'Row 124: Product model with title A920PRO not found', 'Row 125: Product model with title A920PRO not found', 'Row 126: Product model with title A920PRO not found', 'Row 127: Product model with title A920PRO not found', 'Row 128: Product model with title A920PRO not found', 'Row 129: Product model with title A920PRO not found', 'Row 130: Product model with title A920PRO not found']}
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:28 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:29 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:29 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:29 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:29 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:29 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:29 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:29 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:29 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:29 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:29 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:29 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:29 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:29 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:29 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:29 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:29 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:29 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:29 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:29 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:29 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:29 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:29 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:29 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:29 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:29 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:29 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:29 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:29 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:29 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:29 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:26:29 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:27:14 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 09:29:53 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+{'status': 'error', 'errors': ['Row 1: Product with this serial number (2290386042) already exists', 'Row 2: Product with this serial number (2290386043) already exists', 'Row 3: Product with this serial number (2290386044) already exists', 'Row 4: Product with this serial number (2290386045) already exists', 'Row 5: Product with this serial number (2290386046) already exists', 'Row 6: Product with this serial number (2290386250) already exists', 'Row 7: Product with this serial number (2290386251) already exists', 'Row 8: Product with this serial number (2290386254) already exists', 'Row 9: Product with this serial number (2290386255) already exists', 'Row 10: Product with this serial number (2290386256) already exists', 'Row 11: Product with this serial number (2290386847) already exists', 'Row 12: Product with this serial number (2290386848) already exists', 'Row 13: Product with this serial number (2290386849) already exists', 'Row 14: Product with this serial number (2290386850) already exists', 'Row 15: Product with this serial number (2290386851) already exists', 'Row 16: Product with this serial number (2290386852) already exists', 'Row 17: Product with this serial number (2290386853) already exists', 'Row 18: Product with this serial number (2290386854) already exists', 'Row 19: Product with this serial number (2290386855) already exists', 'Row 20: Product with this serial number (2290386856) already exists', 'Row 21: Product with this serial number (2290386857) already exists', 'Row 22: Product with this serial number (2290386858) already exists', 'Row 23: Product with this serial number (2290386859) already exists', 'Row 24: Product with this serial number (2290386860) already exists', 'Row 25: Product with this serial number (2290386861) already exists', 'Row 26: Product with this serial number (2290386862) already exists', 'Row 27: Product with this serial number (2290386863) already exists', 'Row 28: Product with this serial number (2290386864) already exists', 'Row 29: Product with this serial number (2290386865) already exists', 'Row 30: Product with this serial number (2290386866) already exists', 'Row 31: Product with this serial number (1854216168) already exists', 'Row 32: Product with this serial number (1854216169) already exists', 'Row 33: Product with this serial number (1854216170) already exists', 'Row 34: Product with this serial number (1854216171) already exists', 'Row 35: Product with this serial number (1854216172) already exists', 'Row 36: Product with this serial number (1854216173) already exists', 'Row 37: Product with this serial number (1854216174) already exists', 'Row 38: Product with this serial number (1854216175) already exists', 'Row 39: Product with this serial number (1854216176) already exists', 'Row 40: Product with this serial number (1854216177) already exists', 'Row 41: Product with this serial number (1854216178) already exists', 'Row 42: Product with this serial number (1854216179) already exists', 'Row 43: Product with this serial number (1854216180) already exists', 'Row 44: Product with this serial number (1854216181) already exists', 'Row 45: Product with this serial number (1854216182) already exists', 'Row 46: Product with this serial number (1854216183) already exists', 'Row 47: Product with this serial number (1854216184) already exists', 'Row 48: Product with this serial number (1854216185) already exists', 'Row 49: Product with this serial number (1854216186) already exists', 'Row 50: Product with this serial number (1854216187) already exists', 'Row 51: Product with this serial number (1854216528) already exists', 'Row 52: Product with this serial number (1854216529) already exists', 'Row 53: Product with this serial number (1854216530) already exists', 'Row 54: Product with this serial number (1854216531) already exists', 'Row 55: Product with this serial number (1854216532) already exists', 'Row 56: Product with this serial number (1854216533) already exists', 'Row 57: Product with this serial number (1854216534) already exists', 'Row 58: Product with this serial number (1854216535) already exists', 'Row 59: Product with this serial number (1854216536) already exists', 'Row 60: Product with this serial number (1854216537) already exists', 'Row 61: Product with this serial number (1854216538) already exists', 'Row 62: Product with this serial number (1854216539) already exists', 'Row 63: Product with this serial number (1854216540) already exists', 'Row 64: Product with this serial number (1854216541) already exists', 'Row 65: Product with this serial number (1854216542) already exists', 'Row 66: Product with this serial number (1854216543) already exists', 'Row 67: Product with this serial number (1854216544) already exists', 'Row 68: Product with this serial number (1854216545) already exists', 'Row 69: Product with this serial number (1854216546) already exists', 'Row 70: Product with this serial number (1854216547) already exists', 'Row 71: Product with this serial number (1854216608) already exists', 'Row 72: Product with this serial number (1854216609) already exists', 'Row 73: Product with this serial number (1854216610) already exists', 'Row 74: Product with this serial number (1854216611) already exists', 'Row 75: Product with this serial number (1854216612) already exists', 'Row 76: Product with this serial number (1854216613) already exists', 'Row 77: Product with this serial number (1854216614) already exists', 'Row 78: Product with this serial number (1854216615) already exists', 'Row 79: Product with this serial number (1854216616) already exists', 'Row 80: Product with this serial number (1854216617) already exists', 'Row 81: Product with this serial number (1854216618) already exists', 'Row 82: Product with this serial number (1854216619) already exists', 'Row 83: Product with this serial number (1854216620) already exists', 'Row 84: Product with this serial number (1854216621) already exists', 'Row 85: Product with this serial number (1854216622) already exists', 'Row 86: Product with this serial number (1854216623) already exists', 'Row 87: Product with this serial number (1854216624) already exists', 'Row 88: Product with this serial number (1854216625) already exists', 'Row 89: Product with this serial number (1854216626) already exists', 'Row 90: Product with this serial number (1854216627) already exists', 'Row 91: Product with this serial number (1854265698) already exists', 'Row 92: Product with this serial number (1854265699) already exists', 'Row 93: Product with this serial number (1854265700) already exists', 'Row 94: Product with this serial number (1854265701) already exists', 'Row 95: Product with this serial number (1854265702) already exists', 'Row 96: Product with this serial number (1854265703) already exists', 'Row 97: Product with this serial number (1854265704) already exists', 'Row 98: Product with this serial number (1854265705) already exists', 'Row 99: Product with this serial number (1854265706) already exists', 'Row 100: Product with this serial number (1854265707) already exists', 'Row 101: Product with this serial number (1854265708) already exists', 'Row 102: Product with this serial number (1854265709) already exists', 'Row 103: Product with this serial number (1854265710) already exists', 'Row 104: Product with this serial number (1854265711) already exists', 'Row 105: Product with this serial number (1854265712) already exists', 'Row 106: Product with this serial number (1854265713) already exists', 'Row 107: Product with this serial number (1854265714) already exists', 'Row 108: Product with this serial number (1854265715) already exists', 'Row 109: Product with this serial number (1854265716) already exists', 'Row 110: Product with this serial number (1854265717) already exists', 'Row 111: Product with this serial number (1854266138) already exists', 'Row 112: Product with this serial number (1854266139) already exists', 'Row 113: Product with this serial number (1854266140) already exists', 'Row 114: Product with this serial number (1854266141) already exists', 'Row 115: Product with this serial number (1854266142) already exists', 'Row 116: Product with this serial number (1854266143) already exists', 'Row 117: Product with this serial number (1854266144) already exists', 'Row 118: Product with this serial number (1854266145) already exists', 'Row 119: Product with this serial number (1854266146) already exists', 'Row 120: Product with this serial number (1854266147) already exists', 'Row 121: Product with this serial number (1854266148) already exists', 'Row 122: Product with this serial number (1854266149) already exists', 'Row 123: Product with this serial number (1854266150) already exists', 'Row 124: Product with this serial number (1854266151) already exists', 'Row 125: Product with this serial number (1854266152) already exists', 'Row 126: Product with this serial number (1854266153) already exists', 'Row 127: Product with this serial number (1854266154) already exists', 'Row 128: Product with this serial number (1854266155) already exists', 'Row 129: Product with this serial number (1854266156) already exists', 'Row 130: Product with this serial number (1854266157) already exists']}
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:33 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:34 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:34 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:34 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:34 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:34 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:34 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:34 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:34 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:34 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:34 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:34 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:34 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:34 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:34 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:34 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:34 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:34 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:34 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:34 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:34 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:34 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:34 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:34 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:34 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:34 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:34 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:34 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:34 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-09-18 10:33:34 - Product Import
+----------------------------------------
+Warning: Status 'IN_STOCK' doesn't have explicit condition requirements
+----------------------------------------
+
+
+{'status': 'error', 'errors': ['Row 1: Product with this serial number (2290386042) already exists', 'Row 2: Product with this serial number (2290386043) already exists', 'Row 3: Product with this serial number (2290386044) already exists', 'Row 4: Product with this serial number (2290386045) already exists', 'Row 5: Product with this serial number (2290386046) already exists', 'Row 6: Product with this serial number (2290386250) already exists', 'Row 7: Product with this serial number (2290386251) already exists', 'Row 8: Product with this serial number (2290386254) already exists', 'Row 9: Product with this serial number (2290386255) already exists', 'Row 10: Product with this serial number (2290386256) already exists', 'Row 11: Product with this serial number (2290386847) already exists', 'Row 12: Product with this serial number (2290386848) already exists', 'Row 13: Product with this serial number (2290386849) already exists', 'Row 14: Product with this serial number (2290386850) already exists', 'Row 15: Product with this serial number (2290386851) already exists', 'Row 16: Product with this serial number (2290386852) already exists', 'Row 17: Product with this serial number (2290386853) already exists', 'Row 18: Product with this serial number (2290386854) already exists', 'Row 19: Product with this serial number (2290386855) already exists', 'Row 20: Product with this serial number (2290386856) already exists', 'Row 21: Product with this serial number (2290386857) already exists', 'Row 22: Product with this serial number (2290386858) already exists', 'Row 23: Product with this serial number (2290386859) already exists', 'Row 24: Product with this serial number (2290386860) already exists', 'Row 25: Product with this serial number (2290386861) already exists', 'Row 26: Product with this serial number (2290386862) already exists', 'Row 27: Product with this serial number (2290386863) already exists', 'Row 28: Product with this serial number (2290386864) already exists', 'Row 29: Product with this serial number (2290386865) already exists', 'Row 30: Product with this serial number (2290386866) already exists', 'Row 31: Product with this serial number (1854216168) already exists', 'Row 32: Product with this serial number (1854216169) already exists', 'Row 33: Product with this serial number (1854216170) already exists', 'Row 34: Product with this serial number (1854216171) already exists', 'Row 35: Product with this serial number (1854216172) already exists', 'Row 36: Product with this serial number (1854216173) already exists', 'Row 37: Product with this serial number (1854216174) already exists', 'Row 38: Product with this serial number (1854216175) already exists', 'Row 39: Product with this serial number (1854216176) already exists', 'Row 40: Product with this serial number (1854216177) already exists', 'Row 41: Product with this serial number (1854216178) already exists', 'Row 42: Product with this serial number (1854216179) already exists', 'Row 43: Product with this serial number (1854216180) already exists', 'Row 44: Product with this serial number (1854216181) already exists', 'Row 45: Product with this serial number (1854216182) already exists', 'Row 46: Product with this serial number (1854216183) already exists', 'Row 47: Product with this serial number (1854216184) already exists', 'Row 48: Product with this serial number (1854216185) already exists', 'Row 49: Product with this serial number (1854216186) already exists', 'Row 50: Product with this serial number (1854216187) already exists', 'Row 51: Product with this serial number (1854216528) already exists', 'Row 52: Product with this serial number (1854216529) already exists', 'Row 53: Product with this serial number (1854216530) already exists', 'Row 54: Product with this serial number (1854216531) already exists', 'Row 55: Product with this serial number (1854216532) already exists', 'Row 56: Product with this serial number (1854216533) already exists', 'Row 57: Product with this serial number (1854216534) already exists', 'Row 58: Product with this serial number (1854216535) already exists', 'Row 59: Product with this serial number (1854216536) already exists', 'Row 60: Product with this serial number (1854216537) already exists', 'Row 61: Product with this serial number (1854216538) already exists', 'Row 62: Product with this serial number (1854216539) already exists', 'Row 63: Product with this serial number (1854216540) already exists', 'Row 64: Product with this serial number (1854216541) already exists', 'Row 65: Product with this serial number (1854216542) already exists', 'Row 66: Product with this serial number (1854216543) already exists', 'Row 67: Product with this serial number (1854216544) already exists', 'Row 68: Product with this serial number (1854216545) already exists', 'Row 69: Product with this serial number (1854216546) already exists', 'Row 70: Product with this serial number (1854216547) already exists', 'Row 71: Product with this serial number (1854216608) already exists', 'Row 72: Product with this serial number (1854216609) already exists', 'Row 73: Product with this serial number (1854216610) already exists', 'Row 74: Product with this serial number (1854216611) already exists', 'Row 75: Product with this serial number (1854216612) already exists', 'Row 76: Product with this serial number (1854216613) already exists', 'Row 77: Product with this serial number (1854216614) already exists', 'Row 78: Product with this serial number (1854216615) already exists', 'Row 79: Product with this serial number (1854216616) already exists', 'Row 80: Product with this serial number (1854216617) already exists', 'Row 81: Product with this serial number (1854216618) already exists', 'Row 82: Product with this serial number (1854216619) already exists', 'Row 83: Product with this serial number (1854216620) already exists', 'Row 84: Product with this serial number (1854216621) already exists', 'Row 85: Product with this serial number (1854216622) already exists', 'Row 86: Product with this serial number (1854216623) already exists', 'Row 87: Product with this serial number (1854216624) already exists', 'Row 88: Product with this serial number (1854216625) already exists', 'Row 89: Product with this serial number (1854216626) already exists', 'Row 90: Product with this serial number (1854216627) already exists', 'Row 91: Product with this serial number (1854265698) already exists', 'Row 92: Product with this serial number (1854265699) already exists', 'Row 93: Product with this serial number (1854265700) already exists', 'Row 94: Product with this serial number (1854265701) already exists', 'Row 95: Product with this serial number (1854265702) already exists', 'Row 96: Product with this serial number (1854265703) already exists', 'Row 97: Product with this serial number (1854265704) already exists', 'Row 98: Product with this serial number (1854265705) already exists', 'Row 99: Product with this serial number (1854265706) already exists', 'Row 100: Product with this serial number (1854265707) already exists', 'Row 101: Product with this serial number (1854265708) already exists', 'Row 102: Product with this serial number (1854265709) already exists', 'Row 103: Product with this serial number (1854265710) already exists', 'Row 104: Product with this serial number (1854265711) already exists', 'Row 105: Product with this serial number (1854265712) already exists', 'Row 106: Product with this serial number (1854265713) already exists', 'Row 107: Product with this serial number (1854265714) already exists', 'Row 108: Product with this serial number (1854265715) already exists', 'Row 109: Product with this serial number (1854265716) already exists', 'Row 110: Product with this serial number (1854265717) already exists', 'Row 111: Product with this serial number (1854266138) already exists', 'Row 112: Product with this serial number (1854266139) already exists', 'Row 113: Product with this serial number (1854266140) already exists', 'Row 114: Product with this serial number (1854266141) already exists', 'Row 115: Product with this serial number (1854266142) already exists', 'Row 116: Product with this serial number (1854266143) already exists', 'Row 117: Product with this serial number (1854266144) already exists', 'Row 118: Product with this serial number (1854266145) already exists', 'Row 119: Product with this serial number (1854266146) already exists', 'Row 120: Product with this serial number (1854266147) already exists', 'Row 121: Product with this serial number (1854266148) already exists', 'Row 122: Product with this serial number (1854266149) already exists', 'Row 123: Product with this serial number (1854266150) already exists', 'Row 124: Product with this serial number (1854266151) already exists', 'Row 125: Product with this serial number (1854266152) already exists', 'Row 126: Product with this serial number (1854266153) already exists', 'Row 127: Product with this serial number (1854266154) already exists', 'Row 128: Product with this serial number (1854266155) already exists', 'Row 129: Product with this serial number (1854266156) already exists', 'Row 130: Product with this serial number (1854266157) already exists']}

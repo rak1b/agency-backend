@@ -1,0 +1,4 @@
+https://chatgpt.com/share/e/68d3ea77-d6bc-8008-9d51-5f35a4018030
+
+
+celery -A Config worker --loglevel=info

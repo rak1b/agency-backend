@@ -1,0 +1,208 @@
+{'address_type': [ErrorDetail(string='This field is required.', code='required')], 'street_line1': [ErrorDetail(string='This field is required.', code='required')], 'contact_name': [ErrorDetail(string='This field is required.', code='required')], 'postcode': [ErrorDetail(string='This field is required.', code='required')], 'phone_number': [ErrorDetail(string='This field is required.', code='required')], 'mid': [ErrorDetail(string='This field is required.', code='required')]}
+
+
+----------------------------------------
+2025-10-24 14:42:52 - OrderSerializer
+----------------------------------------
+Creating order {'is_active': False, 'address_type': 'TRADING', 'street_line1': '123 API Test Street', 'street_line2': 'API Test City', 'contact_name': 'API Test Contact', 'postcode': 'AT1 1ST', 'phone_number': '01234567890', 'notes': 'API test order with file upload', 'is_same_soft_addons_for_all': False, 'mid': 'TEST_MID_001', 'trading_name': 'API Test Trading', 'merchant_name': 'API Test Merchant', 'merchant_mobile': '1234567890', 'merchant_email': 'apitest@example.com', 'status': 'ON_HOLD', 'auto_batch': False}
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-10-24 14:43:07 - OrderSerializer
+----------------------------------------
+Creating order {'is_active': False, 'address_type': 'TRADING', 'street_line1': '123 API Test Street', 'street_line2': 'API Test City', 'contact_name': 'API Test Contact', 'postcode': 'AT1 1ST', 'phone_number': '01234567890', 'notes': 'API test order with file upload', 'is_same_soft_addons_for_all': False, 'mid': 'TEST_MID_001', 'trading_name': 'API Test Trading', 'merchant_name': 'API Test Merchant', 'merchant_mobile': '1234567890', 'merchant_email': 'apitest@example.com', 'status': 'ON_HOLD', 'auto_batch': False}
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-10-24 14:43:32 - OrderSerializer
+----------------------------------------
+Creating order {'is_active': False, 'address_type': 'TRADING', 'street_line1': '123 API Test Street', 'street_line2': 'API Test City', 'contact_name': 'API Test Contact', 'postcode': 'AT1 1ST', 'phone_number': '01234567890', 'notes': 'API test order with file upload', 'is_same_soft_addons_for_all': False, 'mid': 'TEST_MID_001', 'trading_name': 'API Test Trading', 'merchant_name': 'API Test Merchant', 'merchant_mobile': '1234567890', 'merchant_email': 'apitest@example.com', 'status': 'ON_HOLD', 'auto_batch': False}
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-10-24 14:43:32 - OrderSerializer
+----------------------------------------
+Excel file received: None
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-10-24 14:43:32 - OrderSerializer
+----------------------------------------
+No excel file provided
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-10-24 14:44:32 - OrderSerializer
+----------------------------------------
+Creating order {'excel_file': <InMemoryUploadedFile: test_api_order.xlsx (application/vnd.openxmlformats-officedocument.spreadsheetml.sheet)>, 'is_active': False, 'address_type': 'TRADING', 'street_line1': '123 API Test Street', 'street_line2': 'API Test City', 'contact_name': 'API Test Contact', 'postcode': 'AT1 1ST', 'phone_number': '01234567890', 'notes': 'API test order with file upload', 'is_same_soft_addons_for_all': False, 'mid': 'TEST_MID_001', 'trading_name': 'API Test Trading', 'merchant_name': 'API Test Merchant', 'merchant_mobile': '1234567890', 'merchant_email': 'apitest@example.com', 'status': 'ON_HOLD', 'auto_batch': False}
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-10-24 14:44:32 - OrderSerializer
+----------------------------------------
+Excel file received: test_api_order.xlsx
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-10-24 14:44:32 - OrderSerializer
+----------------------------------------
+Excel file type: <class 'django.core.files.uploadedfile.InMemoryUploadedFile'>
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-10-24 14:44:32 - OrderSerializer
+----------------------------------------
+Excel file name: test_api_order.xlsx
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-10-24 14:44:32 - OrderSerializer
+----------------------------------------
+Excel file size: 31
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-10-24 14:44:34 - OrderSerializer
+----------------------------------------
+Excel file uploaded successfully: https://media-inventory.paymentsave.co.uk/test_api_order.xlsx
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-10-24 14:44:49 - OrderSerializer
+----------------------------------------
+Creating order {'excel_file': <InMemoryUploadedFile: test_api_order.xlsx (application/vnd.openxmlformats-officedocument.spreadsheetml.sheet)>, 'is_active': False, 'address_type': 'TRADING', 'street_line1': '123 API Test Street', 'street_line2': 'API Test City', 'contact_name': 'API Test Contact', 'postcode': 'AT1 1ST', 'phone_number': '01234567890', 'notes': 'API test order with file upload', 'is_same_soft_addons_for_all': False, 'mid': 'TEST_MID_001', 'trading_name': 'API Test Trading', 'merchant_name': 'API Test Merchant', 'merchant_mobile': '1234567890', 'merchant_email': 'apitest@example.com', 'status': 'ON_HOLD', 'auto_batch': False}
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-10-24 14:44:49 - OrderSerializer
+----------------------------------------
+Excel file received: test_api_order.xlsx
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-10-24 14:44:49 - OrderSerializer
+----------------------------------------
+Excel file type: <class 'django.core.files.uploadedfile.InMemoryUploadedFile'>
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-10-24 14:44:49 - OrderSerializer
+----------------------------------------
+Excel file name: test_api_order.xlsx
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-10-24 14:44:49 - OrderSerializer
+----------------------------------------
+Excel file size: 31
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-10-24 14:44:50 - OrderSerializer
+----------------------------------------
+Excel file uploaded successfully: https://media-inventory.paymentsave.co.uk/test_api_order.xlsx
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-10-24 14:45:27 - OrderSerializer
+----------------------------------------
+Creating order {'excel_file': <InMemoryUploadedFile: test_api_order.xlsx (application/vnd.openxmlformats-officedocument.spreadsheetml.sheet)>, 'is_active': False, 'address_type': 'TRADING', 'street_line1': '123 API Test Street', 'street_line2': 'API Test City', 'contact_name': 'API Test Contact', 'postcode': 'AT1 1ST', 'phone_number': '01234567890', 'notes': 'API test order with file upload', 'is_same_soft_addons_for_all': False, 'mid': 'TEST_MID_001', 'trading_name': 'API Test Trading', 'merchant_name': 'API Test Merchant', 'merchant_mobile': '1234567890', 'merchant_email': 'apitest@example.com', 'status': 'ON_HOLD', 'auto_batch': False}
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-10-24 14:45:27 - OrderSerializer
+----------------------------------------
+Excel file received: test_api_order.xlsx
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-10-24 14:45:27 - OrderSerializer
+----------------------------------------
+Excel file type: <class 'django.core.files.uploadedfile.InMemoryUploadedFile'>
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-10-24 14:45:27 - OrderSerializer
+----------------------------------------
+Excel file name: test_api_order.xlsx
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-10-24 14:45:27 - OrderSerializer
+----------------------------------------
+Excel file size: 31
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-10-24 14:45:28 - OrderSerializer
+----------------------------------------
+Excel file uploaded successfully: https://media-inventory.paymentsave.co.uk/test_api_order.xlsx
+----------------------------------------
+
+

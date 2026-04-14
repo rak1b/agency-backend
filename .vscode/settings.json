@@ -1,0 +1,30 @@
+{
+  // Enable Ctrl+Click (Cmd+Click on Mac) to go to definition
+  // These settings control behavior when there are multiple definitions/references
+  "editor.gotoLocation.multipleDefinitions": "goto",
+  "editor.gotoLocation.multipleReferences": "goto",
+  "editor.gotoLocation.multipleImplementations": "goto",
+  "editor.gotoLocation.multipleTypeDefinitions": "goto",
+  
+  // Ensure editor supports modifier key navigation
+  "editor.multiCursorModifier": "ctrlCmd",
+  "editor.suggestSelection": "first",
+  
+  // Enable definition link support (required for Ctrl+Click to work)
+  "editor.definitionLinkOpensInPeek": false,
+  
+  // Python-specific settings to ensure language server works properly
+  "python.analysis.typeCheckingMode": "basic",
+  "python.analysis.autoImportCompletions": true,
+  "python.languageServer": "None",
+  "python.analysis.completeFunctionParens": true,
+  
+  // Ensure language features are enabled
+  "editor.quickSuggestions": {
+    "other": true,
+    "comments": false,
+    "strings": true
+  },
+  "cursorpyright.analysis.autoImportCompletions": true,
+  "cursorpyright.analysis.typeCheckingMode": "basic"
+}

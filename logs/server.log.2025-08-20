@@ -1,0 +1,63 @@
+{'status': 'error', 'message': "Missing optional dependency 'openpyxl'.  Use pip or conda to install openpyxl."}
+{'status': 'error', 'errors': '["Row 1: [\'Product model with title WM-2024         not found\']", "Row 2: [\'Product model with title WM-2024         not found\']"]'}
+{'status': 'error', 'errors': '["Row 1: [\'Product model with title WM-2024 not found\']", "Row 2: [\'Product model with title WM-2024 not found\']"]'}
+Internal Server Error: /auth/secure/super-admin/inventory/productcategory/add/
+Traceback (most recent call last):
+  File "/media/rakib/Projects/Inventory-Backend -v2/mint-venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Projects/Inventory-Backend -v2/mint-venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Projects/Inventory-Backend -v2/mint-venv/lib/python3.12/site-packages/django/contrib/admin/options.py", line 719, in wrapper
+    return self.admin_site.admin_view(view)(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Projects/Inventory-Backend -v2/mint-venv/lib/python3.12/site-packages/django/utils/decorators.py", line 192, in _view_wrapper
+    result = _process_exception(request, e)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Projects/Inventory-Backend -v2/mint-venv/lib/python3.12/site-packages/django/utils/decorators.py", line 190, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Projects/Inventory-Backend -v2/mint-venv/lib/python3.12/site-packages/django/views/decorators/cache.py", line 80, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Projects/Inventory-Backend -v2/mint-venv/lib/python3.12/site-packages/django/contrib/admin/sites.py", line 246, in inner
+    return view(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Projects/Inventory-Backend -v2/mint-venv/lib/python3.12/site-packages/django/contrib/admin/options.py", line 1984, in add_view
+    return self.changeform_view(request, None, form_url, extra_context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Projects/Inventory-Backend -v2/mint-venv/lib/python3.12/site-packages/django/utils/decorators.py", line 48, in _wrapper
+    return bound_method(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Projects/Inventory-Backend -v2/mint-venv/lib/python3.12/site-packages/django/utils/decorators.py", line 192, in _view_wrapper
+    result = _process_exception(request, e)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Projects/Inventory-Backend -v2/mint-venv/lib/python3.12/site-packages/django/utils/decorators.py", line 190, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Projects/Inventory-Backend -v2/mint-venv/lib/python3.12/site-packages/django/contrib/admin/options.py", line 1843, in changeform_view
+    return self._changeform_view(request, object_id, form_url, extra_context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Projects/Inventory-Backend -v2/mint-venv/lib/python3.12/site-packages/django/contrib/admin/options.py", line 1888, in _changeform_view
+    form_validated = form.is_valid()
+                     ^^^^^^^^^^^^^^^
+  File "/media/rakib/Projects/Inventory-Backend -v2/mint-venv/lib/python3.12/site-packages/django/forms/forms.py", line 206, in is_valid
+    return self.is_bound and not self.errors
+                                 ^^^^^^^^^^^
+  File "/media/rakib/Projects/Inventory-Backend -v2/mint-venv/lib/python3.12/site-packages/django/forms/forms.py", line 201, in errors
+    self.full_clean()
+  File "/media/rakib/Projects/Inventory-Backend -v2/mint-venv/lib/python3.12/site-packages/django/forms/forms.py", line 339, in full_clean
+    self._post_clean()
+  File "/media/rakib/Projects/Inventory-Backend -v2/mint-venv/lib/python3.12/site-packages/django/forms/models.py", line 498, in _post_clean
+    self.instance.full_clean(exclude=exclude, validate_unique=False)
+  File "/media/rakib/Projects/Inventory-Backend -v2/mint-venv/lib/python3.12/site-packages/django/db/models/base.py", line 1654, in full_clean
+    self.clean()
+  File "/media/rakib/Projects/Inventory-Backend -v2/inventory/models.py", line 73, in clean
+    if self.objects.filter(title=self.title, type=self.type).exists():
+       ^^^^^^^^^^^^
+  File "/media/rakib/Projects/Inventory-Backend -v2/mint-venv/lib/python3.12/site-packages/django/db/models/manager.py", line 186, in __get__
+    raise AttributeError(
+AttributeError: Manager isn't accessible via ProductCategory instances
+"POST /auth/secure/super-admin/inventory/productcategory/add/?_to_field=id&_popup=1 HTTP/1.1" 500 163358
+{'status': 'error', 'errors': '["Row 1: [\'Supplier with id SUP0000000002 not found\']", "Row 2: [\'Supplier with id SUP0000000002 not found\']"]'}

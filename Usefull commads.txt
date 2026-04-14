@@ -1,0 +1,4 @@
+Merged live branch into dev branch
+All incoming changes from live have been accepted
+
+git merge live -X theirs --no-edit

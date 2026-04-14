@@ -1,0 +1,20 @@
+# Serve static files
+Alias /static/ /home/sandboxpayinpos/kaaruj-backend.sandbox.payinpos.com/static/
+<Directory /home/sandboxpayinpos/kaaruj-backend.sandbox.payinpos.com/static>
+    Require all granted
+    Options FollowSymLinks
+</Directory>
+
+# Serve media files
+Alias /media/ /home/sandboxpayinpos/kaaruj-backend.sandbox.payinpos.com/media/
+<Directory /home/sandboxpayinpos/kaaruj-backend.sandbox.payinpos.com/media>
+    Require all granted
+    Options FollowSymLinks
+</Directory>
+
+# Let Passenger handle the rest (Django)
+PassengerAppRoot /home/sandboxpayinpos/kaaruj-backend.sandbox.payinpos.com
+PassengerBaseURI /
+PassengerPython /home/sandboxpayinpos/kaaruj-backend.sandbox.payinpos.com/venv/bin/python
+PassengerStartupFile passenger_wsgi.py
+PassengerEnabled on

@@ -1,0 +1,162 @@
+
+
+----------------------------------------
+2025-10-23 11:09:50 - delete_image_from_r2
+----------------------------------------
+Object name to delete: test_image_20251023110944_28b68_100x100.webp
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-10-23 11:09:51 - delete_image_from_r2
+----------------------------------------
+Successfully deleted image from R2: test_image_20251023110944_28b68_100x100.webp
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-10-23 11:17:35 - OrderSerializer
+----------------------------------------
+Creating order {'excel_file': <SimpleUploadedFile: (Inhouse) Secured Retail Stock report (1).xlsx (application/vnd.openxmlformats-officedocument.spreadsheetml.sheet)>, 'address_type': 'TRADING', 'street_line1': 'Test Street', 'contact_name': 'Test Contact', 'postcode': '12345', 'phone_number': '1234567890', 'mid': 'TEST001', 'trading_name': 'Test Trading Name', 'merchant_name': 'Test Merchant', 'merchant_mobile': '1234567890', 'status': 'ON_HOLD'}
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-10-23 11:17:36 - OrderSerializer
+----------------------------------------
+Excel file uploaded successfully: https://media-inventory.payinpos.com/(Inhouse) Secured Retail Stock report (1).xlsx
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-10-23 11:17:36 - test_file_upload
+----------------------------------------
+File upload test error: table order_order has no column named excel_file_url
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-10-23 11:17:52 - OrderSerializer
+----------------------------------------
+Creating order {'excel_file': <SimpleUploadedFile: (Inhouse) Secured Retail Stock report (1).xlsx (application/vnd.openxmlformats-officedocument.spreadsheetml.sheet)>, 'address_type': 'TRADING', 'street_line1': 'Test Street', 'contact_name': 'Test Contact', 'postcode': '12345', 'phone_number': '1234567890', 'mid': 'TEST001', 'trading_name': 'Test Trading Name', 'merchant_name': 'Test Merchant', 'merchant_mobile': '1234567890', 'status': 'ON_HOLD'}
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-10-23 11:17:54 - OrderSerializer
+----------------------------------------
+Excel file uploaded successfully: https://media-inventory.payinpos.com/(Inhouse) Secured Retail Stock report (1).xlsx
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-10-23 11:18:00 - OrderSerializer
+----------------------------------------
+Updating order {'excel_file': <SimpleUploadedFile: 00141442.xlsx (application/vnd.openxmlformats-officedocument.spreadsheetml.sheet)>}
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-10-23 11:18:01 - OrderSerializer
+----------------------------------------
+Excel file uploaded successfully: https://media-inventory.payinpos.com/00141442.xlsx
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-10-23 12:23:50 - OrderSerializer
+----------------------------------------
+Creating order {'order_terminals': [{'order_accessories': [{'product_model': <ProductModel: A920 PRO>, 'has_serial_number': False, 'quantity': 2}], 'software_addons': [], 'tid': 'TID001', 'condition': 'New', 'status': 'ON_HOLD', 'notes': 'Test terminal 1', 'product_model': <ProductModel: A920 PRO>}], 'excel_file': <SimpleUploadedFile: (Inhouse) Secured Retail Stock report (1).xlsx (application/vnd.openxmlformats-officedocument.spreadsheetml.sheet)>, 'priority': 'HIGH', 'address_type': 'TRADING', 'street_line1': '123 Test Street', 'street_line2': 'Test City, Test State', 'contact_name': 'Jane Smith', 'postcode': '12345', 'phone_number': '555-1234', 'notes': 'This is a test order with file upload', 'mid': 'TEST_FULL_001', 'trading_name': 'Full Test Trading Company', 'merchant_name': 'John Doe Merchant', 'merchant_mobile': '1234567890', 'merchant_alt_mobile': '0987654321', 'merchant_email': 'merchant@test.com', 'bdm_email': 'bdm@test.com', 'bdm_mobile': '1122334455', 'status': 'ON_HOLD', 'auto_batch': True, 'auto_batch_time': datetime.time(14, 30), 'till_roll_text1': 'Test Till Roll 1', 'till_roll_text2': 'Test Till Roll 2', 'till_roll_text3': 'Test Till Roll 3', 'delivery_channel': 'ROYAL_MAIL', 'pod_ref': 'POD123456'}
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-10-23 12:23:51 - OrderSerializer
+----------------------------------------
+Excel file uploaded successfully: https://media-inventory.payinpos.com/(Inhouse) Secured Retail Stock report (1).xlsx
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-10-23 12:23:51 - OrderAccessories
+----------------------------------------
+Product is 31 A920PRO 2025-09-18 stock 1
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-10-23 12:23:51 - test_full_payload
+----------------------------------------
+Full payload test error: {'order_accessories': ErrorDetail(string='Not enough stock available for A920 PRO id 31 title A920PRO 2025-09-18 Requested: 2 Available: 1', code='invalid')}
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-10-23 12:24:04 - OrderSerializer
+----------------------------------------
+Creating order {'order_terminals': [{'order_accessories': [], 'software_addons': [], 'tid': 'TID001', 'condition': 'New', 'status': 'ON_HOLD', 'notes': 'Test terminal 1', 'product_model': <ProductModel: A920 PRO>}], 'excel_file': <SimpleUploadedFile: (Inhouse) Secured Retail Stock report (1).xlsx (application/vnd.openxmlformats-officedocument.spreadsheetml.sheet)>, 'priority': 'HIGH', 'address_type': 'TRADING', 'street_line1': '123 Test Street', 'street_line2': 'Test City, Test State', 'contact_name': 'Jane Smith', 'postcode': '12345', 'phone_number': '555-1234', 'notes': 'This is a test order with file upload', 'mid': 'TEST_FULL_001', 'trading_name': 'Full Test Trading Company', 'merchant_name': 'John Doe Merchant', 'merchant_mobile': '1234567890', 'merchant_alt_mobile': '0987654321', 'merchant_email': 'merchant@test.com', 'bdm_email': 'bdm@test.com', 'bdm_mobile': '1122334455', 'status': 'ON_HOLD', 'auto_batch': True, 'auto_batch_time': datetime.time(14, 30), 'till_roll_text1': 'Test Till Roll 1', 'till_roll_text2': 'Test Till Roll 2', 'till_roll_text3': 'Test Till Roll 3', 'delivery_channel': 'ROYAL_MAIL', 'pod_ref': 'POD123456'}
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-10-23 12:24:05 - OrderSerializer
+----------------------------------------
+Excel file uploaded successfully: https://media-inventory.payinpos.com/(Inhouse) Secured Retail Stock report (1).xlsx
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-10-23 12:24:05 - test_full_payload
+----------------------------------------
+Full payload test error: 'NoneType' object has no attribute 'id'
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-10-23 12:24:37 - OrderSerializer
+----------------------------------------
+Creating order {'excel_file': <SimpleUploadedFile: (Inhouse) Secured Retail Stock report (1).xlsx (application/vnd.openxmlformats-officedocument.spreadsheetml.sheet)>, 'priority': 'HIGH', 'address_type': 'TRADING', 'street_line1': '123 Test Street', 'street_line2': 'Test City, Test State', 'contact_name': 'Jane Smith', 'postcode': '12345', 'phone_number': '555-1234', 'notes': 'This is a test order with file upload - simple version', 'mid': 'TEST_SIMPLE_001', 'trading_name': 'Simple Test Trading Company', 'merchant_name': 'John Doe Merchant', 'merchant_mobile': '1234567890', 'merchant_alt_mobile': '0987654321', 'merchant_email': 'merchant@test.com', 'bdm_email': 'bdm@test.com', 'bdm_mobile': '1122334455', 'status': 'ON_HOLD', 'auto_batch': True, 'auto_batch_time': datetime.time(14, 30), 'till_roll_text1': 'Test Till Roll 1', 'till_roll_text2': 'Test Till Roll 2', 'till_roll_text3': 'Test Till Roll 3', 'delivery_channel': 'ROYAL_MAIL', 'pod_ref': 'POD123456'}
+----------------------------------------
+
+
+
+
+----------------------------------------
+2025-10-23 12:24:39 - OrderSerializer
+----------------------------------------
+Excel file uploaded successfully: https://media-inventory.payinpos.com/(Inhouse) Secured Retail Stock report (1).xlsx
+----------------------------------------
+
+

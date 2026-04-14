@@ -1,0 +1,13 @@
+Internal Server Error: /swagger/login/
+Traceback (most recent call last):
+  File "/media/rakib/Projects/Inventory-Backend -v2/mint-venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Projects/Inventory-Backend -v2/mint-venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Projects/Inventory-Backend -v2/Config/urls.py", line 44, in custom_login_view
+    form.add_error(None, _("Corona virus detected, You need to be quarantined"))
+                         ^
+NameError: name '_' is not defined
+"POST /swagger/login/?next=/api/docs/ HTTP/1.1" 500 79352

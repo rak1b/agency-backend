@@ -1,0 +1,12 @@
+[
+  {
+    "key": "ctrl+click",
+    "command": "editor.action.revealDefinition",
+    "when": "editorTextFocus && !editorReadonly && !inReferenceSearchEditor && !isInEmbeddedEditor"
+  },
+  {
+    "key": "ctrl+click",
+    "command": "editor.action.goToDeclaration",
+    "when": "editorTextFocus && !editorReadonly && !inReferenceSearchEditor && !isInEmbeddedEditor && !hasOtherReferencesInPeek"
+  }
+]

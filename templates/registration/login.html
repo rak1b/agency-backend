@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <style>
+        /* Global Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(to right, #263238, #1C2327);
+        }
+
+        .login-container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            width: 350px;
+            text-align: center;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .login-container:hover {
+            transform: scale(1.02);
+        }
+
+        h2 {
+            color: #263238;
+            font-size: 22px;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            margin-top: 20px;
+        }
+
+        input {
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 2px solid #ccc;
+            border-radius: 6px;
+            outline: none;
+            font-size: 14px;
+            transition: border 0.3s ease-in-out;
+        }
+
+        input:focus {
+            border-color: #85EA2D;
+            box-shadow: 0 0 5px rgba(133, 234, 45, 0.5);
+        }
+
+        button {
+            background: #85EA2D;
+            color: black;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s ease-in-out, transform 0.2s;
+        }
+
+        button:hover {
+            background: #74C923;
+            transform: translateY(-2px);
+        }
+
+        .footer-text {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .footer-text a {
+            color: #85EA2D;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .footer-text a:hover {
+            text-decoration: underline;
+        }
+
+        .errors {
+            background: #fdecea;
+            color: #b71c1c;
+            border: 1px solid #f5c6cb;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        .field-error {
+            color: #b71c1c;
+            font-size: 12px;
+            text-align: left;
+            margin-top: -10px;
+            margin-bottom: 10px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="login-container">
+        <h2>Swagger Login</h2>
+        {% if form.non_field_errors %}
+        <div class="errors">
+            {% for err in form.non_field_errors %}
+                <div>{{ err }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        <form method="post">
+            {% csrf_token %}
+            <input type="text" name="username" placeholder="Username" required>
+            {% if form.errors.username %}
+            <div class="field-error">{{ form.errors.username|striptags }}</div>
+            {% endif %}
+            <input type="password" name="password" placeholder="Password" required>
+            {% if form.errors.password %}
+            <div class="field-error">{{ form.errors.password|striptags }}</div>
+            {% endif %}
+            <button type="submit">Login</button>
+        </form>
+        <p class="footer-text">Don't have an account? Contact Md Rakibul Islam</p>
+    </div>
+
+</body>
+</html>

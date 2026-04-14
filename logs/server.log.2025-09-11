@@ -1,0 +1,103 @@
+Internal Server Error: /api/v1/inventory/web/product-model/
+Traceback (most recent call last):
+  File "/media/rakib/Projects/Inventory-Backend -v2/mint-venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Projects/Inventory-Backend -v2/mint-venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Projects/Inventory-Backend -v2/mint-venv/lib/python3.12/site-packages/django/views/decorators/csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Projects/Inventory-Backend -v2/mint-venv/lib/python3.12/site-packages/rest_framework/viewsets.py", line 125, in view
+    return self.dispatch(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Projects/Inventory-Backend -v2/mint-venv/lib/python3.12/site-packages/rest_framework/views.py", line 515, in dispatch
+    response = self.handle_exception(exc)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Projects/Inventory-Backend -v2/mint-venv/lib/python3.12/site-packages/rest_framework/views.py", line 475, in handle_exception
+    self.raise_uncaught_exception(exc)
+  File "/media/rakib/Projects/Inventory-Backend -v2/mint-venv/lib/python3.12/site-packages/rest_framework/views.py", line 486, in raise_uncaught_exception
+    raise exc
+  File "/media/rakib/Projects/Inventory-Backend -v2/mint-venv/lib/python3.12/site-packages/rest_framework/views.py", line 512, in dispatch
+    response = handler(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Projects/Inventory-Backend -v2/mint-venv/lib/python3.12/site-packages/rest_framework/mixins.py", line 38, in list
+    queryset = self.filter_queryset(self.get_queryset())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Projects/Inventory-Backend -v2/mint-venv/lib/python3.12/site-packages/rest_framework/generics.py", line 154, in filter_queryset
+    queryset = backend().filter_queryset(self.request, queryset, self)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Projects/Inventory-Backend -v2/mint-venv/lib/python3.12/site-packages/django_filters/rest_framework/backends.py", line 72, in filter_queryset
+    return filterset.qs
+           ^^^^^^^^^^^^
+  File "/media/rakib/Projects/Inventory-Backend -v2/mint-venv/lib/python3.12/site-packages/django_filters/filterset.py", line 250, in qs
+    qs = self.filter_queryset(qs)
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Projects/Inventory-Backend -v2/mint-venv/lib/python3.12/site-packages/django_filters/filterset.py", line 233, in filter_queryset
+    queryset = self.filters[name].filter(queryset, value)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Projects/Inventory-Backend -v2/mint-venv/lib/python3.12/site-packages/django_filters/filters.py", line 781, in filter
+    return qs.order_by(*ordering)
+           ^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Projects/Inventory-Backend -v2/mint-venv/lib/python3.12/site-packages/django/db/models/query.py", line 1722, in order_by
+    obj.query.add_ordering(*field_names)
+  File "/media/rakib/Projects/Inventory-Backend -v2/mint-venv/lib/python3.12/site-packages/django/db/models/sql/query.py", line 2291, in add_ordering
+    self.names_to_path(item.split(LOOKUP_SEP), self.model._meta)
+  File "/media/rakib/Projects/Inventory-Backend -v2/mint-venv/lib/python3.12/site-packages/django/db/models/sql/query.py", line 1805, in names_to_path
+    raise FieldError(
+django.core.exceptions.FieldError: Cannot resolve keyword 'stock' into field. Choices are: accessories_model_of_business_history, accessories_model_of_order_terminal, additional_accessories_model_of_order_terminal, category, category_id, created_at, deleted_at, deleted_by, deleted_by_id, description, has_serial_number, id, is_active, is_deleted, low_quantity_threshold, lowstocknotification, product, product_model_of_business_history, product_model_of_order_terminal, slug, terminal_model_for_add_acc_order, title, type, updated_at
+"GET /api/v1/inventory/web/product-model/?ordering=stock HTTP/1.1" 500 27390
+Internal Server Error: /api/v1/inventory/web/product-model/
+Traceback (most recent call last):
+  File "/media/rakib/Projects/Inventory-Backend -v2/mint-venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Projects/Inventory-Backend -v2/mint-venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Projects/Inventory-Backend -v2/mint-venv/lib/python3.12/site-packages/django/views/decorators/csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Projects/Inventory-Backend -v2/mint-venv/lib/python3.12/site-packages/rest_framework/viewsets.py", line 125, in view
+    return self.dispatch(request, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Projects/Inventory-Backend -v2/mint-venv/lib/python3.12/site-packages/rest_framework/views.py", line 515, in dispatch
+    response = self.handle_exception(exc)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Projects/Inventory-Backend -v2/mint-venv/lib/python3.12/site-packages/rest_framework/views.py", line 475, in handle_exception
+    self.raise_uncaught_exception(exc)
+  File "/media/rakib/Projects/Inventory-Backend -v2/mint-venv/lib/python3.12/site-packages/rest_framework/views.py", line 486, in raise_uncaught_exception
+    raise exc
+  File "/media/rakib/Projects/Inventory-Backend -v2/mint-venv/lib/python3.12/site-packages/rest_framework/views.py", line 512, in dispatch
+    response = handler(request, *args, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Projects/Inventory-Backend -v2/mint-venv/lib/python3.12/site-packages/rest_framework/mixins.py", line 38, in list
+    queryset = self.filter_queryset(self.get_queryset())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Projects/Inventory-Backend -v2/mint-venv/lib/python3.12/site-packages/rest_framework/generics.py", line 154, in filter_queryset
+    queryset = backend().filter_queryset(self.request, queryset, self)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Projects/Inventory-Backend -v2/mint-venv/lib/python3.12/site-packages/django_filters/rest_framework/backends.py", line 72, in filter_queryset
+    return filterset.qs
+           ^^^^^^^^^^^^
+  File "/media/rakib/Projects/Inventory-Backend -v2/mint-venv/lib/python3.12/site-packages/django_filters/filterset.py", line 250, in qs
+    qs = self.filter_queryset(qs)
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Projects/Inventory-Backend -v2/inventory/api/web/filters.py", line 75, in filter_queryset
+    queryset = super().filter_queryset(queryset)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Projects/Inventory-Backend -v2/mint-venv/lib/python3.12/site-packages/django_filters/filterset.py", line 233, in filter_queryset
+    queryset = self.filters[name].filter(queryset, value)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Projects/Inventory-Backend -v2/mint-venv/lib/python3.12/site-packages/django_filters/filters.py", line 781, in filter
+    return qs.order_by(*ordering)
+           ^^^^^^^^^^^^^^^^^^^^^^
+  File "/media/rakib/Projects/Inventory-Backend -v2/mint-venv/lib/python3.12/site-packages/django/db/models/query.py", line 1722, in order_by
+    obj.query.add_ordering(*field_names)
+  File "/media/rakib/Projects/Inventory-Backend -v2/mint-venv/lib/python3.12/site-packages/django/db/models/sql/query.py", line 2291, in add_ordering
+    self.names_to_path(item.split(LOOKUP_SEP), self.model._meta)
+  File "/media/rakib/Projects/Inventory-Backend -v2/mint-venv/lib/python3.12/site-packages/django/db/models/sql/query.py", line 1805, in names_to_path
+    raise FieldError(
+django.core.exceptions.FieldError: Cannot resolve keyword 'total_stock' into field. Choices are: accessories_model_of_business_history, accessories_model_of_order_terminal, additional_accessories_model_of_order_terminal, category, category_id, created_at, deleted_at, deleted_by, deleted_by_id, description, has_serial_number, id, is_active, is_deleted, low_quantity_threshold, lowstocknotification, product, product_model_of_business_history, product_model_of_order_terminal, slug, terminal_model_for_add_acc_order, title, type, updated_at
+"GET /api/v1/inventory/web/product-model/?ordering=total_stock HTTP/1.1" 500 27629
