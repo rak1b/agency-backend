@@ -2,14 +2,9 @@ from .base import *
 
 DEBUG = config('DEBUG', cast=bool)
 ALLOWED_HOSTS = [
-    "inventory-backend.paymentsave.co.uk",
-    "inventory.paymentsave.co.uk",
-    "psinventory.devsstream.com",
-    "ps-inventory-demo-backend.devsstream.com",
-    "localhost",
-    "127.0.0.1",
+    "agency-backend.devsstream.com",
+    "agency.devsstream.com",
     ".traefik.me",
-    "psinventorybycompose-exmrlr-ad88ed-88-99-13-130.traefik.me",
 ]
 
 # settings.py
