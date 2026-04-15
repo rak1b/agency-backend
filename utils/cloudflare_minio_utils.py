@@ -7,17 +7,18 @@ from io import BytesIO
 import requests
 import uuid
 import traceback
+import os
 from datetime import datetime
 
-account_id = "659d5edc9dea90cf4a22e90ebc25de47"
-api_token = '55HKfChPfqB1z4wDDx-gJXesCXDxFm2xsnSuk4Kf'
-email = "info@devsstream.com"
-api_key = "db201300cad85ac85c1a2535438e2923e33c5"
-ACCESS_KEY = '99caa77e2bea5a4b47d9e37807dd827c'
-SECRET_KEY = '6f2f0188730931853b78f4174d6ea3aa8808aa1af49bfe66ae8ef5383f0f0e3f'
-ENDPOINT_URL = f'https://{account_id}.r2.cloudflarestorage.com'  # Replace with your R2 endpoint URL
-BUCKET_NAME = 'inventorypaymentsave'
-DOMAIN = 'https://media-inventory.paymentsave.co.uk'
+account_id = os.getenv("CLOUDFLARE_R2_ACCOUNT_ID", "69b7a22f88758a961915a57a9dc476c4")
+api_token = os.getenv("CLOUDFLARE_API_TOKEN", "")
+email = os.getenv("CLOUDFLARE_EMAIL", "")
+api_key = os.getenv("CLOUDFLARE_API_KEY", "")
+ACCESS_KEY = os.getenv("CLOUDFLARE_R2_ACCESS_KEY", "")
+SECRET_KEY = os.getenv("CLOUDFLARE_R2_SECRET_KEY", "")
+ENDPOINT_URL = f"https://{account_id}.r2.cloudflarestorage.com"
+BUCKET_NAME = "agency"
+DOMAIN = os.getenv("CLOUDFLARE_R2_PUBLIC_DOMAIN", "media.bablumia.site")
 
 
 client = Minio(
