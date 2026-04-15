@@ -33,9 +33,10 @@ from drf_spectacular.types import OpenApiTypes
 from rest_framework import mixins
 from django.contrib.auth.hashers import make_password
 from utils.common_import_utils import *
-from utils.cloudflare_minio_utils import compress_and_upload_to_r2
+from utils.cloudflare_minio_utils import compress_and_upload_to_r2, upload_file_to_r2
 from PIL import Image
 import os
+import uuid
 from rest_framework import status
 from rest_framework.response import Response
 
@@ -592,6 +593,80 @@ class CloudflareUploadAPI(APIView):
                 "error": str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             
+
+class CloudflareFileUploadAPI(APIView):
+    permission_classes = [AllowAny]
+    parser_classes = [MultiPartParser, FormParser]
+
+    @extend_schema(
+        request={
+            'multipart/form-data': {
+                'type': 'object',
+                'properties': {
+                    'file': {
+                        'type': 'string',
+                        'format': 'binary',
+                        'description': 'Any file to upload without optimization (image, pdf, doc, etc.)'
+                    },
+                    'previous_file_url': {
+                        'type': 'string',
+                        'description': 'Previous file URL to delete after successful upload (optional)'
+                    }
+                },
+                'required': ['file']
+            }
+        },
+        responses={
+            200: OpenApiTypes.OBJECT,
+            400: OpenApiTypes.OBJECT,
+            500: OpenApiTypes.OBJECT
+        },
+        examples=[
+            OpenApiExample(
+                'Success Response',
+                value={
+                    "message": "File uploaded successfully",
+                    "file_url": "https://media-inventory.paymentsave.co.uk/file_20260414123456_a1b2c.pdf"
+                },
+                status_codes=['200']
+            ),
+            OpenApiExample(
+                'Error Response',
+                value={"error": "No file provided"},
+                status_codes=['400']
+            )
+        ],
+        description='Upload any file to Cloudflare R2 without resizing, compression, or image optimization.'
+    )
+    def post(self, request):
+        try:
+            uploaded_file = request.data.get('file')
+            if not uploaded_file:
+                return Response({"error": "No file provided"}, status=status.HTTP_400_BAD_REQUEST)
+
+            previous_file_url = request.data.get('previous_file_url')
+
+            original_name, original_extension = os.path.splitext(uploaded_file.name)
+            timestamp_value = datetime.now().strftime("%Y%m%d%H%M%S")
+            short_unique_id = uuid.uuid4().hex[:5]
+            uploaded_file.name = f"{original_name}_{timestamp_value}_{short_unique_id}{original_extension}"
+
+            file_url = upload_file_to_r2(uploaded_file)
+
+            if previous_file_url:
+                from utils.cloudflare_minio_utils import delete_image_from_r2
+                delete_image_from_r2(previous_file_url)
+
+            if file_url:
+                return Response(
+                    {"message": "File uploaded successfully", "file_url": file_url},
+                    status=status.HTTP_200_OK
+                )
+
+            return Response({"error": "Failed to upload file"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except Exception as error:
+            return Response({"error": str(error)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 # class CloudflareDeleteAPI(APIView):
 #     permission_classes = [AllowAny, ]

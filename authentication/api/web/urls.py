@@ -23,6 +23,7 @@ urlpatterns = [
 
     # path('get-account-permissions/', views.UserPermissionsView.as_view(), name='get_account_permissions'),
     path('upload-image/', views.CloudflareUploadAPI.as_view(), name='upload_image'),
+    path('upload-file/', views.CloudflareFileUploadAPI.as_view(), name='upload_file'),
 ]
 
 
