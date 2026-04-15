@@ -2,6 +2,7 @@ from rest_framework import serializers
 
 from django.db import transaction
 
+from ...constants import normalize_university_program_input
 from ...models import (
     Agency,
     Customer,
@@ -110,6 +111,9 @@ class UniversityProgramSerializer(serializers.ModelSerializer):
         exclude = ["deleted_at", "deleted_by", "is_deleted"]
         read_only_fields = ["slug", "created_at", "updated_at"]
 
+    def validate_program(self, value):
+        return normalize_university_program_input(value)
+
 
 class UniversityIntakeNestedSerializer(serializers.ModelSerializer):
     """Nested under university create/update (intake rows from the form)."""
@@ -129,6 +133,9 @@ class UniversityProgramNestedSerializer(serializers.ModelSerializer):
         model = UniversityProgram
         exclude = ["deleted_at", "deleted_by", "is_deleted", "university"]
         read_only_fields = ["slug", "created_at", "updated_at"]
+
+    def validate_program(self, value):
+        return normalize_university_program_input(value)
 
 
 class UniversitySerializer(serializers.ModelSerializer):

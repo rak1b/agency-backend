@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -28,9 +29,61 @@ class GenderChoice(models.TextChoices):
 
 
 class UniversityProgramChoice(models.TextChoices):
+    """
+    Stored values align with typical frontend ``PROGRAM_LEVELS`` ids (EAP, KLP, DIPLOMA,
+    BACHELOR, MASTERS, PHD). Use :func:`normalize_university_program_input` to accept
+    labels (e.g. ``Bachelor``) and legacy ``MASTER``.
+    """
+
     EAP = "EAP", _("EAP")
     KLP = "KLP", _("KLP")
     DIPLOMA = "DIPLOMA", _("Diploma")
     BACHELOR = "BACHELOR", _("Bachelor")
-    MASTER = "MASTER", _("Master's")
+    MASTERS = "MASTERS", _("Master's")
     PHD = "PHD", _("PhD")
+
+
+_UNIVERSITY_PROGRAM_VALID_VALUES = frozenset(
+    (
+        UniversityProgramChoice.EAP,
+        UniversityProgramChoice.KLP,
+        UniversityProgramChoice.DIPLOMA,
+        UniversityProgramChoice.BACHELOR,
+        UniversityProgramChoice.MASTERS,
+        UniversityProgramChoice.PHD,
+    )
+)
+
+# Lowercase aliases (labels, typos, legacy codes) -> stored value
+_UNIVERSITY_PROGRAM_ALIASES_TO_VALUE = {
+    "eap": "EAP",
+    "klp": "KLP",
+    "diploma": "DIPLOMA",
+    "bachelor": "BACHELOR",
+    "bachelor's": "BACHELOR",
+    "bachelors": "BACHELOR",
+    "master": "MASTERS",
+    "master's": "MASTERS",
+    "masters": "MASTERS",
+    "msc": "MASTERS",
+    "phd": "PHD",
+    "doctorate": "PHD",
+}
+
+
+def normalize_university_program_input(raw) -> str:
+    """
+    Return a canonical ``UniversityProgramChoice`` value string.
+
+    Accepts stored codes (``BACHELOR``), frontend ids (``MASTERS``), display labels
+    (``Bachelor``, ``Master's``), and legacy ``MASTER``.
+    """
+    if raw is None or (isinstance(raw, str) and not raw.strip()):
+        raise ValidationError("This field may not be blank.")
+    value = str(raw).strip()
+    if value in _UNIVERSITY_PROGRAM_VALID_VALUES:
+        return value
+    mapped = _UNIVERSITY_PROGRAM_ALIASES_TO_VALUE.get(value.lower())
+    if mapped:
+        return mapped
+    raise ValidationError(f"{raw!r} is not a valid program level.")
