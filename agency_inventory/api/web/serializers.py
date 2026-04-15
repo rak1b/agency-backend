@@ -92,15 +92,13 @@ class UniversityIntakeSerializer(serializers.ModelSerializer):
 
 class UniversityProgramSubjectSerializer(serializers.ModelSerializer):
     """
-    Subject + track under a program; JSON uses ``subject`` / ``track`` to match the admin UI.
+    Subject + track under a program (API uses ``subject_name`` / ``track_name``).
+    ``is_active`` is omitted; new rows use the model default (True).
     """
-
-    subject = serializers.CharField(source="subject_name", max_length=255)
-    track = serializers.CharField(source="track_name", max_length=255, allow_blank=True, required=False, default="")
 
     class Meta:
         model = UniversityProgramSubject
-        exclude = ["deleted_at", "deleted_by", "is_deleted", "program"]
+        exclude = ["deleted_at", "deleted_by", "is_deleted", "program", "is_active"]
         read_only_fields = ["slug", "created_at", "updated_at"]
 
 

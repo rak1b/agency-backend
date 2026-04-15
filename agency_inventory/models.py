@@ -138,12 +138,12 @@ class StudentFile(BaseModel):
 
 class University(BaseModel):
     """
-    University profile (name + country). Intakes, enabled programs, and per-program
+    University profile (``university_name`` + country). Intakes, enabled programs, and per-program
     subject/track rows are stored on related models and are created together via the
     university API (nested ``intakes`` and ``programs`` payloads).
     """
 
-    name = models.CharField(max_length=255)
+    university_name = models.CharField(max_length=255)
     slug = models.SlugField(max_length=255, unique=True, null=True, blank=True, editable=False)
     country = models.CharField(max_length=120)
     notes = models.TextField(blank=True, null=True)
@@ -151,15 +151,18 @@ class University(BaseModel):
     class Meta:
         ordering = ["-created_at"]
         constraints = [
-            models.UniqueConstraint(fields=["name", "country"], name="unique_university_name_country"),
+            models.UniqueConstraint(
+                fields=["university_name", "country"],
+                name="unique_university_name_country",
+            ),
         ]
 
     def __str__(self):
-        return f"{self.name} ({self.country})"
+        return f"{self.university_name} ({self.country})"
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = generate_unique_slug(f"{self.name}-{self.country}", self)
+            self.slug = generate_unique_slug(f"{self.university_name}-{self.country}", self)
         super().save(*args, **kwargs)
 
 
@@ -179,7 +182,7 @@ class UniversityIntake(BaseModel):
         ]
 
     def __str__(self):
-        return f"{self.university.name} - {self.intake_name}"
+        return f"{self.university.university_name} - {self.intake_name}"
 
     def save(self, *args, **kwargs):
         if not self.slug and self.university_id:
@@ -203,7 +206,7 @@ class UniversityProgram(BaseModel):
         ]
 
     def __str__(self):
-        return f"{self.university.name} - {self.program}"
+        return f"{self.university.university_name} - {self.program}"
 
     def save(self, *args, **kwargs):
         if not self.slug and self.university_id:

@@ -75,8 +75,8 @@ class UniversityViewSet(BaseModelViewSet):
     lookup_field = "slug"
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ["country", "is_active"]
-    search_fields = ["name", "country"]
-    ordering_fields = ["created_at", "updated_at", "name", "country"]
+    search_fields = ["university_name", "country"]
+    ordering_fields = ["created_at", "updated_at", "university_name", "country"]
 
 
 class UniversityIntakeViewSet(BaseModelViewSet):
@@ -86,7 +86,7 @@ class UniversityIntakeViewSet(BaseModelViewSet):
     lookup_field = "slug"
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ["university", "intake_name", "is_active"]
-    search_fields = ["intake_name", "university__name", "university__country"]
+    search_fields = ["intake_name", "university__university_name", "university__country"]
     ordering_fields = ["created_at", "updated_at", "intake_name"]
 
 
@@ -99,7 +99,7 @@ class UniversityProgramViewSet(BaseModelViewSet):
     lookup_field = "slug"
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ["university", "program", "is_active"]
-    search_fields = ["program", "university__name", "university__country"]
+    search_fields = ["program", "university__university_name", "university__country"]
     ordering_fields = ["created_at", "updated_at", "program"]
 
 

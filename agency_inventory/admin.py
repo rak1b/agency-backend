@@ -46,9 +46,9 @@ class StudentFileAdmin(admin.ModelAdmin):
 
 @admin.register(University)
 class UniversityAdmin(admin.ModelAdmin):
-    list_display = ("id", "name", "country", "created_at", "is_active")
+    list_display = ("id", "university_name", "country", "created_at", "is_active")
     list_filter = ("country", "is_active", "is_deleted")
-    search_fields = ("name", "country")
+    search_fields = ("university_name", "country")
     readonly_fields = ("slug", "created_at", "updated_at")
 
 
@@ -56,7 +56,7 @@ class UniversityAdmin(admin.ModelAdmin):
 class UniversityIntakeAdmin(admin.ModelAdmin):
     list_display = ("id", "university", "intake_name", "created_at", "is_active")
     list_filter = ("university", "is_active", "is_deleted")
-    search_fields = ("university__name", "intake_name")
+    search_fields = ("university__university_name", "intake_name")
 
 
 class UniversityProgramSubjectInline(admin.TabularInline):
@@ -68,5 +68,5 @@ class UniversityProgramSubjectInline(admin.TabularInline):
 class UniversityProgramAdmin(admin.ModelAdmin):
     list_display = ("id", "university", "program", "created_at", "is_active")
     list_filter = ("university", "program", "is_active", "is_deleted")
-    search_fields = ("university__name", "program")
+    search_fields = ("university__university_name", "program")
     inlines = (UniversityProgramSubjectInline,)
