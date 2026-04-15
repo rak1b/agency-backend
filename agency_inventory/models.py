@@ -99,7 +99,8 @@ class StudentFile(BaseModel):
 
     student_file_id = models.CharField(max_length=20, unique=True, blank=True, null=True)
     slug = models.SlugField(max_length=255, unique=True, null=True, blank=True, editable=False)
-    agency = models.ForeignKey(Agency, on_delete=models.CASCADE, related_name="student_files")
+    agency = models.ForeignKey(Agency, on_delete=models.SET_NULL, related_name="student_files", null=True, blank=True)
+    is_own_agency = models.BooleanField(default=False)
     passport_number = models.CharField(max_length=100, unique=True)
     passport_copy_url = models.URLField(max_length=1000, blank=True, null=True)
     surname = models.CharField(max_length=100)
