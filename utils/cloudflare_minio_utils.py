@@ -18,8 +18,8 @@ ACCESS_KEY = os.getenv("CLOUDFLARE_R2_ACCESS_KEY", "")
 SECRET_KEY = os.getenv("CLOUDFLARE_R2_SECRET_KEY", "")
 ENDPOINT_URL = f"https://{account_id}.r2.cloudflarestorage.com"
 BUCKET_NAME = "agency"
-DOMAIN = os.getenv("CLOUDFLARE_R2_PUBLIC_DOMAIN", "media.bablumia.site")
-
+DOMAIN_WITHOUT_HTTP = os.getenv("CLOUDFLARE_R2_PUBLIC_DOMAIN", "media.bablumia.site")
+DOMAIN = f"https://{DOMAIN_WITHOUT_HTTP}"
 
 client = Minio(
     endpoint=f"{account_id}.r2.cloudflarestorage.com",
