@@ -11,10 +11,8 @@ class AgencyStatusChoice(models.TextChoices):
 
 class CustomerStatusChoice(models.TextChoices):
     FILE_RECEIVED = "FILE_RECEIVED", _("File Received")
-    PROCESSING = "PROCESSING", _("Processing")
-    APPLIED = "APPLIED", _("Applied")
-    ENROLLED = "ENROLLED", _("Enrolled")
-    REJECTED = "REJECTED", _("Rejected")
+    IN_PROGRESS = "IN_PROGRESS", _("In Progress")
+    FILE_OPENED = "FILE_OPENED", _("File Opened")
 
 
 class FileFromChoice(models.TextChoices):
