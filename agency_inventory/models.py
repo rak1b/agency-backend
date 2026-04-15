@@ -240,7 +240,7 @@ class OfficeCost(BaseModel):
     """
 
     slug = models.SlugField(max_length=255, unique=True, null=True, blank=True, editable=False)
-    agency = models.ForeignKey(Agency, on_delete=models.CASCADE, related_name="office_costs")
+    agency = models.ForeignKey(Agency, on_delete=models.SET_NULL, related_name="office_costs", null=True, blank=True)
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
     amount = models.PositiveIntegerField(default=0)
@@ -265,8 +265,8 @@ class StudentCost(BaseModel):
     """
 
     slug = models.SlugField(max_length=255, unique=True, null=True, blank=True, editable=False)
-    agency = models.ForeignKey(Agency, on_delete=models.CASCADE, related_name="student_costs")
-    student_file = models.ForeignKey(StudentFile, on_delete=models.CASCADE, related_name="costs")
+    agency = models.ForeignKey(Agency, on_delete=models.SET_NULL, related_name="student_costs", null=True, blank=True)
+    student_file = models.ForeignKey(StudentFile, on_delete=models.SET_NULL, related_name="costs", null=True, blank=True)
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
     amount = models.PositiveIntegerField(default=0)
