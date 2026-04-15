@@ -36,6 +36,7 @@ from utils.common_import_utils import *
 from utils.cloudflare_minio_utils import compress_and_upload_to_r2, upload_file_to_r2
 from PIL import Image
 import os
+import re
 import uuid
 from rest_framework import status
 from rest_framework.response import Response
@@ -647,9 +648,13 @@ class CloudflareFileUploadAPI(APIView):
             previous_file_url = request.data.get('previous_file_url')
 
             original_name, original_extension = os.path.splitext(uploaded_file.name)
+            # Normalize incoming file base name so generated URL never contains whitespace.
+            sanitized_base_name = re.sub(r"\s+", "_", original_name.strip())
+            if not sanitized_base_name:
+                sanitized_base_name = "file"
             timestamp_value = datetime.now().strftime("%Y%m%d%H%M%S")
             short_unique_id = uuid.uuid4().hex[:5]
-            uploaded_file.name = f"{original_name}_{timestamp_value}_{short_unique_id}{original_extension}"
+            uploaded_file.name = f"{sanitized_base_name}_{timestamp_value}_{short_unique_id}{original_extension}"
 
             file_url = upload_file_to_r2(uploaded_file)
 
