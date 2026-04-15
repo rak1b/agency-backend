@@ -138,7 +138,9 @@ class StudentFile(BaseModel):
 
 class University(BaseModel):
     """
-    University base profile grouped by country.
+    University profile (name + country). Intakes, enabled programs, and per-program
+    subject/track rows are stored on related models and are created together via the
+    university API (nested ``intakes`` and ``programs`` payloads).
     """
 
     name = models.CharField(max_length=255)
@@ -209,6 +211,29 @@ class UniversityProgram(BaseModel):
         super().save(*args, **kwargs)
 
 
+class UniversityProgramSubject(BaseModel):
+    """
+    Subject and track rows configured under a university program (e.g. EAP, KLP).
+    Matches super-admin "Subjects under program" form sections.
+    """
+
+    slug = models.SlugField(max_length=255, unique=True, null=True, blank=True, editable=False)
+    program = models.ForeignKey(UniversityProgram, on_delete=models.CASCADE, related_name="subjects")
+    subject_name = models.CharField(max_length=255)
+    track_name = models.CharField(max_length=255, blank=True, default="")
+
+    class Meta:
+        ordering = ["id"]
+
+    def __str__(self):
+        return f"{self.program.program} — {self.subject_name}"
+
+    def save(self, *args, **kwargs):
+        if not self.slug and self.program_id:
+            self.slug = generate_unique_slug(f"{self.program_id}-{self.subject_name}-{self.track_name}", self)
+        super().save(*args, **kwargs)
+
+
 class OfficeCost(BaseModel):
     """
     Office-level operational cost entry.
@@ -236,12 +261,12 @@ class OfficeCost(BaseModel):
 
 class StudentCost(BaseModel):
     """
-    Customer/student specific cost entry.
+    Cost entry tied to a student file (not a customer record).
     """
 
     slug = models.SlugField(max_length=255, unique=True, null=True, blank=True, editable=False)
     agency = models.ForeignKey(Agency, on_delete=models.CASCADE, related_name="student_costs")
-    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name="costs")
+    student_file = models.ForeignKey(StudentFile, on_delete=models.CASCADE, related_name="costs")
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
     amount = models.PositiveIntegerField(default=0)
@@ -252,11 +277,11 @@ class StudentCost(BaseModel):
         ordering = ["-created_at"]
 
     def __str__(self):
-        return f"{self.customer.given_name} - {self.title} ({self.amount})"
+        return f"{self.student_file.given_name} - {self.title} ({self.amount})"
 
     def save(self, *args, **kwargs):
-        if self.customer and self.agency_id != self.customer.agency_id:
-            self.agency = self.customer.agency
+        if self.student_file_id and self.student_file.agency_id and self.agency_id != self.student_file.agency_id:
+            self.agency = self.student_file.agency
         if not self.slug:
-            self.slug = generate_unique_slug(f"{self.title}-{self.customer_id}", self)
+            self.slug = generate_unique_slug(f"{self.title}-{self.student_file_id}", self)
         super().save(*args, **kwargs)

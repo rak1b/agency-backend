@@ -1,9 +1,20 @@
 from authentication.base import BaseModelViewSet
 from rest_framework import filters
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.permissions import IsAuthenticated 
+from rest_framework.permissions import IsAuthenticated
+from django.db.models import Prefetch
 
-from ...models import Agency, Customer, OfficeCost, StudentCost, StudentFile, University, UniversityIntake, UniversityProgram
+from ...models import (
+    Agency,
+    Customer,
+    OfficeCost,
+    StudentCost,
+    StudentFile,
+    University,
+    UniversityIntake,
+    UniversityProgram,
+    UniversityProgramSubject,
+)
 from .serializers import (
     AgencySerializer,
     CustomerSerializer,
@@ -50,7 +61,15 @@ class StudentFileViewSet(BaseModelViewSet):
 
 
 class UniversityViewSet(BaseModelViewSet):
-    queryset = University.objects.all()
+    queryset = University.objects.prefetch_related(
+        Prefetch("intakes", queryset=UniversityIntake.objects.order_by("id")),
+        Prefetch(
+            "programs",
+            queryset=UniversityProgram.objects.prefetch_related(
+                Prefetch("subjects", queryset=UniversityProgramSubject.objects.order_by("id"))
+            ).order_by("id"),
+        ),
+    ).all()
     serializer_class = UniversitySerializer
     permission_classes = [IsAuthenticated ]
     lookup_field = "slug"
@@ -72,7 +91,9 @@ class UniversityIntakeViewSet(BaseModelViewSet):
 
 
 class UniversityProgramViewSet(BaseModelViewSet):
-    queryset = UniversityProgram.objects.select_related("university").all()
+    queryset = UniversityProgram.objects.select_related("university").prefetch_related(
+        Prefetch("subjects", queryset=UniversityProgramSubject.objects.order_by("id"))
+    )
     serializer_class = UniversityProgramSerializer
     permission_classes = [IsAuthenticated ]
     lookup_field = "slug"
@@ -94,11 +115,17 @@ class OfficeCostViewSet(BaseModelViewSet):
 
 
 class StudentCostViewSet(BaseModelViewSet):
-    queryset = StudentCost.objects.select_related("agency", "customer", "created_by").all()
+    queryset = StudentCost.objects.select_related("agency", "student_file", "created_by").all()
     serializer_class = StudentCostSerializer
     permission_classes = [IsAuthenticated ]
     lookup_field = "slug"
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ["agency", "customer", "created_by", "is_active"]
-    search_fields = ["title", "description", "customer__given_name", "customer__surname", "customer__customer_id"]
+    filterset_fields = ["agency", "student_file", "created_by", "is_active"]
+    search_fields = [
+        "title",
+        "description",
+        "student_file__given_name",
+        "student_file__surname",
+        "student_file__student_file_id",
+    ]
     ordering_fields = ["created_at", "updated_at", "amount", "title"]

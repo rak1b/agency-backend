@@ -1,6 +1,14 @@
 from django.contrib import admin
 
-from .models import Agency, Customer, StudentFile, University, UniversityIntake, UniversityProgram
+from .models import (
+    Agency,
+    Customer,
+    StudentFile,
+    University,
+    UniversityIntake,
+    UniversityProgram,
+    UniversityProgramSubject,
+)
 
 
 @admin.register(Agency)
@@ -51,8 +59,14 @@ class UniversityIntakeAdmin(admin.ModelAdmin):
     search_fields = ("university__name", "intake_name")
 
 
+class UniversityProgramSubjectInline(admin.TabularInline):
+    model = UniversityProgramSubject
+    extra = 0
+
+
 @admin.register(UniversityProgram)
 class UniversityProgramAdmin(admin.ModelAdmin):
     list_display = ("id", "university", "program", "created_at", "is_active")
     list_filter = ("university", "program", "is_active", "is_deleted")
     search_fields = ("university__name", "program")
+    inlines = (UniversityProgramSubjectInline,)

@@ -5,7 +5,8 @@ import sys
 from decouple import config
 
 def main():
-    IS_LIVE = config('IS_LIVE', cast=bool)
+    # Default False so a fresh clone without IS_LIVE uses development settings (matches wsgi/celery).
+    IS_LIVE = config('IS_LIVE', default=False, cast=bool)
     if IS_LIVE:
         os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'Config.settings.production')
     else:
