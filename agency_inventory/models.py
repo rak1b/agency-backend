@@ -112,6 +112,16 @@ class StudentFile(BaseModel):
     date_of_birth = models.DateField()
     father_name = models.CharField(max_length=150)
     mother_name = models.CharField(max_length=150)
+    attachments = models.ManyToManyField(
+        "StudentFileAttachment",
+        related_name="student_files",
+        blank=True,
+    )
+    applied_universities = models.ManyToManyField(
+        "AppliedUniversity",
+        related_name="student_files",
+        blank=True,
+    )
     current_status = models.CharField(
         max_length=20,
         choices=CustomerStatusChoice.choices,
@@ -132,6 +142,79 @@ class StudentFile(BaseModel):
             self.student_file_id = generate_unique_code(StudentFile, field_name="student_file_id", prefix="STF", number_length=8)
         if not self.slug:
             slug_source = f"{self.given_name}-{self.surname}-{self.passport_number}"
+            self.slug = generate_unique_slug(slug_source, self)
+        super().save(*args, **kwargs)
+
+
+class AppliedUniversity(BaseModel):
+    """
+    Optional applied-university records linked to student files.
+    """
+
+    university_name = models.CharField(max_length=255, blank=True, null=True)
+    intake = models.CharField(max_length=100, blank=True, null=True)
+    subject = models.ForeignKey(
+        "StudentFileSubject",
+        on_delete=models.SET_NULL,
+        related_name="applied_universities",
+        null=True,
+        blank=True,
+    )
+    slug = models.SlugField(max_length=255, unique=True, null=True, blank=True, editable=False)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        if self.university_name and self.intake:
+            return f"{self.university_name} - {self.intake}"
+        return self.university_name or "Applied university"
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            slug_source = self.university_name or self.intake or "applied-university"
+            self.slug = generate_unique_slug(slug_source, self)
+        super().save(*args, **kwargs)
+
+
+class StudentFileSubject(BaseModel):
+    """
+    Reusable study-subject row that can be linked to multiple student files.
+    """
+
+    subject_name = models.CharField(max_length=255, unique=True)
+    slug = models.SlugField(max_length=255, unique=True, null=True, blank=True, editable=False)
+
+    class Meta:
+        ordering = ["subject_name"]
+
+    def __str__(self):
+        return self.subject_name
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = generate_unique_slug(self.subject_name, self)
+        super().save(*args, **kwargs)
+
+
+class StudentFileAttachment(BaseModel):
+    """
+    Attachment metadata for student files (title + uploaded file URL).
+    """
+
+    title = models.CharField(max_length=255, blank=True, null=True)
+    file_url = models.URLField(max_length=1000, blank=True, null=True)
+    slug = models.SlugField(max_length=255, unique=True, null=True, blank=True, editable=False)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return self.title or "Student attachment"
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            slug_source = self.title or self.file_url or "student-file-attachment"
             self.slug = generate_unique_slug(slug_source, self)
         super().save(*args, **kwargs)
 

@@ -6,6 +6,7 @@ from django.db.models import Prefetch
 
 from ...models import (
     Agency,
+    AppliedUniversity,
     Customer,
     OfficeCost,
     StudentCost,
@@ -50,7 +51,10 @@ class CustomerViewSet(BaseModelViewSet):
 
 
 class StudentFileViewSet(BaseModelViewSet):
-    queryset = StudentFile.objects.select_related("agency", "created_by").all()
+    queryset = StudentFile.objects.select_related("agency", "created_by").prefetch_related(
+        "attachments",
+        Prefetch("applied_universities", queryset=AppliedUniversity.objects.select_related("subject")),
+    ).all()
     serializer_class = StudentFileSerializer
     permission_classes = [IsAuthenticated ]
     lookup_field = "slug"
