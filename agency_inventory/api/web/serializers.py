@@ -92,7 +92,7 @@ class StudentFileSerializer(serializers.ModelSerializer):
     created_by_details = serializers.SerializerMethodField(read_only=True)
     attachments = StudentFileAttachmentPayloadSerializer(many=True, write_only=True, required=False)
     attachment_details = serializers.SerializerMethodField(read_only=True)
-    applied_universities = AppliedUniversityPayloadSerializer(many=True, required=False)
+    applied_universities = AppliedUniversityPayloadSerializer(many=True, required=False, write_only=True)
     applied_university_details = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
