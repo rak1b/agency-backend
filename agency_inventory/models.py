@@ -187,7 +187,14 @@ class AppliedUniversity(BaseModel):
     def save(self, *args, **kwargs):
         # Keep country aligned with selected university to avoid data mismatch.
         if self.university_id:
-            self.country = self.university.country
+            resolved_country = self.university.country
+            if isinstance(resolved_country, University):
+                # Defensive fallback for unexpected legacy/corrupt relation values.
+                resolved_country = resolved_country.country
+            self.country = resolved_country
+        elif isinstance(self.country, University):
+            # Defensive fallback for unexpected legacy/corrupt relation values.
+            self.country = self.country.country
         if not self.slug:
             slug_source = (
                 self.university.university_name

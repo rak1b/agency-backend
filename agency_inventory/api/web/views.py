@@ -53,7 +53,16 @@ class CustomerViewSet(BaseModelViewSet):
 class StudentFileViewSet(BaseModelViewSet):
     queryset = StudentFile.objects.select_related("agency", "created_by").prefetch_related(
         "attachments",
-        Prefetch("applied_universities", queryset=AppliedUniversity.objects.select_related("university", "country", "subject")),
+        Prefetch(
+            "applied_universities",
+            queryset=AppliedUniversity.objects.select_related(
+                "university",
+                "country",
+                "subject",
+                "subject__program",
+                "subject__program__university",
+            ),
+        ),
     ).all()
     serializer_class = StudentFileSerializer
     permission_classes = [IsAuthenticated ]

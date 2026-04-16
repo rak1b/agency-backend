@@ -88,6 +88,8 @@ class StudentFileSerializer(serializers.ModelSerializer):
 
     agency_name = serializers.CharField(source="agency.name", read_only=True)
     created_by_name = serializers.CharField(source="created_by.name", read_only=True)
+    agency_details = serializers.SerializerMethodField(read_only=True)
+    created_by_details = serializers.SerializerMethodField(read_only=True)
     attachments = StudentFileAttachmentPayloadSerializer(many=True, write_only=True, required=False)
     attachment_details = serializers.SerializerMethodField(read_only=True)
     applied_universities = AppliedUniversityPayloadSerializer(many=True, required=False)
@@ -104,9 +106,30 @@ class StudentFileSerializer(serializers.ModelSerializer):
             "created_by",
             "agency_name",
             "created_by_name",
+            "agency_details",
+            "created_by_details",
             "attachment_details",
             "applied_university_details",
         ]
+
+    def get_agency_details(self, obj):
+        if not obj.agency:
+            return None
+        return {
+            "id": obj.agency.id,
+            "name": obj.agency.name,
+            "slug": obj.agency.slug,
+            "status": obj.agency.status,
+        }
+
+    def get_created_by_details(self, obj):
+        if not obj.created_by:
+            return None
+        return {
+            "id": obj.created_by.id,
+            "name": getattr(obj.created_by, "name", None),
+            "email": getattr(obj.created_by, "email", None),
+        }
 
     def get_attachment_details(self, obj):
         return [
@@ -120,23 +143,39 @@ class StudentFileSerializer(serializers.ModelSerializer):
         ]
 
     def get_applied_university_details(self, obj):
-        return [
-            {
-                "id": applied_university.id,
-                "university": applied_university.university_id,
-                "university_name": (
-                    applied_university.university.university_name if applied_university.university else None
-                ),
-                "country": applied_university.country_id,
-                "country_name": applied_university.country.name if applied_university.country else None,
-                "intake": applied_university.intake,
-                "subject": applied_university.subject_id,
-                "subject_name": applied_university.subject.subject_name if applied_university.subject else None,
-                "program": applied_university.subject.program_id if applied_university.subject else None,
-                "slug": applied_university.slug,
-            }
-            for applied_university in obj.applied_universities.select_related("university", "country", "subject").all()
-        ]
+        applied_university_rows = []
+        for applied_university in obj.applied_universities.select_related("university", "country", "subject").all():
+            university_obj = applied_university.university
+            country_obj = applied_university.country
+            if isinstance(country_obj, University):
+                # Defensive fallback for unexpected legacy/corrupt relation values.
+                if university_obj is None:
+                    university_obj = country_obj
+                country_obj = country_obj.country
+            applied_university_rows.append(
+                {
+                    "id": applied_university.id,
+                    "university": university_obj.id if university_obj else None,
+                    "university_name": university_obj.university_name if university_obj else None,
+                    "country": country_obj.id if country_obj else None,
+                    "country_name": country_obj.name if country_obj else None,
+                    "intake": applied_university.intake,
+                    "subject": applied_university.subject_id,
+                    "subject_name": applied_university.subject.subject_name if applied_university.subject else None,
+                    "program": applied_university.subject.program_id if applied_university.subject else None,
+                    "program_name": applied_university.subject.program.program if applied_university.subject else None,
+                    "program_university": (
+                        applied_university.subject.program.university_id if applied_university.subject else None
+                    ),
+                    "program_university_name": (
+                        applied_university.subject.program.university.university_name
+                        if applied_university.subject
+                        else None
+                    ),
+                    "slug": applied_university.slug,
+                }
+            )
+        return applied_university_rows
 
     def _resolve_subject(self, subject_id=None):
         if subject_id is not None:
@@ -156,6 +195,10 @@ class StudentFileSerializer(serializers.ModelSerializer):
             except University.DoesNotExist:
                 raise serializers.ValidationError({"university": f"University id {university_id} does not exist."})
             country_obj = university_obj.country
+            if isinstance(country_obj, University):
+                raise serializers.ValidationError(
+                    {"university": "Selected university has invalid country relation. Please contact support."}
+                )
 
         if country_id is not None:
             try:
@@ -253,10 +296,12 @@ class StudentFileSerializer(serializers.ModelSerializer):
 
 
 class UniversityIntakeSerializer(serializers.ModelSerializer):
+    country_name = serializers.CharField(source="university.country.name", read_only=True)
+
     class Meta:
         model = UniversityIntake
         exclude = ["deleted_at", "deleted_by", "is_deleted"]
-        read_only_fields = ["slug", "created_at", "updated_at"]
+        read_only_fields = ["slug", "created_at", "updated_at", "country_name"]
 
 
 class UniversityProgramSubjectSerializer(serializers.ModelSerializer):
@@ -273,11 +318,12 @@ class UniversityProgramSubjectSerializer(serializers.ModelSerializer):
 
 class UniversityProgramSerializer(serializers.ModelSerializer):
     subjects = UniversityProgramSubjectSerializer(many=True, read_only=True)
+    country_name = serializers.CharField(source="university.country.name", read_only=True)
 
     class Meta:
         model = UniversityProgram
         exclude = ["deleted_at", "deleted_by", "is_deleted"]
-        read_only_fields = ["slug", "created_at", "updated_at"]
+        read_only_fields = ["slug", "created_at", "updated_at", "country_name"]
 
     def validate_program(self, value):
         return normalize_university_program_input(value)
@@ -309,11 +355,12 @@ class UniversityProgramNestedSerializer(serializers.ModelSerializer):
 class UniversitySerializer(serializers.ModelSerializer):
     intakes = UniversityIntakeNestedSerializer(many=True, required=False)
     programs = UniversityProgramNestedSerializer(many=True, required=False)
+    country_name = serializers.CharField(source="country.name", read_only=True)
 
     class Meta:
         model = University
         exclude = ["deleted_at", "deleted_by", "is_deleted"]
-        read_only_fields = ["slug", "created_at", "updated_at"]
+        read_only_fields = ["slug", "created_at", "updated_at", "country_name"]
 
     def validate_intakes(self, intakes):
         names = [item.get("intake_name", "").strip() for item in intakes]
