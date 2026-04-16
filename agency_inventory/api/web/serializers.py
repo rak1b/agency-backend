@@ -6,11 +6,11 @@ from ...constants import normalize_university_program_input
 from ...models import (
     Agency,
     AppliedUniversity,
+    Country,
     Customer,
     OfficeCost,
     StudentFile,
     StudentFileAttachment,
-    StudentFileSubject,
     StudentCost,
     University,
     UniversityIntake,
@@ -75,10 +75,10 @@ class AppliedUniversityPayloadSerializer(serializers.Serializer):
     """
 
     id = serializers.IntegerField(required=False)
-    university_name = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    university = serializers.IntegerField(required=False, allow_null=True)
+    country = serializers.IntegerField(required=False, allow_null=True)
     intake = serializers.CharField(required=False, allow_blank=True, allow_null=True)
     subject = serializers.IntegerField(required=False, allow_null=True)
-    subject_name = serializers.CharField(required=False, allow_blank=True, allow_null=True)
 
 
 class StudentFileSerializer(serializers.ModelSerializer):
@@ -123,26 +123,52 @@ class StudentFileSerializer(serializers.ModelSerializer):
         return [
             {
                 "id": applied_university.id,
-                "university_name": applied_university.university_name,
+                "university": applied_university.university_id,
+                "university_name": (
+                    applied_university.university.university_name if applied_university.university else None
+                ),
+                "country": applied_university.country_id,
+                "country_name": applied_university.country.name if applied_university.country else None,
                 "intake": applied_university.intake,
                 "subject": applied_university.subject_id,
                 "subject_name": applied_university.subject.subject_name if applied_university.subject else None,
+                "program": applied_university.subject.program_id if applied_university.subject else None,
                 "slug": applied_university.slug,
             }
-            for applied_university in obj.applied_universities.select_related("subject").all()
+            for applied_university in obj.applied_universities.select_related("university", "country", "subject").all()
         ]
 
-    def _resolve_subject(self, subject_id=None, subject_name=None):
+    def _resolve_subject(self, subject_id=None):
         if subject_id is not None:
             try:
-                return StudentFileSubject.objects.get(id=subject_id)
-            except StudentFileSubject.DoesNotExist:
+                return UniversityProgramSubject.objects.get(id=subject_id)
+            except UniversityProgramSubject.DoesNotExist:
                 raise serializers.ValidationError({"subject": f"Subject id {subject_id} does not exist."})
-        normalized_subject_name = (subject_name or "").strip()
-        if normalized_subject_name:
-            subject_obj, _ = StudentFileSubject.objects.get_or_create(subject_name=normalized_subject_name)
-            return subject_obj
         return None
+
+    def _resolve_university_and_country(self, university_id=None, country_id=None):
+        university_obj = None
+        country_obj = None
+
+        if university_id is not None:
+            try:
+                university_obj = University.objects.select_related("country").get(id=university_id)
+            except University.DoesNotExist:
+                raise serializers.ValidationError({"university": f"University id {university_id} does not exist."})
+            country_obj = university_obj.country
+
+        if country_id is not None:
+            try:
+                requested_country = Country.objects.get(id=country_id)
+            except Country.DoesNotExist:
+                raise serializers.ValidationError({"country": f"Country id {country_id} does not exist."})
+            if university_obj and requested_country.id != university_obj.country_id:
+                raise serializers.ValidationError(
+                    {"country": "Selected country does not match the selected university country."}
+                )
+            country_obj = requested_country
+
+        return university_obj, country_obj
 
     def _upsert_attachments(self, student_file, attachments_data):
         attachment_ids = []
@@ -167,11 +193,13 @@ class StudentFileSerializer(serializers.ModelSerializer):
         applied_university_ids = []
         for row in applied_universities_data:
             applied_university_id = row.get("id")
+            university_obj, country_obj = self._resolve_university_and_country(
+                university_id=row.get("university"),
+                country_id=row.get("country"),
+            )
             subject_obj = self._resolve_subject(
                 subject_id=row.get("subject"),
-                subject_name=row.get("subject_name"),
             )
-            university_name = row.get("university_name")
             intake = row.get("intake")
             if applied_university_id:
                 try:
@@ -180,15 +208,18 @@ class StudentFileSerializer(serializers.ModelSerializer):
                     raise serializers.ValidationError(
                         {"applied_universities": f"Applied university id {applied_university_id} does not exist."}
                     )
-                if university_name is not None:
-                    applied_university_obj.university_name = university_name
+                if row.get("university", None) is not None:
+                    applied_university_obj.university = university_obj
+                if row.get("country", None) is not None:
+                    applied_university_obj.country = country_obj
                 if intake is not None:
                     applied_university_obj.intake = intake
                 applied_university_obj.subject = subject_obj
                 applied_university_obj.save()
             else:
                 applied_university_obj = AppliedUniversity.objects.create(
-                    university_name=university_name,
+                    university=university_obj,
+                    country=country_obj,
                     intake=intake,
                     subject=subject_obj,
                 )

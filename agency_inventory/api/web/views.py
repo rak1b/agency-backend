@@ -53,7 +53,7 @@ class CustomerViewSet(BaseModelViewSet):
 class StudentFileViewSet(BaseModelViewSet):
     queryset = StudentFile.objects.select_related("agency", "created_by").prefetch_related(
         "attachments",
-        Prefetch("applied_universities", queryset=AppliedUniversity.objects.select_related("subject")),
+        Prefetch("applied_universities", queryset=AppliedUniversity.objects.select_related("university", "country", "subject")),
     ).all()
     serializer_class = StudentFileSerializer
     permission_classes = [IsAuthenticated ]
@@ -65,7 +65,7 @@ class StudentFileViewSet(BaseModelViewSet):
 
 
 class UniversityViewSet(BaseModelViewSet):
-    queryset = University.objects.prefetch_related(
+    queryset = University.objects.select_related("country").prefetch_related(
         Prefetch("intakes", queryset=UniversityIntake.objects.order_by("id")),
         Prefetch(
             "programs",
@@ -79,23 +79,23 @@ class UniversityViewSet(BaseModelViewSet):
     lookup_field = "slug"
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ["country", "is_active"]
-    search_fields = ["university_name", "country"]
-    ordering_fields = ["created_at", "updated_at", "university_name", "country"]
+    search_fields = ["university_name", "country__name"]
+    ordering_fields = ["created_at", "updated_at", "university_name", "country__name"]
 
 
 class UniversityIntakeViewSet(BaseModelViewSet):
-    queryset = UniversityIntake.objects.select_related("university").all()
+    queryset = UniversityIntake.objects.select_related("university", "university__country").all()
     serializer_class = UniversityIntakeSerializer
     permission_classes = [IsAuthenticated ]
     lookup_field = "slug"
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ["university", "intake_name", "is_active"]
-    search_fields = ["intake_name", "university__university_name", "university__country"]
+    search_fields = ["intake_name", "university__university_name", "university__country__name"]
     ordering_fields = ["created_at", "updated_at", "intake_name"]
 
 
 class UniversityProgramViewSet(BaseModelViewSet):
-    queryset = UniversityProgram.objects.select_related("university").prefetch_related(
+    queryset = UniversityProgram.objects.select_related("university", "university__country").prefetch_related(
         Prefetch("subjects", queryset=UniversityProgramSubject.objects.order_by("id"))
     )
     serializer_class = UniversityProgramSerializer
@@ -103,7 +103,7 @@ class UniversityProgramViewSet(BaseModelViewSet):
     lookup_field = "slug"
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ["university", "program", "is_active"]
-    search_fields = ["program", "university__university_name", "university__country"]
+    search_fields = ["program", "university__university_name", "university__country__name"]
     ordering_fields = ["created_at", "updated_at", "program"]
 
 

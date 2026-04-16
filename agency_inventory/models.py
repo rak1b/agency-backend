@@ -151,10 +151,23 @@ class AppliedUniversity(BaseModel):
     Optional applied-university records linked to student files.
     """
 
-    university_name = models.CharField(max_length=255, blank=True, null=True)
+    university = models.ForeignKey(
+        "University",
+        on_delete=models.SET_NULL,
+        related_name="applied_universities",
+        null=True,
+        blank=True,
+    )
+    country = models.ForeignKey(
+        "Country",
+        on_delete=models.SET_NULL,
+        related_name="applied_universities",
+        null=True,
+        blank=True,
+    )
     intake = models.CharField(max_length=100, blank=True, null=True)
     subject = models.ForeignKey(
-        "StudentFileSubject",
+        "UniversityProgramSubject",
         on_delete=models.SET_NULL,
         related_name="applied_universities",
         null=True,
@@ -166,34 +179,22 @@ class AppliedUniversity(BaseModel):
         ordering = ["-created_at"]
 
     def __str__(self):
-        if self.university_name and self.intake:
-            return f"{self.university_name} - {self.intake}"
-        return self.university_name or "Applied university"
+        university_name = self.university.university_name if self.university else "Applied university"
+        if self.intake:
+            return f"{university_name} - {self.intake}"
+        return university_name
 
     def save(self, *args, **kwargs):
+        # Keep country aligned with selected university to avoid data mismatch.
+        if self.university_id:
+            self.country = self.university.country
         if not self.slug:
-            slug_source = self.university_name or self.intake or "applied-university"
+            slug_source = (
+                self.university.university_name
+                if self.university_id
+                else self.intake or "applied-university"
+            )
             self.slug = generate_unique_slug(slug_source, self)
-        super().save(*args, **kwargs)
-
-
-class StudentFileSubject(BaseModel):
-    """
-    Reusable study-subject row that can be linked to multiple student files.
-    """
-
-    subject_name = models.CharField(max_length=255, unique=True)
-    slug = models.SlugField(max_length=255, unique=True, null=True, blank=True, editable=False)
-
-    class Meta:
-        ordering = ["subject_name"]
-
-    def __str__(self):
-        return self.subject_name
-
-    def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = generate_unique_slug(self.subject_name, self)
         super().save(*args, **kwargs)
 
 
@@ -219,6 +220,26 @@ class StudentFileAttachment(BaseModel):
         super().save(*args, **kwargs)
 
 
+class Country(BaseModel):
+    """
+    Country master used by universities and applied-university rows.
+    """
+
+    name = models.CharField(max_length=120, unique=True)
+    slug = models.SlugField(max_length=255, unique=True, null=True, blank=True, editable=False)
+
+    class Meta:
+        ordering = ["name"]
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = generate_unique_slug(self.name, self)
+        super().save(*args, **kwargs)
+
+
 class University(BaseModel):
     """
     University profile (``university_name`` + country). Intakes, enabled programs, and per-program
@@ -228,7 +249,7 @@ class University(BaseModel):
 
     university_name = models.CharField(max_length=255)
     slug = models.SlugField(max_length=255, unique=True, null=True, blank=True, editable=False)
-    country = models.CharField(max_length=120)
+    country = models.ForeignKey(Country, on_delete=models.PROTECT, related_name="universities")
     notes = models.TextField(blank=True, null=True)
 
     class Meta:
@@ -241,11 +262,11 @@ class University(BaseModel):
         ]
 
     def __str__(self):
-        return f"{self.university_name} ({self.country})"
+        return f"{self.university_name} ({self.country.name})"
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = generate_unique_slug(f"{self.university_name}-{self.country}", self)
+            self.slug = generate_unique_slug(f"{self.university_name}-{self.country_id}", self)
         super().save(*args, **kwargs)
 
 
