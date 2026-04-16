@@ -143,39 +143,39 @@ class StudentFileSerializer(serializers.ModelSerializer):
         ]
 
     def get_applied_university_details(self, obj):
-        applied_university_rows = []
-        for applied_university in obj.applied_universities.select_related("university", "country", "subject").all():
-            university_obj = applied_university.university
-            country_obj = applied_university.country
-            if isinstance(country_obj, University):
-                # Defensive fallback for unexpected legacy/corrupt relation values.
-                if university_obj is None:
-                    university_obj = country_obj
-                country_obj = country_obj.country
-            applied_university_rows.append(
-                {
-                    "id": applied_university.id,
-                    "university": university_obj.id if university_obj else None,
-                    "university_name": university_obj.university_name if university_obj else None,
-                    "country": country_obj.id if country_obj else None,
-                    "country_name": country_obj.name if country_obj else None,
-                    "intake": applied_university.intake,
-                    "subject": applied_university.subject_id,
-                    "subject_name": applied_university.subject.subject_name if applied_university.subject else None,
-                    "program": applied_university.subject.program_id if applied_university.subject else None,
-                    "program_name": applied_university.subject.program.program if applied_university.subject else None,
-                    "program_university": (
-                        applied_university.subject.program.university_id if applied_university.subject else None
-                    ),
-                    "program_university_name": (
-                        applied_university.subject.program.university.university_name
-                        if applied_university.subject
-                        else None
-                    ),
-                    "slug": applied_university.slug,
-                }
-            )
-        return applied_university_rows
+        raw_rows = obj.applied_universities.values(
+            "id",
+            "university_id",
+            "university__university_name",
+            "country_id",
+            "country__name",
+            "intake",
+            "subject_id",
+            "subject__subject_name",
+            "subject__program_id",
+            "subject__program__program",
+            "subject__program__university_id",
+            "subject__program__university__university_name",
+            "slug",
+        )
+        return [
+            {
+                "id": row["id"],
+                "university": row["university_id"],
+                "university_name": row["university__university_name"],
+                "country": row["country_id"],
+                "country_name": row["country__name"],
+                "intake": row["intake"],
+                "subject": row["subject_id"],
+                "subject_name": row["subject__subject_name"],
+                "program": row["subject__program_id"],
+                "program_name": row["subject__program__program"],
+                "program_university": row["subject__program__university_id"],
+                "program_university_name": row["subject__program__university__university_name"],
+                "slug": row["slug"],
+            }
+            for row in raw_rows
+        ]
 
     def _resolve_subject(self, subject_id=None):
         if subject_id is not None:
