@@ -214,19 +214,6 @@ class UserSerializer(serializers.ModelSerializer):
         ):
             raise ValidationError({'parent_agency': ['Parent agency is required for this user type.']})
 
-        if resolved_user_type == constants.UserTypeChoice.B2B_AGENT:
-            missing_errors = {}
-            if not resolved_trade_license_no:
-                missing_errors['trade_license_no'] = ['Trade license number is required for B2B Agent users.']
-            if resolved_commission_rate in (None, ''):
-                missing_errors['commission_rate'] = ['Commission rate is required for B2B Agent users.']
-            if not resolved_contract_start_date:
-                missing_errors['contract_start_date'] = ['Contract start date is required for B2B Agent users.']
-            if not resolved_contract_end_date:
-                missing_errors['contract_end_date'] = ['Contract end date is required for B2B Agent users.']
-            if missing_errors:
-                raise ValidationError(missing_errors)
-
         if resolved_contract_start_date and resolved_contract_end_date and resolved_contract_start_date > resolved_contract_end_date:
             raise ValidationError({'contract_end_date': ['Contract end date must be later than or equal to the start date.']})
 
