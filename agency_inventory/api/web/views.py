@@ -1,4 +1,6 @@
 from authentication.base import BaseModelViewSet
+from authentication import constants
+from authentication.notification_utils import create_notifications_for_event
 from datetime import date, timedelta
 from rest_framework import filters
 from django_filters.rest_framework import DjangoFilterBackend
@@ -283,6 +285,24 @@ class AgencyViewSet(BaseModelViewSet):
     search_fields = ["name", "owner_name", "business_email", "phone", "address"]
     ordering_fields = ["created_at", "updated_at", "name", "status"]
 
+    def perform_create(self, serializer):
+        created_agency = serializer.save()
+        create_notifications_for_event(
+            entity_type=constants.NotificationEntityTypeChoice.AGENCY,
+            action=constants.NotificationActionChoice.CREATED,
+            instance=created_agency,
+            actor=self.request.user,
+        )
+
+    def perform_update(self, serializer):
+        updated_agency = serializer.save()
+        create_notifications_for_event(
+            entity_type=constants.NotificationEntityTypeChoice.AGENCY,
+            action=constants.NotificationActionChoice.UPDATED,
+            instance=updated_agency,
+            actor=self.request.user,
+        )
+
 
 class CustomerViewSet(BaseModelViewSet):
     queryset = Customer.objects.select_related("agency", "assigned_counselor").all()
@@ -307,6 +327,24 @@ class StudentFileViewSet(BaseModelViewSet):
     filterset_fields = ["agency", "current_status", "file_from", "created_by", "is_active"]
     search_fields = ["student_file_id", "passport_number", "given_name", "surname", "email", "phone_whatsapp"]
     ordering_fields = ["created_at", "updated_at", "given_name", "current_status"]
+
+    def perform_create(self, serializer):
+        created_student_file = serializer.save()
+        create_notifications_for_event(
+            entity_type=constants.NotificationEntityTypeChoice.STUDENT_FILE,
+            action=constants.NotificationActionChoice.CREATED,
+            instance=created_student_file,
+            actor=self.request.user,
+        )
+
+    def perform_update(self, serializer):
+        updated_student_file = serializer.save()
+        create_notifications_for_event(
+            entity_type=constants.NotificationEntityTypeChoice.STUDENT_FILE,
+            action=constants.NotificationActionChoice.UPDATED,
+            instance=updated_student_file,
+            actor=self.request.user,
+        )
 
 
 class UniversityViewSet(BaseModelViewSet):

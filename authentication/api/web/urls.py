@@ -6,6 +6,7 @@ from . import views
 router = DefaultRouter()
 router.register(r'role-list', views.RoleViewSet,basename='Inventory')
 router.register(r'history', views.HistoryViewSet, basename='history')
+router.register(r'notifications', views.NotificationViewSet, basename='notifications')
 router.register(r'all-permissions-section-wise', views.AllSectionWisePermissionAPI, basename='all-permissions-section-wise')
 router.register(r'user-permissions-section-wise', views.SectionWiseUserPermissionAPI, basename='user-permissions-section-wise')
 router.register(r'role', views.AssignPermissionToRoleAPI,basename='assign-permission-to-role')

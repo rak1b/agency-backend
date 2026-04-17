@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import User, Role, Permission, RolePermission, Merchant, Confirmation, OauthToken, Section 
+from .models import User, Role, Permission, RolePermission, Merchant, Confirmation, Notification, OauthToken, Section 
 from django.contrib.auth.hashers import make_password
 
 admin.site.site_header = 'Paymentsave Inventory Management Portal'
@@ -80,4 +80,5 @@ admin.site.register(RolePermission)
 admin.site.register(OauthToken)
 admin.site.register(Merchant)
 admin.site.register(Confirmation)
+admin.site.register(Notification)
 admin.site.register(Section)

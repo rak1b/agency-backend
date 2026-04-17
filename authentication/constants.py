@@ -23,6 +23,21 @@ class UserTypeChoice(TextChoices):
 USER_TYPE_OPTIONS = UserTypeChoice.choices
 
 
+class NotificationEntityTypeChoice(TextChoices):
+    STUDENT_FILE = "STUDENT_FILE", _("Student File")
+    AGENCY = "AGENCY", _("Agency")
+    USER = "USER", _("User")
+
+
+class NotificationActionChoice(TextChoices):
+    CREATED = "CREATED", _("Created")
+    UPDATED = "UPDATED", _("Updated")
+
+
+NOTIFICATION_ENTITY_TYPE_OPTIONS = NotificationEntityTypeChoice.choices
+NOTIFICATION_ACTION_OPTIONS = NotificationActionChoice.choices
+
+
 # Role Options
 ADMIN = 0
 MERCHANT = 1

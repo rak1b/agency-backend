@@ -201,6 +201,45 @@ class User(AbstractBaseUser, PermissionsMixin):
     def get_token(self):
         return Token.objects.get(user_id=self.id).key
 
+
+class Notification(BaseModel):
+    recipient = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="received_notifications",
+    )
+    actor = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        related_name="triggered_notifications",
+        blank=True,
+        null=True,
+    )
+    entity_type = models.CharField(max_length=30, choices=constants.NOTIFICATION_ENTITY_TYPE_OPTIONS)
+    action = models.CharField(max_length=20, choices=constants.NOTIFICATION_ACTION_OPTIONS)
+    title = models.CharField(max_length=255)
+    message = models.TextField()
+    reference_id = models.PositiveIntegerField(blank=True, null=True)
+    reference_slug = models.CharField(max_length=255, blank=True, null=True)
+    reference_label = models.CharField(max_length=255, blank=True, null=True)
+    is_read = models.BooleanField(default=False)
+    read_at = models.DateTimeField(blank=True, null=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.recipient.email} - {self.title}"
+
+    def mark_as_read(self):
+        from django.utils import timezone
+
+        if self.is_read:
+            return
+        self.is_read = True
+        self.read_at = timezone.now()
+        self.save(update_fields=["is_read", "read_at", "updated_at"])
+
 class Merchant(BaseModel):
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     merchant_identifier = models.CharField(max_length=60, unique=True, default=auth_utils.unique_merchant_id)

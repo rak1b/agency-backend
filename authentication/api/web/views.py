@@ -1,11 +1,14 @@
 from datetime import datetime
+from authentication import constants
 from authentication.permissions import HasCustomPermission
+from authentication.notification_utils import create_notifications_for_event, user_is_admin
 from authentication.utils import auth_utils, email_utils
 from .serializers import *
-from rest_framework.decorators import api_view, authentication_classes, permission_classes
+from rest_framework.decorators import action, api_view, authentication_classes, permission_classes
 from ..utils.auth_utils import validated_merchant_user, process_code
 from ..utils.jwt_utils import generate_tokens, verify_jwt_token
-from authentication.models import User, Merchant, Role, Permission, RolePermission
+from authentication.models import Notification, User, Merchant, Role, Permission, RolePermission
+from django.utils import timezone
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.contrib.auth import authenticate
 from rest_framework import status
@@ -53,6 +56,13 @@ class UserAPI(viewsets.ModelViewSet):
     filterset_fields = ['role','user_id','user_type','parent_agency','parent_b2b_agent','gender','is_active']
     pagination_class = PageNumberPagination
 
+    @extend_schema(
+        responses={200: UserListResponseSerializer},
+        description='Return users using the project standard response envelope and custom pagination keys.',
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
     def get_queryset(self):
         emails = ['rakib@admin.com','admin@admin.com','inventory@admin.com','salmansadi165324@gmail.com']
         return super().get_queryset().exclude(email__in=emails).select_related(
@@ -67,6 +77,63 @@ class UserAPI(viewsets.ModelViewSet):
         if current_user.id == user.id:
             return Response({"detail": "You cannot delete your own account"}, status=status.HTTP_400_BAD_REQUEST)
         return super().destroy(request, *args, **kwargs)
+
+    def perform_create(self, serializer):
+        created_user = serializer.save()
+        create_notifications_for_event(
+            entity_type=constants.NotificationEntityTypeChoice.USER,
+            action=constants.NotificationActionChoice.CREATED,
+            instance=created_user,
+            actor=self.request.user,
+        )
+
+    def perform_update(self, serializer):
+        updated_user = serializer.save()
+        create_notifications_for_event(
+            entity_type=constants.NotificationEntityTypeChoice.USER,
+            action=constants.NotificationActionChoice.UPDATED,
+            instance=updated_user,
+            actor=self.request.user,
+        )
+
+
+class NotificationViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.RetrieveModelMixin):
+    serializer_class = NotificationSerializer
+    permission_classes = [IsAuthenticated]
+    filter_backends = [DjangoFilterBackend, SearchFilter]
+    filterset_fields = ["entity_type", "action", "is_read"]
+    search_fields = ["title", "message", "reference_label"]
+
+    def get_queryset(self):
+        notification_queryset = Notification.objects.select_related("recipient", "actor").filter(
+            recipient=self.request.user
+        ).order_by("-created_at")
+        if user_is_admin(self.request.user):
+            return notification_queryset
+        return notification_queryset.filter(entity_type=constants.NotificationEntityTypeChoice.STUDENT_FILE)
+
+    @action(detail=True, methods=["post"], url_path="mark-as-read")
+    def mark_as_read(self, request, *args, **kwargs):
+        notification = self.get_object()
+        notification.mark_as_read()
+        serializer = self.get_serializer(notification)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=["post"], url_path="mark-all-as-read")
+    def mark_all_as_read(self, request, *args, **kwargs):
+        unread_queryset = self.filter_queryset(self.get_queryset()).filter(is_read=False)
+        updated_count = unread_queryset.update(
+            is_read=True,
+            read_at=timezone.now(),
+            updated_at=timezone.now(),
+        )
+        return Response(
+            {
+                "detail": "Notifications marked as read successfully.",
+                "updated_count": updated_count,
+            },
+            status=status.HTTP_200_OK,
+        )
 
 
 # Define your views here
