@@ -43,7 +43,7 @@ def process_code(user):
     confirmation = Confirmation.objects.create(identifier=user, code=code)
     confirmation.save()
     data = {
-        'name': uniq_user.username,
+        'name': uniq_user.name if uniq_user else None,
         'email': confirmation.identifier,
         'code': confirmation.code
     }

@@ -103,18 +103,44 @@ class MyUserManager(BaseUserManager):
 
 class User(AbstractBaseUser, PermissionsMixin):
     slug = models.SlugField(blank=True,null=True)
-    username = models.CharField(max_length=30, blank=True,null=True)
     user_id = models.CharField(max_length=30, blank=True,null=True)
-    name = models.CharField(max_length=30, blank=True)
+    name = models.CharField(max_length=255, blank=True)
     email = models.EmailField(unique=True, blank=True, null=True)
-    phone = models.CharField(max_length=20, blank=True, null=True)
-    alt_phone = models.CharField(max_length=20, unique=True, blank=True, null=True)
-    image_url = models.CharField(max_length=255, blank=True,null=True)
+    phone = models.CharField(max_length=30, blank=True, null=True)
+    image_url = models.URLField(max_length=1000, blank=True,null=True)
     # image = models.ImageField(default='users/default.png', upload_to=user_profile_path)
     dob = models.DateField(blank=True, null=True)
     role = models.ManyToManyField(Role, related_name='user_roles')
+    user_type = models.CharField(
+        max_length=30,
+        choices=constants.USER_TYPE_OPTIONS,
+        blank=True,
+        null=True,
+        help_text="Business user category used by the user-management UI.",
+    )
+    parent_agency = models.ForeignKey(
+        "agency_inventory.Agency",
+        on_delete=models.SET_NULL,
+        related_name="linked_users",
+        blank=True,
+        null=True,
+    )
+    parent_b2b_agent = models.ForeignKey(
+        "self",
+        on_delete=models.SET_NULL,
+        related_name="managed_b2b_agent_employees",
+        blank=True,
+        null=True,
+    )
+    employee_id = models.CharField(max_length=50, blank=True, null=True)
+    designation = models.CharField(max_length=100, blank=True, null=True)
+    joining_date = models.DateField(blank=True, null=True)
+    trade_license_no = models.CharField(max_length=100, blank=True, null=True)
+    commission_rate = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
+    contract_start_date = models.DateField(blank=True, null=True)
+    contract_end_date = models.DateField(blank=True, null=True)
     gender = models.SmallIntegerField(choices=constants.GENDER_OPTIONS, default=constants.MALE)
-    address = models.CharField(max_length=100, blank=True, null=True)
+    address = models.TextField(blank=True, null=True)
     last_login_ip = models.CharField(max_length=100, blank=True, null=True)
     is_verified = models.BooleanField(default=False)
     is_approved = models.BooleanField(default=False)
@@ -160,6 +186,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     
     @property
     def get_designation_title(self):
+        if self.designation:
+            return self.designation
         if hasattr(self, 'merchant'):
             return self.merchant.designation
         return None

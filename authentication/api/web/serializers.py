@@ -1,66 +1,258 @@
 from rest_framework import serializers
 from authentication.models import *
+from authentication import constants
 from rest_framework.validators import UniqueValidator
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import Group
 from django.db import models
-from django.contrib.auth.hashers import make_password
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError as DjangoValidationError
 from rest_framework.exceptions import ValidationError
+from agency_inventory.models import Agency
 class DashboardRequestSerializer(serializers.Serializer):
     start_date = serializers.DateField()
     end_date = serializers.DateField()
     
 class UserSerializer(serializers.ModelSerializer):
     role_details = serializers.SerializerMethodField()
+    user_type_label = serializers.CharField(source='get_user_type_display', read_only=True)
+    parent_agency_details = serializers.SerializerMethodField()
+    parent_b2b_agent_details = serializers.SerializerMethodField()
+    confirm_password = serializers.CharField(write_only=True, required=False, allow_blank=False)
+    full_name = serializers.CharField(source='name', required=False)
+    profile_photo_url = serializers.URLField(source='image_url', required=False, allow_blank=True, allow_null=True)
+    date_of_birth = serializers.DateField(source='dob', required=False, allow_null=True)
+    status = serializers.BooleanField(source='is_active', required=False)
+
     class Meta:
         model = User
-        fields = ['id','name','email','phone','password','role','role_details','user_id','image_url','gender','slug','is_active']
+        fields = [
+            'id',
+            'slug',
+            'user_id',
+            'name',
+            'full_name',
+            'email',
+            'phone',
+            'password',
+            'confirm_password',
+            'role',
+            'role_details',
+            'user_type',
+            'user_type_label',
+            'parent_agency',
+            'parent_agency_details',
+            'parent_b2b_agent',
+            'parent_b2b_agent_details',
+            'employee_id',
+            'designation',
+            'trade_license_no',
+            'commission_rate',
+            'contract_start_date',
+            'contract_end_date',
+            'joining_date',
+            'image_url',
+            'profile_photo_url',
+            'dob',
+            'date_of_birth',
+            'gender',
+            'address',
+            'is_active',
+            'status',
+            'created_at',
+            'updated_at',
+        ]
         lookup_field = 'slug'
         extra_kwargs = {
             'password': {'write_only': True},
             'slug': {'read_only': True},
-            'role': {'write_only': True},
             'role_details': {'read_only': True},
+            'user_id': {'read_only': True},
+            'created_at': {'read_only': True},
+            'updated_at': {'read_only': True},
+            'parent_agency': {'queryset': Agency.objects.all(), 'required': False, 'allow_null': True},
+            'parent_b2b_agent': {'queryset': User.objects.all(), 'required': False, 'allow_null': True},
+            'role': {'required': False},
+            'name': {'required': False, 'allow_blank': True},
+            'email': {'required': False, 'allow_null': True},
+            'phone': {'required': False, 'allow_null': True},
+            'user_type': {'required': False, 'allow_null': True},
+            'employee_id': {'required': False, 'allow_null': True, 'allow_blank': True},
+            'designation': {'required': False, 'allow_null': True, 'allow_blank': True},
+            'trade_license_no': {'required': False, 'allow_null': True, 'allow_blank': True},
+            'commission_rate': {'required': False, 'allow_null': True},
+            'contract_start_date': {'required': False, 'allow_null': True},
+            'contract_end_date': {'required': False, 'allow_null': True},
+            'joining_date': {'required': False, 'allow_null': True},
+            'image_url': {'required': False, 'allow_null': True, 'allow_blank': True},
+            'dob': {'required': False, 'allow_null': True},
+            'address': {'required': False, 'allow_null': True, 'allow_blank': True},
+            'is_active': {'required': False},
         }
+
     def validate_password(self, value):
         try:
             validate_password(value)
         except DjangoValidationError as e:
             raise ValidationError(e.messages)
         return value
+
     def get_role_details(self,obj):
-        return AccountRoleSerializer(obj.role,many=True).data
-        
-    def create(self, validated_data):
-        password = validated_data.pop('password',None)
-        roles = validated_data.pop('role',None)
+        return AccountRoleSerializer(obj.role.all(), many=True).data
+
+    def get_parent_agency_details(self, obj):
+        if not obj.parent_agency:
+            return None
+        return {
+            'id': obj.parent_agency.id,
+            'name': obj.parent_agency.name,
+            'slug': obj.parent_agency.slug,
+        }
+
+    def get_parent_b2b_agent_details(self, obj):
+        if not obj.parent_b2b_agent:
+            return None
+        return {
+            'id': obj.parent_b2b_agent.id,
+            'name': obj.parent_b2b_agent.name,
+            'email': obj.parent_b2b_agent.email,
+            'user_type': obj.parent_b2b_agent.user_type,
+        }
+
+    def validate(self, attrs):
+        self._validate_alias_consistency(attrs)
+
+        instance = getattr(self, 'instance', None)
+        resolved_user_type = attrs.get('user_type', getattr(instance, 'user_type', None))
+        resolved_parent_agency = attrs.get('parent_agency', getattr(instance, 'parent_agency', None))
+        resolved_parent_b2b_agent = attrs.get('parent_b2b_agent', getattr(instance, 'parent_b2b_agent', None))
+        resolved_joining_date = attrs.get('joining_date', getattr(instance, 'joining_date', None))
+        resolved_trade_license_no = attrs.get('trade_license_no', getattr(instance, 'trade_license_no', None))
+        resolved_commission_rate = attrs.get('commission_rate', getattr(instance, 'commission_rate', None))
+        resolved_contract_start_date = attrs.get('contract_start_date', getattr(instance, 'contract_start_date', None))
+        resolved_contract_end_date = attrs.get('contract_end_date', getattr(instance, 'contract_end_date', None))
+        password = attrs.get('password')
+        confirm_password = attrs.get('confirm_password')
+
+        if not instance and not resolved_user_type:
+            raise ValidationError({'user_type': ['User type is required.']})
+        if not instance and not password:
+            raise ValidationError({'password': ['Password is required while creating a user.']})
+
         if password:
             self.validate_password(password)
-            validated_data['password'] = make_password(password)
-        user = super().create(validated_data)
-        if roles:
-            for role in roles:
-                user.role.add(role)
+            if not confirm_password:
+                raise ValidationError({'confirm_password': ['Confirm password is required when password is provided.']})
+            if password != confirm_password:
+                raise ValidationError({'confirm_password': ['Password and confirm password must match.']})
+        elif confirm_password:
+            raise ValidationError({'password': ['Password is required when confirm password is provided.']})
+
+        if resolved_user_type and not resolved_parent_agency:
+            raise ValidationError({'parent_agency': ['Parent agency is required for this user type.']})
+
+        if resolved_user_type == constants.UserTypeChoice.B2B_AGENT:
+            missing_errors = {}
+            if not resolved_trade_license_no:
+                missing_errors['trade_license_no'] = ['Trade license number is required for B2B Agent users.']
+            if resolved_commission_rate in (None, ''):
+                missing_errors['commission_rate'] = ['Commission rate is required for B2B Agent users.']
+            if not resolved_contract_start_date:
+                missing_errors['contract_start_date'] = ['Contract start date is required for B2B Agent users.']
+            if not resolved_contract_end_date:
+                missing_errors['contract_end_date'] = ['Contract end date is required for B2B Agent users.']
+            if missing_errors:
+                raise ValidationError(missing_errors)
+
+        if resolved_contract_start_date and resolved_contract_end_date and resolved_contract_start_date > resolved_contract_end_date:
+            raise ValidationError({'contract_end_date': ['Contract end date must be later than or equal to the start date.']})
+
+        if resolved_user_type in (
+            constants.UserTypeChoice.AGENCY_EMPLOYEE,
+            constants.UserTypeChoice.B2B_AGENT_EMPLOYEE,
+        ) and not resolved_joining_date:
+            raise ValidationError({'joining_date': ['Joining date is required for employee users.']})
+
+        if resolved_user_type == constants.UserTypeChoice.B2B_AGENT_EMPLOYEE:
+            if not resolved_parent_b2b_agent:
+                raise ValidationError({'parent_b2b_agent': ['Parent B2B agent is required for B2B Agent Employee users.']})
+            if resolved_parent_b2b_agent.user_type != constants.UserTypeChoice.B2B_AGENT:
+                raise ValidationError({'parent_b2b_agent': ['Selected parent user must be a B2B Agent.']})
+            if instance and resolved_parent_b2b_agent.id == instance.id:
+                raise ValidationError({'parent_b2b_agent': ['A user cannot be their own parent B2B agent.']})
+
+        return attrs
+
+    def _validate_alias_consistency(self, attrs):
+        alias_pairs = (
+            ('name', 'full_name'),
+            ('image_url', 'profile_photo_url'),
+            ('dob', 'date_of_birth'),
+            ('is_active', 'status'),
+        )
+        for raw_field_name, alias_field_name in alias_pairs:
+            raw_value = self.initial_data.get(raw_field_name)
+            alias_value = self.initial_data.get(alias_field_name)
+            if raw_value not in (None, '') and alias_value not in (None, '') and str(raw_value) != str(alias_value):
+                raise ValidationError({
+                    alias_field_name: [f'{alias_field_name} must match {raw_field_name} when both are provided.']
+                })
+
+    def _apply_type_specific_defaults(self, validated_data):
+        user_type = validated_data.get('user_type')
+        if user_type != constants.UserTypeChoice.B2B_AGENT:
+            validated_data['trade_license_no'] = None
+            validated_data['commission_rate'] = None
+            validated_data['contract_start_date'] = None
+            validated_data['contract_end_date'] = None
+
+        if user_type not in (
+            constants.UserTypeChoice.AGENCY_EMPLOYEE,
+            constants.UserTypeChoice.B2B_AGENT_EMPLOYEE,
+        ):
+            validated_data['joining_date'] = None
+
+        if user_type != constants.UserTypeChoice.B2B_AGENT_EMPLOYEE:
+            validated_data['parent_b2b_agent'] = None
+
+        return validated_data
+
+    def create(self, validated_data):
+        password = validated_data.pop('password', None)
+        validated_data.pop('confirm_password', None)
+        roles = validated_data.pop('role', [])
+        validated_data = self._apply_type_specific_defaults(validated_data)
+
+        user = User(**validated_data)
+        if password:
+            user.set_password(password)
+        else:
+            user.set_unusable_password()
         user.save()
+
+        if roles is not None:
+            user.role.set(roles)
         return user
 
     def update(self, instance, validated_data):
-        password = validated_data.pop('password',None)
+        password = validated_data.pop('password', None)
+        validated_data.pop('confirm_password', None)
+        roles = validated_data.pop('role', serializers.empty)
+
+        if 'user_type' not in validated_data:
+            validated_data['user_type'] = instance.user_type
+        validated_data = self._apply_type_specific_defaults(validated_data)
+
+        for key, value in validated_data.items():
+            setattr(instance, key, value)
+
         if password:
-            self.validate_password(password)
-            validated_data['password'] = make_password(password)
-        roles = validated_data.pop('role',None)
-        if roles:
-            instance.role.clear()
-            for role in roles:
-                instance.role.add(role)
-                
-        for key,value in validated_data.items():
-            setattr(instance,key,value)
-            
+            instance.set_password(password)
+
         instance.save()
+
+        if roles is not serializers.empty:
+            instance.role.set(roles)
         return instance
 
 class LoginRequestSerializer(serializers.Serializer):
@@ -80,15 +272,36 @@ class ForgetPasswordConfirmSerializer(serializers.Serializer):
     otp = serializers.CharField(required=True)
     new_password = serializers.CharField(required=True)
 
+    def validate_new_password(self, value):
+        try:
+            validate_password(value)
+        except DjangoValidationError as e:
+            raise ValidationError({'new_password': e.messages})
+        return value
+
 class ResetPasswordRequestSerializer(serializers.Serializer):
     old_password = serializers.CharField(required=True)
     new_password = serializers.CharField(required=True)
     confirm_new_password = serializers.CharField(required=True)
 
+    def validate_new_password(self, value):
+        try:
+            validate_password(value)
+        except DjangoValidationError as e:
+            raise ValidationError({'new_password': e.messages})
+        return value
+
+    def validate(self, attrs):
+        if attrs['new_password'] != attrs['confirm_new_password']:
+            raise ValidationError({'confirm_new_password': ['Password and confirm password must match.']})
+        if attrs['old_password'] == attrs['new_password']:
+            raise ValidationError({'new_password': ['New password must be different from the old password.']})
+        return attrs
+
 class AccountPropertiesSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['email','username','phone','image','address']
+        fields = ['email', 'name', 'phone', 'image_url', 'address']
         
 class AccountRoleSerializer(serializers.ModelSerializer):
     class Meta:

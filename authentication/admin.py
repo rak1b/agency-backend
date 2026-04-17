@@ -16,15 +16,15 @@ class RoleAdmin(admin.ModelAdmin):
 class CustomUserAdmin(admin.ModelAdmin):
     list_display = (
         'id', 'name', 'email', 'phone', 'get_roles_display', 
-        'is_active', 'is_superuser', 'is_staff', 'gender', 'created_at'
+        'user_type', 'is_active', 'is_superuser', 'is_staff', 'gender', 'created_at'
     )
     search_fields = (
-        'name', 'email', 'phone', 'role__name',
+        'name', 'email', 'phone', 'employee_id', 'designation', 'role__name',
         'slug', 'user_id'
     )
     list_filter = (
         'role', 'is_active', 'is_superuser', 'is_staff',
-        'gender', 'is_verified', 'is_approved', 'created_at', 'updated_at'
+        'user_type', 'gender', 'is_verified', 'is_approved', 'created_at', 'updated_at'
     )
     # Use filter_horizontal for better UX with ManyToMany fields
     filter_horizontal = ('groups', 'role')
@@ -36,7 +36,12 @@ class CustomUserAdmin(admin.ModelAdmin):
     
     fieldsets = (
         ('User Information', {
-            'fields': ('name', 'email', 'phone', 'slug', 'user_id', 'role', 'gender', 'address', 'dob', 'image_url')
+            'fields': (
+                'name', 'email', 'phone', 'slug', 'user_id', 'role', 'user_type',
+                'parent_agency', 'parent_b2b_agent', 'employee_id', 'designation',
+                'trade_license_no', 'commission_rate', 'contract_start_date',
+                'contract_end_date', 'joining_date', 'gender', 'address', 'dob', 'image_url'
+            )
         }),
         ('Permissions', {
             'fields': ('is_active', 'is_staff', 'is_superuser', 'groups')

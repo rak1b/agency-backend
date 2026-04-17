@@ -14,7 +14,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from rest_framework.generics import UpdateAPIView
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.shortcuts import get_object_or_404
 from rest_framework.generics import UpdateAPIView
 from django_filters.rest_framework import DjangoFilterBackend
@@ -48,14 +48,17 @@ class UserAPI(viewsets.ModelViewSet):
     lookup_field = 'slug'
     permission_classes = [AllowAny]
     filter_backends = [DjangoFilterBackend,SearchFilter]
-    search_fields = ['name','email','phone',]
+    search_fields = ['name','email','phone','employee_id','designation']
     DYNAMIC_PERMISSION_CODE = 'user'
-    filterset_fields = ['role','user_id','gender','is_active']
+    filterset_fields = ['role','user_id','user_type','parent_agency','parent_b2b_agent','gender','is_active']
     pagination_class = PageNumberPagination
 
     def get_queryset(self):
         emails = ['rakib@admin.com','admin@admin.com','inventory@admin.com','salmansadi165324@gmail.com']
-        return super().get_queryset().exclude(email__in=emails)
+        return super().get_queryset().exclude(email__in=emails).select_related(
+            'parent_agency',
+            'parent_b2b_agent',
+        ).prefetch_related('role')
         
     
     def destroy(self, request, *args, **kwargs):
@@ -266,7 +269,8 @@ class PasswordChangeConfirmView(APIView):
         return Response({"data":serializer.errors},status=status.HTTP_400_BAD_REQUEST)
 
 class WebResetPasswordAPIView(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
     serializer_class = ResetPasswordRequestSerializer
     
     @extend_schema(request=ResetPasswordRequestSerializer,tags=['Account-Util-API'])
