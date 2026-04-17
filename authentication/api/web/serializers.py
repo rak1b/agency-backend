@@ -202,7 +202,16 @@ class UserSerializer(serializers.ModelSerializer):
         elif confirm_password:
             raise ValidationError({'password': ['Password is required when confirm password is provided.']})
 
-        if resolved_user_type and not resolved_parent_agency:
+        user_types_without_extra_validation = {
+            constants.UserTypeChoice.AGENCY_SUPER_ADMIN,
+            constants.UserTypeChoice.AGENCY_EMPLOYEE,
+        }
+
+        if (
+            resolved_user_type
+            and resolved_user_type not in user_types_without_extra_validation
+            and not resolved_parent_agency
+        ):
             raise ValidationError({'parent_agency': ['Parent agency is required for this user type.']})
 
         if resolved_user_type == constants.UserTypeChoice.B2B_AGENT:
@@ -224,7 +233,7 @@ class UserSerializer(serializers.ModelSerializer):
         if resolved_user_type in (
             constants.UserTypeChoice.AGENCY_EMPLOYEE,
             constants.UserTypeChoice.B2B_AGENT_EMPLOYEE,
-        ) and not resolved_joining_date:
+        ) and resolved_user_type not in user_types_without_extra_validation and not resolved_joining_date:
             raise ValidationError({'joining_date': ['Joining date is required for employee users.']})
 
         if resolved_user_type == constants.UserTypeChoice.B2B_AGENT_EMPLOYEE:
