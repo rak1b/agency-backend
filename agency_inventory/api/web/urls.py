@@ -14,6 +14,7 @@ router.register(r'student-costs', views.StudentCostViewSet, basename='student-co
 
 urlpatterns = [
     path('', views.AgencyViewSet.as_view({'get': 'list'}), name='agency-management-root'),
+    path('dashboard/', views.InventoryDashboardAPIView.as_view(), name='inventory-dashboard'),
 ]
 
 urlpatterns += router.urls

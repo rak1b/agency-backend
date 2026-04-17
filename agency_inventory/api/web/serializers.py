@@ -42,6 +42,29 @@ class AgencySerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
 
+class InventoryDashboardQuerySerializer(serializers.Serializer):
+    """
+    Optional filters for the inventory dashboard.
+    """
+
+    agency = serializers.PrimaryKeyRelatedField(
+        queryset=Agency.objects.all(),
+        required=False,
+        allow_null=True,
+    )
+    start_date = serializers.DateField(required=False)
+    end_date = serializers.DateField(required=False)
+
+    def validate(self, attrs):
+        start_date = attrs.get("start_date")
+        end_date = attrs.get("end_date")
+
+        if start_date and end_date and start_date > end_date:
+            raise serializers.ValidationError({"end_date": "End date must be later than or equal to start date."})
+
+        return attrs
+
+
 class CustomerSerializer(serializers.ModelSerializer):
     agency_name = serializers.CharField(source="agency.name", read_only=True)
     assigned_counselor_name = serializers.CharField(source="assigned_counselor.name", read_only=True)
