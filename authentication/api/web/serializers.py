@@ -9,7 +9,6 @@ from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError as DjangoValidationError
 from rest_framework.exceptions import ValidationError
 from agency_inventory.models import Agency
-from drf_spectacular.utils import extend_schema_serializer
 class DashboardRequestSerializer(serializers.Serializer):
     start_date = serializers.DateField()
     end_date = serializers.DateField()
@@ -63,6 +62,12 @@ class NotificationSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+    role = serializers.PrimaryKeyRelatedField(
+        queryset=Role.objects.all(),
+        many=True,
+        required=False,
+        allow_empty=True,
+    )
     role_details = serializers.SerializerMethodField()
     user_type_label = serializers.CharField(source='get_user_type_display', read_only=True)
     parent_agency_details = serializers.SerializerMethodField()
@@ -303,29 +308,6 @@ class UserSerializer(serializers.ModelSerializer):
         if roles is not serializers.empty:
             instance.role.set(roles)
         return instance
-
-
-class UserListPaginationDataSerializer(serializers.Serializer):
-    """Swagger schema for the custom paginated payload returned by the user list API."""
-
-    total_items = serializers.IntegerField()
-    next = serializers.URLField(allow_null=True)
-    previous = serializers.URLField(allow_null=True)
-    total_pages = serializers.IntegerField()
-    active_page = serializers.IntegerField()
-    page_size = serializers.IntegerField(required=False, allow_null=True)
-    results = UserSerializer(many=True)
-
-
-@extend_schema_serializer(many=False)
-class UserListResponseSerializer(serializers.Serializer):
-    """Swagger schema for the renderer-wrapped user list response."""
-
-    code = serializers.IntegerField()
-    status = serializers.CharField()
-    message = serializers.CharField(allow_null=True, required=False)
-    data = UserListPaginationDataSerializer()
-    errors = serializers.JSONField(allow_null=True, required=False)
 
 class LoginRequestSerializer(serializers.Serializer):
     email = serializers.CharField()

@@ -18,6 +18,8 @@ from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from rest_framework.generics import UpdateAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.pagination import PageNumberPagination as DRFPageNumberPagination
+from rest_framework.renderers import JSONRenderer
 from django.shortcuts import get_object_or_404
 from rest_framework.generics import UpdateAPIView
 from django_filters.rest_framework import DjangoFilterBackend
@@ -45,6 +47,12 @@ from rest_framework import status
 from rest_framework.response import Response
 
 
+class StandardUserListPagination(DRFPageNumberPagination):
+    """Use DRF's default paginated response shape while keeping page_size configurable."""
+
+    page_size_query_param = 'page_size'
+
+
 class UserAPI(viewsets.ModelViewSet):
     queryset = User.objects.all().order_by('-created_at')
     serializer_class = UserSerializer
@@ -54,14 +62,12 @@ class UserAPI(viewsets.ModelViewSet):
     search_fields = ['name','email','phone','employee_id','designation']
     DYNAMIC_PERMISSION_CODE = 'user'
     filterset_fields = ['role','user_id','user_type','parent_agency','parent_b2b_agent','gender','is_active']
-    pagination_class = PageNumberPagination
+    pagination_class = StandardUserListPagination
 
-    @extend_schema(
-        responses={200: UserListResponseSerializer},
-        description='Return users using the project standard response envelope and custom pagination keys.',
-    )
-    def list(self, request, *args, **kwargs):
-        return super().list(request, *args, **kwargs)
+    def get_renderers(self):
+        if getattr(self, 'action', None) == 'list':
+            return [JSONRenderer()]
+        return super().get_renderers()
 
     def get_queryset(self):
         emails = ['rakib@admin.com','admin@admin.com','inventory@admin.com','salmansadi165324@gmail.com']
