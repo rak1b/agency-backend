@@ -174,22 +174,10 @@ class UserSerializer(serializers.ModelSerializer):
         }
 
     def validate(self, attrs):
-        self._validate_alias_consistency(attrs)
-
         instance = getattr(self, 'instance', None)
-        resolved_user_type = attrs.get('user_type', getattr(instance, 'user_type', None))
-        resolved_parent_agency = attrs.get('parent_agency', getattr(instance, 'parent_agency', None))
-        resolved_parent_b2b_agent = attrs.get('parent_b2b_agent', getattr(instance, 'parent_b2b_agent', None))
-        resolved_joining_date = attrs.get('joining_date', getattr(instance, 'joining_date', None))
-        resolved_trade_license_no = attrs.get('trade_license_no', getattr(instance, 'trade_license_no', None))
-        resolved_commission_rate = attrs.get('commission_rate', getattr(instance, 'commission_rate', None))
-        resolved_contract_start_date = attrs.get('contract_start_date', getattr(instance, 'contract_start_date', None))
-        resolved_contract_end_date = attrs.get('contract_end_date', getattr(instance, 'contract_end_date', None))
         password = attrs.get('password')
         confirm_password = attrs.get('confirm_password')
 
-        if not instance and not resolved_user_type:
-            raise ValidationError({'user_type': ['User type is required.']})
         if not instance and not password:
             raise ValidationError({'password': ['Password is required while creating a user.']})
 
@@ -202,76 +190,12 @@ class UserSerializer(serializers.ModelSerializer):
         elif confirm_password:
             raise ValidationError({'password': ['Password is required when confirm password is provided.']})
 
-        user_types_without_extra_validation = {
-            constants.UserTypeChoice.AGENCY_SUPER_ADMIN,
-            constants.UserTypeChoice.AGENCY_EMPLOYEE,
-        }
-
-        if (
-            resolved_user_type
-            and resolved_user_type not in user_types_without_extra_validation
-            and not resolved_parent_agency
-        ):
-            raise ValidationError({'parent_agency': ['Parent agency is required for this user type.']})
-
-        if resolved_contract_start_date and resolved_contract_end_date and resolved_contract_start_date > resolved_contract_end_date:
-            raise ValidationError({'contract_end_date': ['Contract end date must be later than or equal to the start date.']})
-
-        if resolved_user_type in (
-            constants.UserTypeChoice.AGENCY_EMPLOYEE,
-            constants.UserTypeChoice.B2B_AGENT_EMPLOYEE,
-        ) and resolved_user_type not in user_types_without_extra_validation and not resolved_joining_date:
-            raise ValidationError({'joining_date': ['Joining date is required for employee users.']})
-
-        if resolved_user_type == constants.UserTypeChoice.B2B_AGENT_EMPLOYEE:
-            if not resolved_parent_b2b_agent:
-                raise ValidationError({'parent_b2b_agent': ['Parent B2B agent is required for B2B Agent Employee users.']})
-            if resolved_parent_b2b_agent.user_type != constants.UserTypeChoice.B2B_AGENT:
-                raise ValidationError({'parent_b2b_agent': ['Selected parent user must be a B2B Agent.']})
-            if instance and resolved_parent_b2b_agent.id == instance.id:
-                raise ValidationError({'parent_b2b_agent': ['A user cannot be their own parent B2B agent.']})
-
         return attrs
-
-    def _validate_alias_consistency(self, attrs):
-        alias_pairs = (
-            ('name', 'full_name'),
-            ('image_url', 'profile_photo_url'),
-            ('dob', 'date_of_birth'),
-            ('is_active', 'status'),
-        )
-        for raw_field_name, alias_field_name in alias_pairs:
-            raw_value = self.initial_data.get(raw_field_name)
-            alias_value = self.initial_data.get(alias_field_name)
-            if raw_value not in (None, '') and alias_value not in (None, '') and str(raw_value) != str(alias_value):
-                raise ValidationError({
-                    alias_field_name: [f'{alias_field_name} must match {raw_field_name} when both are provided.']
-                })
-
-    def _apply_type_specific_defaults(self, validated_data):
-        user_type = validated_data.get('user_type')
-        if user_type != constants.UserTypeChoice.B2B_AGENT:
-            validated_data['trade_license_no'] = None
-            validated_data['commission_rate'] = None
-            validated_data['contract_start_date'] = None
-            validated_data['contract_end_date'] = None
-
-        if user_type not in (
-            constants.UserTypeChoice.AGENCY_EMPLOYEE,
-            constants.UserTypeChoice.B2B_AGENT_EMPLOYEE,
-        ):
-            validated_data['joining_date'] = None
-
-        if user_type != constants.UserTypeChoice.B2B_AGENT_EMPLOYEE:
-            validated_data['parent_b2b_agent'] = None
-
-        return validated_data
 
     def create(self, validated_data):
         password = validated_data.pop('password', None)
         validated_data.pop('confirm_password', None)
         roles = validated_data.pop('role', [])
-        validated_data = self._apply_type_specific_defaults(validated_data)
 
         user = User(**validated_data)
         if password:
@@ -288,10 +212,6 @@ class UserSerializer(serializers.ModelSerializer):
         password = validated_data.pop('password', None)
         validated_data.pop('confirm_password', None)
         roles = validated_data.pop('role', serializers.empty)
-
-        if 'user_type' not in validated_data:
-            validated_data['user_type'] = instance.user_type
-        validated_data = self._apply_type_specific_defaults(validated_data)
 
         for key, value in validated_data.items():
             setattr(instance, key, value)
