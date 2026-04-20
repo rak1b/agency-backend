@@ -42,6 +42,13 @@ class AgencySerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
 
+class CountrySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Country
+        exclude = ["deleted_at", "deleted_by", "is_deleted"]
+        read_only_fields = ["slug", "created_at", "updated_at"]
+
+
 class InventoryDashboardQuerySerializer(serializers.Serializer):
     """
     Optional filters for the inventory dashboard.

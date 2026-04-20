@@ -29,6 +29,8 @@ class Agency(BaseModel):
     trade_license_image_url = models.URLField(max_length=1000, blank=True, null=True)
     created_by = models.ForeignKey("authentication.User", on_delete=models.SET_NULL, null=True, blank=True)
     notes = models.TextField(blank=True, null=True)
+    trade_license_no = models.CharField(max_length=100, blank=True, null=True)
+    commission_rate = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
 
     class Meta:
         ordering = ["-created_at"]

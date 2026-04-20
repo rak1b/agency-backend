@@ -4,6 +4,7 @@ from . import views
 
 router = DefaultRouter()
 router.register(r'agencies', views.AgencyViewSet, basename='agencies')
+router.register(r'countries', views.CountryViewSet, basename='countries')
 router.register(r'customers', views.CustomerViewSet, basename='customers')
 router.register(r'student-files', views.StudentFileViewSet, basename='student-files')
 router.register(r'universities', views.UniversityViewSet, basename='universities')

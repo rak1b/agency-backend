@@ -25,6 +25,7 @@ from ...models import (
 )
 from .serializers import (
     AgencySerializer,
+    CountrySerializer,
     CustomerSerializer,
     InventoryDashboardQuerySerializer,
     OfficeCostSerializer,
@@ -302,6 +303,17 @@ class AgencyViewSet(BaseModelViewSet):
             instance=updated_agency,
             actor=self.request.user,
         )
+
+
+class CountryViewSet(BaseModelViewSet):
+    queryset = Country.objects.all()
+    serializer_class = CountrySerializer
+    permission_classes = [IsAuthenticated]
+    lookup_field = "slug"
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ["is_active"]
+    search_fields = ["name"]
+    ordering_fields = ["created_at", "updated_at", "name"]
 
 
 class CustomerViewSet(BaseModelViewSet):
