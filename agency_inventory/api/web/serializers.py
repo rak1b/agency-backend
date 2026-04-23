@@ -2,13 +2,13 @@ from rest_framework import serializers
 
 from django.db import transaction
 
-from ...constants import normalize_university_program_input
 from ...models import (
     Agency,
     AppliedUniversity,
     Country,
     Customer,
     OfficeCost,
+    Program,
     StudentFile,
     StudentFileAttachment,
     StudentCost,
@@ -45,6 +45,13 @@ class AgencySerializer(serializers.ModelSerializer):
 class CountrySerializer(serializers.ModelSerializer):
     class Meta:
         model = Country
+        exclude = ["deleted_at", "deleted_by", "is_deleted"]
+        read_only_fields = ["slug", "created_at", "updated_at"]
+
+
+class ProgramSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Program
         exclude = ["deleted_at", "deleted_by", "is_deleted"]
         read_only_fields = ["slug", "created_at", "updated_at"]
 
@@ -183,7 +190,8 @@ class StudentFileSerializer(serializers.ModelSerializer):
             "subject_id",
             "subject__subject_name",
             "subject__program_id",
-            "subject__program__program",
+            "subject__program__program_id",
+            "subject__program__program__name",
             "subject__program__university_id",
             "subject__program__university__university_name",
             "slug",
@@ -199,7 +207,8 @@ class StudentFileSerializer(serializers.ModelSerializer):
                 "subject": row["subject_id"],
                 "subject_name": row["subject__subject_name"],
                 "program": row["subject__program_id"],
-                "program_name": row["subject__program__program"],
+                "program_master": row["subject__program__program_id"],
+                "program_name": row["subject__program__program__name"],
                 "program_university": row["subject__program__university_id"],
                 "program_university_name": row["subject__program__university__university_name"],
                 "slug": row["slug"],
@@ -349,14 +358,12 @@ class UniversityProgramSubjectSerializer(serializers.ModelSerializer):
 class UniversityProgramSerializer(serializers.ModelSerializer):
     subjects = UniversityProgramSubjectSerializer(many=True, read_only=True)
     country_name = serializers.CharField(source="university.country.name", read_only=True)
+    program_name = serializers.CharField(source="program.name", read_only=True)
 
     class Meta:
         model = UniversityProgram
         exclude = ["deleted_at", "deleted_by", "is_deleted"]
-        read_only_fields = ["slug", "created_at", "updated_at", "country_name"]
-
-    def validate_program(self, value):
-        return normalize_university_program_input(value)
+        read_only_fields = ["slug", "created_at", "updated_at", "country_name", "program_name"]
 
 
 class UniversityIntakeNestedSerializer(serializers.ModelSerializer):
@@ -372,14 +379,12 @@ class UniversityProgramNestedSerializer(serializers.ModelSerializer):
     """One program checkbox plus its subject/track rows."""
 
     subjects = UniversityProgramSubjectSerializer(many=True, required=False)
+    program_name = serializers.CharField(source="program.name", read_only=True)
 
     class Meta:
         model = UniversityProgram
         exclude = ["deleted_at", "deleted_by", "is_deleted", "university"]
-        read_only_fields = ["slug", "created_at", "updated_at"]
-
-    def validate_program(self, value):
-        return normalize_university_program_input(value)
+        read_only_fields = ["slug", "created_at", "updated_at", "program_name"]
 
 
 class UniversitySerializer(serializers.ModelSerializer):

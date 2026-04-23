@@ -7,7 +7,6 @@ from .constants import (
     CustomerStatusChoice,
     FileFromChoice,
     GenderChoice,
-    UniversityProgramChoice,
 )
 
 
@@ -302,6 +301,21 @@ class UniversityIntake(BaseModel):
             self.slug = generate_unique_slug(f"{self.university_id}-{self.intake_name}", self)
         super().save(*args, **kwargs)
 
+class Program(BaseModel):
+    slug = models.SlugField(max_length=255, unique=True, null=True, blank=True, editable=False)
+    name = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = generate_unique_slug(self.name, self)
+        super().save(*args, **kwargs)
 
 class UniversityProgram(BaseModel):
     """
@@ -310,7 +324,7 @@ class UniversityProgram(BaseModel):
 
     slug = models.SlugField(max_length=255, unique=True, null=True, blank=True, editable=False)
     university = models.ForeignKey(University, on_delete=models.CASCADE, related_name="programs")
-    program = models.CharField(max_length=20, choices=UniversityProgramChoice.choices)
+    program = models.ForeignKey(Program, on_delete=models.CASCADE, related_name="programs")
 
     class Meta:
         ordering = ["-created_at"]
@@ -323,7 +337,7 @@ class UniversityProgram(BaseModel):
 
     def save(self, *args, **kwargs):
         if not self.slug and self.university_id:
-            self.slug = generate_unique_slug(f"{self.university_id}-{self.program}", self)
+            self.slug = generate_unique_slug(f"{self.university_id}-{self.program.name}", self)
         super().save(*args, **kwargs)
 
 
@@ -342,7 +356,7 @@ class UniversityProgramSubject(BaseModel):
         ordering = ["id"]
 
     def __str__(self):
-        return f"{self.program.program} — {self.subject_name}"
+        return f"{self.program.program.name} — {self.subject_name}"
 
     def save(self, *args, **kwargs):
         if not self.slug and self.program_id:

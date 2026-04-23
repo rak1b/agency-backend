@@ -16,6 +16,7 @@ from ...models import (
     Country,
     Customer,
     OfficeCost,
+    Program,
     StudentCost,
     StudentFile,
     University,
@@ -29,6 +30,7 @@ from .serializers import (
     CustomerSerializer,
     InventoryDashboardQuerySerializer,
     OfficeCostSerializer,
+    ProgramSerializer,
     StudentCostSerializer,
     StudentFileSerializer,
     UniversityIntakeSerializer,
@@ -316,6 +318,17 @@ class CountryViewSet(BaseModelViewSet):
     ordering_fields = ["created_at", "updated_at", "name"]
 
 
+class ProgramViewSet(BaseModelViewSet):
+    queryset = Program.objects.all()
+    serializer_class = ProgramSerializer
+    permission_classes = [IsAuthenticated]
+    lookup_field = "slug"
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ["is_active"]
+    search_fields = ["name", "description"]
+    ordering_fields = ["created_at", "updated_at", "name"]
+
+
 class CustomerViewSet(BaseModelViewSet):
     queryset = Customer.objects.select_related("agency", "assigned_counselor").all()
     serializer_class = CustomerSerializer
@@ -364,7 +377,7 @@ class UniversityViewSet(BaseModelViewSet):
         Prefetch("intakes", queryset=UniversityIntake.objects.order_by("id")),
         Prefetch(
             "programs",
-            queryset=UniversityProgram.objects.prefetch_related(
+            queryset=UniversityProgram.objects.select_related("program").prefetch_related(
                 Prefetch("subjects", queryset=UniversityProgramSubject.objects.order_by("id"))
             ).order_by("id"),
         ),
@@ -390,7 +403,7 @@ class UniversityIntakeViewSet(BaseModelViewSet):
 
 
 class UniversityProgramViewSet(BaseModelViewSet):
-    queryset = UniversityProgram.objects.select_related("university", "university__country").prefetch_related(
+    queryset = UniversityProgram.objects.select_related("university", "university__country", "program").prefetch_related(
         Prefetch("subjects", queryset=UniversityProgramSubject.objects.order_by("id"))
     )
     serializer_class = UniversityProgramSerializer
@@ -398,8 +411,8 @@ class UniversityProgramViewSet(BaseModelViewSet):
     lookup_field = "slug"
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ["university", "program", "is_active"]
-    search_fields = ["program", "university__university_name", "university__country__name"]
-    ordering_fields = ["created_at", "updated_at", "program"]
+    search_fields = ["program__name", "university__university_name", "university__country__name"]
+    ordering_fields = ["created_at", "updated_at", "program__name"]
 
 
 class OfficeCostViewSet(BaseModelViewSet):
