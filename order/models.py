@@ -1,11 +1,11 @@
 from decimal import Decimal
 
 from django.core.exceptions import ValidationError
-from django.db import models
+from django.db import models, transaction
 
 from agency_inventory.models import Agency, StudentFile
 from authentication.base import BaseModel
-from utils.slug_utils import generate_unique_code, generate_unique_slug
+from utils.slug_utils import generate_unique_slug
 
 from .constants import DiscountTypeChoice, InvoiceStatusChoice, RecipientTypeChoice
 
@@ -66,6 +66,27 @@ class Invoice(BaseModel):
     def __str__(self):
         return self.invoice_id or f"Invoice {self.id}"
 
+    @classmethod
+    def _generate_next_invoice_id(cls):
+        """
+        Generate invoice ids using ``all_objects`` so soft-deleted invoices are also
+        considered and uniqueness collisions are avoided.
+        """
+        prefix = "INV"
+        number_length = 5
+        with transaction.atomic():
+            last_invoice = (
+                cls.all_objects.select_for_update()
+                .filter(invoice_id__startswith=prefix)
+                .order_by("-invoice_id")
+                .first()
+            )
+            if last_invoice and last_invoice.invoice_id:
+                last_number = int(last_invoice.invoice_id[len(prefix):])
+            else:
+                last_number = 0
+            return f"{prefix}{(last_number + 1):0{number_length}d}"
+
     def clean(self):
         if self.due_date and self.issue_date and self.due_date < self.issue_date:
             raise ValidationError({"due_date": "Due date cannot be earlier than issue date."})
@@ -90,7 +111,7 @@ class Invoice(BaseModel):
 
     def save(self, *args, **kwargs):
         if not self.invoice_id:
-            self.invoice_id = generate_unique_code(Invoice, field_name="invoice_id", prefix="INV", number_length=5)
+            self.invoice_id = self._generate_next_invoice_id()
         if not self.slug:
             self.slug = generate_unique_slug(f"{self.invoice_id}-{self.issue_date}", self)
         self.full_clean()

@@ -53,6 +53,16 @@ class InvoiceSerializer(serializers.ModelSerializer):
             "invoice_item_details",
         ]
 
+    def to_internal_value(self, data):
+        """
+        Backward compatibility: accept legacy ``line_items`` payload key and map it
+        to the current ``invoice_items`` key.
+        """
+        if isinstance(data, dict) and "line_items" in data and "invoice_items" not in data:
+            data = data.copy()
+            data["invoice_items"] = data.get("line_items")
+        return super().to_internal_value(data)
+
     def get_student_name(self, obj):
         if not obj.student:
             return None

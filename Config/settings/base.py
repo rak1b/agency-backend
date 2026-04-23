@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'security.apps.SecurityConfig',
     'agency_inventory.apps.AgencyManagementConfig',
     'order.apps.OrderConfig',
+    'support.apps.SupportConfig',
     'django_cleanup.apps.CleanupConfig',
 ]
 

@@ -6,6 +6,7 @@ urlpatterns = [
     path('/auth/web/', include('authentication.api.web.urls')),
     path('/agency-management/web/', include('agency_inventory.api.web.urls')),
     path('/order/web/', include('order.api.web.urls')),
+    path('/support/web/', include('support.api.web.urls')),
     # path('/mobile/auth/', include('authentication.api.mobile.urls')),
 
     # path('account/', include('account.api.urls')),
