@@ -7,7 +7,7 @@ from agency_inventory.models import Agency, StudentFile
 from authentication.base import BaseModel
 from utils.slug_utils import generate_unique_code, generate_unique_slug
 
-from .constants import InvoiceStatusChoice, RecipientTypeChoice
+from .constants import DiscountTypeChoice, InvoiceStatusChoice, RecipientTypeChoice
 
 
 class InvoiceAttachment(BaseModel):
@@ -48,6 +48,11 @@ class Invoice(BaseModel):
     notes = models.TextField(blank=True, null=True)
 
     subtotal = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal("0.00"))
+    discount_type = models.CharField(
+        max_length=20,
+        choices=DiscountTypeChoice.choices,
+        default=DiscountTypeChoice.FLAT,
+    )
     discount_amount = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal("0.00"))
     vat_amount = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal("0.00"))
     total_amount = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal("0.00"))
@@ -76,6 +81,12 @@ class Invoice(BaseModel):
 
         if self.student_id and self.agency_id and self.student.agency_id and self.student.agency_id != self.agency_id:
             raise ValidationError({"agency": "Selected agency does not match the student's agency."})
+
+        if self.discount_amount < 0:
+            raise ValidationError({"discount_amount": "Discount amount cannot be negative."})
+
+        if self.discount_type == DiscountTypeChoice.PERCENTAGE and self.discount_amount > 100:
+            raise ValidationError({"discount_amount": "Percentage discount must be between 0 and 100."})
 
     def save(self, *args, **kwargs):
         if not self.invoice_id:

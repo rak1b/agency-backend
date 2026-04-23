@@ -4,7 +4,7 @@ from django.db import transaction
 from django.db.models import Sum
 from rest_framework import serializers
 
-from ...constants import RecipientTypeChoice
+from ...constants import DiscountTypeChoice, RecipientTypeChoice
 from ...models import Invoice, InvoiceAttachment, InvoiceLineItem
 
 
@@ -28,8 +28,11 @@ class InvoiceSerializer(serializers.ModelSerializer):
     created_by_name = serializers.CharField(source="created_by.name", read_only=True)
     attachments = InvoiceAttachmentPayloadSerializer(many=True, write_only=True, required=False)
     attachment_details = serializers.SerializerMethodField(read_only=True)
-    line_items = InvoiceLineItemPayloadSerializer(many=True, write_only=True, required=False)
-    line_item_details = serializers.SerializerMethodField(read_only=True)
+    invoice_items = InvoiceLineItemPayloadSerializer(many=True, source="line_items", write_only=True, required=False)
+    invoice_item_details = serializers.SerializerMethodField(read_only=True)
+    agency_details = serializers.SerializerMethodField(read_only=True)
+    student_details = serializers.SerializerMethodField(read_only=True)
+    created_by_details = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Invoice
@@ -45,8 +48,11 @@ class InvoiceSerializer(serializers.ModelSerializer):
             "agency_name",
             "student_name",
             "created_by_name",
+            "agency_details",
+            "student_details",
+            "created_by_details",
             "attachment_details",
-            "line_item_details",
+            "invoice_item_details",
         ]
 
     def get_student_name(self, obj):
@@ -65,7 +71,7 @@ class InvoiceSerializer(serializers.ModelSerializer):
             for attachment in obj.attachments.all()
         ]
 
-    def get_line_item_details(self, obj):
+    def get_invoice_item_details(self, obj):
         return [
             {
                 "id": item.id,
@@ -78,6 +84,40 @@ class InvoiceSerializer(serializers.ModelSerializer):
             for item in obj.line_items.all()
         ]
 
+    def get_agency_details(self, obj):
+        if not obj.agency:
+            return None
+        return {
+            "id": obj.agency.id,
+            "name": obj.agency.name,
+            "slug": obj.agency.slug,
+            "status": obj.agency.status,
+            "business_email": obj.agency.business_email,
+            "phone": obj.agency.phone,
+        }
+
+    def get_student_details(self, obj):
+        if not obj.student:
+            return None
+        return {
+            "id": obj.student.id,
+            "student_file_id": obj.student.student_file_id,
+            "slug": obj.student.slug,
+            "given_name": obj.student.given_name,
+            "surname": obj.student.surname,
+            "passport_number": obj.student.passport_number,
+            "agency_id": obj.student.agency_id,
+        }
+
+    def get_created_by_details(self, obj):
+        if not obj.created_by:
+            return None
+        return {
+            "id": obj.created_by.id,
+            "name": getattr(obj.created_by, "name", None),
+            "email": getattr(obj.created_by, "email", None),
+        }
+
     def validate(self, attrs):
         recipient_type = attrs.get("recipient_type", getattr(self.instance, "recipient_type", None))
         agency = attrs.get("agency", getattr(self.instance, "agency", None))
@@ -85,9 +125,17 @@ class InvoiceSerializer(serializers.ModelSerializer):
         custom_name = attrs.get("custom_recipient_name", getattr(self.instance, "custom_recipient_name", None))
         issue_date = attrs.get("issue_date", getattr(self.instance, "issue_date", None))
         due_date = attrs.get("due_date", getattr(self.instance, "due_date", None))
+        discount_type = attrs.get("discount_type", getattr(self.instance, "discount_type", DiscountTypeChoice.FLAT))
+        discount_amount = attrs.get("discount_amount", getattr(self.instance, "discount_amount", Decimal("0.00")))
 
         if due_date and issue_date and due_date < issue_date:
             raise serializers.ValidationError({"due_date": "Due date cannot be earlier than issue date."})
+
+        if discount_amount is not None and discount_amount < 0:
+            raise serializers.ValidationError({"discount_amount": "Discount amount cannot be negative."})
+
+        if discount_type == DiscountTypeChoice.PERCENTAGE and discount_amount is not None and discount_amount > 100:
+            raise serializers.ValidationError({"discount_amount": "Percentage discount must be between 0 and 100."})
 
         if recipient_type == RecipientTypeChoice.AGENCY:
             if not agency:
@@ -159,7 +207,7 @@ class InvoiceSerializer(serializers.ModelSerializer):
                     line_item = InvoiceLineItem.objects.get(id=line_item_id, invoice=invoice)
                 except InvoiceLineItem.DoesNotExist:
                     raise serializers.ValidationError(
-                        {"line_items": f"Line item id {line_item_id} does not exist for this invoice."}
+                        {"invoice_items": f"Invoice item id {line_item_id} does not exist for this invoice."}
                     )
                 line_item.title = row.get("title", line_item.title)
                 line_item.description = row.get("description", line_item.description)
@@ -183,7 +231,13 @@ class InvoiceSerializer(serializers.ModelSerializer):
         subtotal = invoice.line_items.aggregate(total=Sum("line_total"))["total"] or Decimal("0.00")
         discount_amount = invoice.discount_amount or Decimal("0.00")
         vat_amount = invoice.vat_amount or Decimal("0.00")
-        total_amount = subtotal - discount_amount + vat_amount
+
+        if invoice.discount_type == DiscountTypeChoice.PERCENTAGE:
+            discount_value = (subtotal * discount_amount) / Decimal("100.00")
+        else:
+            discount_value = discount_amount
+
+        total_amount = subtotal - discount_value + vat_amount
         if total_amount < 0:
             total_amount = Decimal("0.00")
 
@@ -194,7 +248,7 @@ class InvoiceSerializer(serializers.ModelSerializer):
     @transaction.atomic
     def create(self, validated_data):
         attachments_data = validated_data.pop("attachments", [])
-        line_items_data = validated_data.pop("line_items", [])
+        invoice_items_data = validated_data.pop("line_items", [])
 
         self._normalize_recipient_data(validated_data)
 
@@ -206,8 +260,8 @@ class InvoiceSerializer(serializers.ModelSerializer):
 
         if attachments_data:
             self._upsert_attachments(invoice, attachments_data)
-        if line_items_data:
-            self._upsert_line_items(invoice, line_items_data)
+        if invoice_items_data:
+            self._upsert_line_items(invoice, invoice_items_data)
 
         self._refresh_totals(invoice)
         return invoice
@@ -215,7 +269,7 @@ class InvoiceSerializer(serializers.ModelSerializer):
     @transaction.atomic
     def update(self, instance, validated_data):
         attachments_data = validated_data.pop("attachments", None)
-        line_items_data = validated_data.pop("line_items", None)
+        invoice_items_data = validated_data.pop("line_items", None)
 
         self._normalize_recipient_data(validated_data)
 
@@ -223,8 +277,8 @@ class InvoiceSerializer(serializers.ModelSerializer):
 
         if attachments_data is not None:
             self._upsert_attachments(invoice, attachments_data)
-        if line_items_data is not None:
-            self._upsert_line_items(invoice, line_items_data)
+        if invoice_items_data is not None:
+            self._upsert_line_items(invoice, invoice_items_data)
 
         self._refresh_totals(invoice)
         return invoice

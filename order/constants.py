@@ -13,3 +13,8 @@ class InvoiceStatusChoice(models.TextChoices):
     SENT = "sent", _("Sent")
     PAID = "paid", _("Paid")
     CANCELLED = "cancelled", _("Cancelled")
+
+
+class DiscountTypeChoice(models.TextChoices):
+    FLAT = "flat", _("Flat")
+    PERCENTAGE = "percentage", _("Percentage")
