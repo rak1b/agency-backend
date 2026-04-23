@@ -1,0 +1,230 @@
+from decimal import Decimal
+
+from django.db import transaction
+from django.db.models import Sum
+from rest_framework import serializers
+
+from ...constants import RecipientTypeChoice
+from ...models import Invoice, InvoiceAttachment, InvoiceLineItem
+
+
+class InvoiceAttachmentPayloadSerializer(serializers.Serializer):
+    id = serializers.IntegerField(required=False)
+    title = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    file_url = serializers.URLField(required=False, allow_blank=True, allow_null=True)
+
+
+class InvoiceLineItemPayloadSerializer(serializers.Serializer):
+    id = serializers.IntegerField(required=False)
+    title = serializers.CharField(required=True, max_length=255)
+    description = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    quantity = serializers.IntegerField(min_value=1, required=False, default=1)
+    unit_price = serializers.DecimalField(max_digits=12, decimal_places=2, required=False, default=Decimal("0.00"))
+
+
+class InvoiceSerializer(serializers.ModelSerializer):
+    agency_name = serializers.CharField(source="agency.name", read_only=True)
+    student_name = serializers.SerializerMethodField(read_only=True)
+    created_by_name = serializers.CharField(source="created_by.name", read_only=True)
+    attachments = InvoiceAttachmentPayloadSerializer(many=True, write_only=True, required=False)
+    attachment_details = serializers.SerializerMethodField(read_only=True)
+    line_items = InvoiceLineItemPayloadSerializer(many=True, write_only=True, required=False)
+    line_item_details = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = Invoice
+        exclude = ["deleted_at", "deleted_by", "is_deleted"]
+        read_only_fields = [
+            "invoice_id",
+            "slug",
+            "subtotal",
+            "total_amount",
+            "created_at",
+            "updated_at",
+            "created_by",
+            "agency_name",
+            "student_name",
+            "created_by_name",
+            "attachment_details",
+            "line_item_details",
+        ]
+
+    def get_student_name(self, obj):
+        if not obj.student:
+            return None
+        return f"{obj.student.given_name} {obj.student.surname}".strip()
+
+    def get_attachment_details(self, obj):
+        return [
+            {
+                "id": attachment.id,
+                "title": attachment.title,
+                "file_url": attachment.file_url,
+                "slug": attachment.slug,
+            }
+            for attachment in obj.attachments.all()
+        ]
+
+    def get_line_item_details(self, obj):
+        return [
+            {
+                "id": item.id,
+                "title": item.title,
+                "description": item.description,
+                "quantity": item.quantity,
+                "unit_price": item.unit_price,
+                "line_total": item.line_total,
+            }
+            for item in obj.line_items.all()
+        ]
+
+    def validate(self, attrs):
+        recipient_type = attrs.get("recipient_type", getattr(self.instance, "recipient_type", None))
+        agency = attrs.get("agency", getattr(self.instance, "agency", None))
+        student = attrs.get("student", getattr(self.instance, "student", None))
+        custom_name = attrs.get("custom_recipient_name", getattr(self.instance, "custom_recipient_name", None))
+        issue_date = attrs.get("issue_date", getattr(self.instance, "issue_date", None))
+        due_date = attrs.get("due_date", getattr(self.instance, "due_date", None))
+
+        if due_date and issue_date and due_date < issue_date:
+            raise serializers.ValidationError({"due_date": "Due date cannot be earlier than issue date."})
+
+        if recipient_type == RecipientTypeChoice.AGENCY:
+            if not agency:
+                raise serializers.ValidationError({"agency": "Agency is required for recipient type 'agency'."})
+
+        elif recipient_type == RecipientTypeChoice.STUDENT:
+            if not student:
+                raise serializers.ValidationError({"student": "Student is required for recipient type 'student'."})
+            if student and agency and student.agency_id and student.agency_id != agency.id:
+                raise serializers.ValidationError({"agency": "Selected agency does not match the student's agency."})
+
+        elif recipient_type == RecipientTypeChoice.CUSTOM:
+            if not custom_name:
+                raise serializers.ValidationError(
+                    {"custom_recipient_name": "Custom recipient name is required for recipient type 'custom'."}
+                )
+
+        return attrs
+
+    def _normalize_recipient_data(self, validated_data):
+        """
+        Keep recipient fields consistent with selected recipient type.
+        """
+        recipient_type = validated_data.get("recipient_type")
+
+        if recipient_type == RecipientTypeChoice.AGENCY:
+            validated_data["student"] = None
+            validated_data["custom_recipient_name"] = None
+            validated_data["custom_recipient_email"] = None
+            validated_data["custom_recipient_phone"] = None
+        elif recipient_type == RecipientTypeChoice.STUDENT:
+            student = validated_data.get("student")
+            if student and student.agency_id:
+                # Keep agency synced from student to avoid cross-agency mismatch.
+                validated_data["agency"] = student.agency
+            validated_data["custom_recipient_name"] = None
+            validated_data["custom_recipient_email"] = None
+            validated_data["custom_recipient_phone"] = None
+        elif recipient_type == RecipientTypeChoice.CUSTOM:
+            validated_data["agency"] = None
+            validated_data["student"] = None
+
+    def _upsert_attachments(self, invoice, attachments_data):
+        attachment_ids = []
+        for row in attachments_data:
+            attachment_id = row.get("id")
+            title = row.get("title")
+            file_url = row.get("file_url")
+
+            if attachment_id:
+                try:
+                    attachment = InvoiceAttachment.objects.get(id=attachment_id)
+                except InvoiceAttachment.DoesNotExist:
+                    raise serializers.ValidationError({"attachments": f"Attachment id {attachment_id} does not exist."})
+                attachment.title = title if title is not None else attachment.title
+                attachment.file_url = file_url if file_url is not None else attachment.file_url
+                attachment.save()
+            else:
+                attachment = InvoiceAttachment.objects.create(title=title, file_url=file_url)
+            attachment_ids.append(attachment.id)
+        invoice.attachments.set(attachment_ids)
+
+    def _upsert_line_items(self, invoice, line_items_data):
+        retained_item_ids = []
+        for row in line_items_data:
+            line_item_id = row.get("id")
+            if line_item_id:
+                try:
+                    line_item = InvoiceLineItem.objects.get(id=line_item_id, invoice=invoice)
+                except InvoiceLineItem.DoesNotExist:
+                    raise serializers.ValidationError(
+                        {"line_items": f"Line item id {line_item_id} does not exist for this invoice."}
+                    )
+                line_item.title = row.get("title", line_item.title)
+                line_item.description = row.get("description", line_item.description)
+                line_item.quantity = row.get("quantity", line_item.quantity)
+                line_item.unit_price = row.get("unit_price", line_item.unit_price)
+                line_item.save()
+            else:
+                line_item = InvoiceLineItem.objects.create(
+                    invoice=invoice,
+                    title=row["title"],
+                    description=row.get("description"),
+                    quantity=row.get("quantity", 1),
+                    unit_price=row.get("unit_price", Decimal("0.00")),
+                )
+            retained_item_ids.append(line_item.id)
+
+        # Replace strategy: any item not sent in payload is removed.
+        invoice.line_items.exclude(id__in=retained_item_ids).delete()
+
+    def _refresh_totals(self, invoice):
+        subtotal = invoice.line_items.aggregate(total=Sum("line_total"))["total"] or Decimal("0.00")
+        discount_amount = invoice.discount_amount or Decimal("0.00")
+        vat_amount = invoice.vat_amount or Decimal("0.00")
+        total_amount = subtotal - discount_amount + vat_amount
+        if total_amount < 0:
+            total_amount = Decimal("0.00")
+
+        invoice.subtotal = subtotal
+        invoice.total_amount = total_amount
+        invoice.save(update_fields=["subtotal", "total_amount", "updated_at"])
+
+    @transaction.atomic
+    def create(self, validated_data):
+        attachments_data = validated_data.pop("attachments", [])
+        line_items_data = validated_data.pop("line_items", [])
+
+        self._normalize_recipient_data(validated_data)
+
+        request = self.context.get("request")
+        if request and hasattr(request, "user"):
+            validated_data["created_by"] = request.user
+
+        invoice = Invoice.objects.create(**validated_data)
+
+        if attachments_data:
+            self._upsert_attachments(invoice, attachments_data)
+        if line_items_data:
+            self._upsert_line_items(invoice, line_items_data)
+
+        self._refresh_totals(invoice)
+        return invoice
+
+    @transaction.atomic
+    def update(self, instance, validated_data):
+        attachments_data = validated_data.pop("attachments", None)
+        line_items_data = validated_data.pop("line_items", None)
+
+        self._normalize_recipient_data(validated_data)
+
+        invoice = super().update(instance, validated_data)
+
+        if attachments_data is not None:
+            self._upsert_attachments(invoice, attachments_data)
+        if line_items_data is not None:
+            self._upsert_line_items(invoice, line_items_data)
+
+        self._refresh_totals(invoice)
+        return invoice
