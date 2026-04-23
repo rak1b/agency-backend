@@ -17,9 +17,7 @@ class InvoiceAttachmentPayloadSerializer(serializers.Serializer):
 class InvoiceLineItemPayloadSerializer(serializers.Serializer):
     id = serializers.IntegerField(required=False)
     title = serializers.CharField(required=True, max_length=255)
-    description = serializers.CharField(required=False, allow_blank=True, allow_null=True)
-    quantity = serializers.IntegerField(min_value=1, required=False, default=1)
-    unit_price = serializers.DecimalField(max_digits=12, decimal_places=2, required=False, default=Decimal("0.00"))
+    amount = serializers.DecimalField(max_digits=12, decimal_places=2, required=False, default=Decimal("0.00"))
 
 
 class InvoiceSerializer(serializers.ModelSerializer):
@@ -76,10 +74,7 @@ class InvoiceSerializer(serializers.ModelSerializer):
             {
                 "id": item.id,
                 "title": item.title,
-                "description": item.description,
-                "quantity": item.quantity,
-                "unit_price": item.unit_price,
-                "line_total": item.line_total,
+                "amount": item.amount,
             }
             for item in obj.line_items.all()
         ]
@@ -210,17 +205,13 @@ class InvoiceSerializer(serializers.ModelSerializer):
                         {"invoice_items": f"Invoice item id {line_item_id} does not exist for this invoice."}
                     )
                 line_item.title = row.get("title", line_item.title)
-                line_item.description = row.get("description", line_item.description)
-                line_item.quantity = row.get("quantity", line_item.quantity)
-                line_item.unit_price = row.get("unit_price", line_item.unit_price)
+                line_item.amount = row.get("amount", line_item.amount)
                 line_item.save()
             else:
                 line_item = InvoiceLineItem.objects.create(
                     invoice=invoice,
                     title=row["title"],
-                    description=row.get("description"),
-                    quantity=row.get("quantity", 1),
-                    unit_price=row.get("unit_price", Decimal("0.00")),
+                    amount=row.get("amount", Decimal("0.00")),
                 )
             retained_item_ids.append(line_item.id)
 
@@ -228,7 +219,7 @@ class InvoiceSerializer(serializers.ModelSerializer):
         invoice.line_items.exclude(id__in=retained_item_ids).delete()
 
     def _refresh_totals(self, invoice):
-        subtotal = invoice.line_items.aggregate(total=Sum("line_total"))["total"] or Decimal("0.00")
+        subtotal = invoice.line_items.aggregate(total=Sum("amount"))["total"] or Decimal("0.00")
         discount_amount = invoice.discount_amount or Decimal("0.00")
         vat_amount = invoice.vat_amount or Decimal("0.00")
 

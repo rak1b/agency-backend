@@ -100,17 +100,10 @@ class Invoice(BaseModel):
 class InvoiceLineItem(BaseModel):
     invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE, related_name="line_items")
     title = models.CharField(max_length=255)
-    description = models.TextField(blank=True, null=True)
-    quantity = models.PositiveIntegerField(default=1)
-    unit_price = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal("0.00"))
-    line_total = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal("0.00"))
+    amount = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal("0.00"))
 
     class Meta:
         ordering = ["id"]
 
     def __str__(self):
-        return f"{self.title} ({self.quantity} x {self.unit_price})"
-
-    def save(self, *args, **kwargs):
-        self.line_total = (self.unit_price or Decimal("0.00")) * Decimal(self.quantity or 0)
-        super().save(*args, **kwargs)
+        return f"{self.title} ({self.amount})"
