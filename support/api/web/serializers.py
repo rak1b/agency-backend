@@ -152,9 +152,6 @@ class TicketSerializer(serializers.ModelSerializer):
 
         agency_user_types = {
             UserTypeChoice.AGENCY_SUPER_ADMIN,
-            UserTypeChoice.AGENCY_EMPLOYEE,
-            UserTypeChoice.B2B_AGENT,
-            UserTypeChoice.B2B_AGENT_EMPLOYEE,
         }
         if user.user_type in agency_user_types:
             return TicketCreatorTypeChoice.AGENCY

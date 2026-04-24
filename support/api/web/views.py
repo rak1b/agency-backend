@@ -30,6 +30,11 @@ class TicketViewSet(BaseModelViewSet):
     search_fields = ["ticket_id", "subject", "description", "created_by__name", "created_by__email"]
     ordering_fields = ["created_at", "updated_at", "last_replied_at", "status", "priority"]
 
+    def get_serializer_class(self):
+        if self.action == "reply":
+            return TicketReplyPayloadSerializer
+        return TicketSerializer
+
     @action(detail=True, methods=["post"], url_path="reply")
     def reply(self, request, *args, **kwargs):
         ticket = self.get_object()
