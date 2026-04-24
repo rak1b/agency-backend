@@ -278,3 +278,13 @@ class TicketSerializer(serializers.ModelSerializer):
             ticket.status = TicketStatusChoice.IN_PROGRESS
         ticket.save(update_fields=["last_replied_at", "last_reply_by", "status", "updated_at"])
         return reply
+
+
+class TicketReplyCreatedSerializer(serializers.Serializer):
+    """
+    Documented response shape for POST /tickets/{slug}/reply/ (not used for validation).
+    """
+
+    message = serializers.CharField()
+    reply_id = serializers.IntegerField()
+    ticket = TicketSerializer(read_only=True)

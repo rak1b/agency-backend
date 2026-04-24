@@ -1,4 +1,5 @@
 from django_filters.rest_framework import DjangoFilterBackend
+from drf_spectacular.utils import extend_schema
 from rest_framework import filters, status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
@@ -7,7 +8,11 @@ from rest_framework.response import Response
 from authentication.base import BaseModelViewSet
 
 from ...models import Ticket
-from .serializers import TicketReplyPayloadSerializer, TicketSerializer
+from .serializers import (
+    TicketReplyCreatedSerializer,
+    TicketReplyPayloadSerializer,
+    TicketSerializer,
+)
 
 
 class TicketViewSet(BaseModelViewSet):
@@ -35,6 +40,12 @@ class TicketViewSet(BaseModelViewSet):
             return TicketReplyPayloadSerializer
         return TicketSerializer
 
+    @extend_schema(
+        request=TicketReplyPayloadSerializer,
+        responses={201: TicketReplyCreatedSerializer},
+        description="Append a reply to the ticket with optional message text, URL-based attachments, "
+        "and/or multipart files under the field name `attachments_files`.",
+    )
     @action(detail=True, methods=["post"], url_path="reply")
     def reply(self, request, *args, **kwargs):
         ticket = self.get_object()
