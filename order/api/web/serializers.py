@@ -4,7 +4,7 @@ from django.db import transaction
 from django.db.models import Sum
 from rest_framework import serializers
 
-from ...constants import DiscountTypeChoice, RecipientTypeChoice
+from ...constants import DiscountTypeChoice, InvoiceStatusChoice, RecipientTypeChoice
 from ...models import Invoice, InvoiceAttachment, InvoiceLineItem
 
 
@@ -283,3 +283,42 @@ class InvoiceSerializer(serializers.ModelSerializer):
 
         self._refresh_totals(invoice)
         return invoice
+
+
+class InvoiceReportQuerySerializer(serializers.Serializer):
+    """Optional query params for GET ``/invoices/report/``."""
+
+    issue_date_from = serializers.DateField(required=False)
+    issue_date_to = serializers.DateField(required=False)
+
+    def validate(self, attrs):
+        start = attrs.get("issue_date_from")
+        end = attrs.get("issue_date_to")
+        if start and end and end < start:
+            raise serializers.ValidationError("issue_date_to cannot be before issue_date_from.")
+        return attrs
+
+
+class InvoiceReportSummarySerializer(serializers.Serializer):
+    invoice_count = serializers.IntegerField()
+    subtotal_sum = serializers.DecimalField(max_digits=12, decimal_places=2)
+    vat_amount_sum = serializers.DecimalField(max_digits=12, decimal_places=2)
+    total_amount_sum = serializers.DecimalField(max_digits=12, decimal_places=2)
+
+
+class InvoiceReportBreakdownRowSerializer(serializers.Serializer):
+    """One bucket in a grouped aggregate (e.g. all invoices in ``draft``)."""
+
+    key = serializers.CharField()
+    label = serializers.CharField()
+    count = serializers.IntegerField()
+    subtotal = serializers.DecimalField(max_digits=12, decimal_places=2)
+    vat_amount = serializers.DecimalField(max_digits=12, decimal_places=2)
+    total_amount = serializers.DecimalField(max_digits=12, decimal_places=2)
+
+
+class InvoiceReportResponseSerializer(serializers.Serializer):
+    filters = serializers.DictField()
+    summary = InvoiceReportSummarySerializer()
+    by_status = InvoiceReportBreakdownRowSerializer(many=True)
+    by_recipient_type = InvoiceReportBreakdownRowSerializer(many=True)

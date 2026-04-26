@@ -35,11 +35,6 @@ class TicketViewSet(BaseModelViewSet):
     search_fields = ["ticket_id", "subject", "description", "created_by__name", "created_by__email"]
     ordering_fields = ["created_at", "updated_at", "last_replied_at", "status", "priority"]
 
-    def get_serializer_class(self):
-        if self.action == "reply":
-            return TicketReplyPayloadSerializer
-        return TicketSerializer
-
     @extend_schema(
         request=TicketReplyPayloadSerializer,
         responses={201: TicketReplyCreatedSerializer},
@@ -55,16 +50,21 @@ class TicketViewSet(BaseModelViewSet):
         )
         payload_serializer.is_valid(raise_exception=True)
 
-        ticket_serializer = self.get_serializer(instance=ticket)
+        serializer_context = self.get_serializer_context()
+        ticket_serializer = TicketSerializer(instance=ticket, context=serializer_context)
         reply_instance = ticket_serializer.create_reply(
             ticket=ticket,
             validated_data=payload_serializer.validated_data,
         )
+        # Ticket may have been prefetched without this reply; drop cache so nested `reply_details` is fresh.
+        if hasattr(ticket, "_prefetched_objects_cache") and "replies" in ticket._prefetched_objects_cache:
+            del ticket._prefetched_objects_cache["replies"]
+
         return Response(
             {
                 "message": "Reply created successfully.",
                 "reply_id": reply_instance.id,
-                "ticket": self.get_serializer(ticket).data,
+                "ticket": TicketSerializer(instance=ticket, context=serializer_context).data,
             },
             status=status.HTTP_201_CREATED,
         )

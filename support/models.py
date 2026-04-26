@@ -92,6 +92,15 @@ class Ticket(BaseModel):
 
 
 class TicketReply(BaseModel):
+    """
+    One message thread entry on a ticket.
+
+    Reply files are ``TicketAttachment`` rows with ``reply`` set; the FK uses
+    ``related_name="attachments"``, so use ``reply.attachments`` (reverse FK).
+    Do not add a separate ``ManyToManyField`` here: it would clash with that
+    reverse accessor and duplicate the same relationship.
+    """
+
     ticket = models.ForeignKey(Ticket, on_delete=models.CASCADE, related_name="replies")
     message = models.TextField(blank=True, null=True)
     replied_by = models.ForeignKey("authentication.User", on_delete=models.SET_NULL, null=True, blank=True)
