@@ -29,6 +29,91 @@ def _money_aggregate_field():
     return DecimalField(max_digits=12, decimal_places=2)
 
 
+def _invoice_report_openapi_parameters():
+    """Query params mirrored in Swagger for ``GET /invoices/report/`` (same as list filters + dates)."""
+    ordering_hint = (
+        "Comma-separated. Allowed: created_at, -created_at, updated_at, -updated_at, "
+        "issue_date, -issue_date, due_date, -due_date, total_amount, -total_amount, status, -status."
+    )
+    return [
+        OpenApiParameter(
+            name="issue_date_from",
+            type=OpenApiTypes.DATE,
+            location=OpenApiParameter.QUERY,
+            required=False,
+            description="Inclusive lower bound on invoice ``issue_date``.",
+        ),
+        OpenApiParameter(
+            name="issue_date_to",
+            type=OpenApiTypes.DATE,
+            location=OpenApiParameter.QUERY,
+            required=False,
+            description="Inclusive upper bound on invoice ``issue_date``.",
+        ),
+        OpenApiParameter(
+            name="recipient_type",
+            type=OpenApiTypes.STR,
+            location=OpenApiParameter.QUERY,
+            required=False,
+            enum=[c.value for c in RecipientTypeChoice],
+            description="Exact match on invoice recipient type.",
+        ),
+        OpenApiParameter(
+            name="status",
+            type=OpenApiTypes.STR,
+            location=OpenApiParameter.QUERY,
+            required=False,
+            enum=[c.value for c in InvoiceStatusChoice],
+            description="Exact match on invoice status.",
+        ),
+        OpenApiParameter(
+            name="agency",
+            type=OpenApiTypes.INT,
+            location=OpenApiParameter.QUERY,
+            required=False,
+            description="Primary key of the related agency.",
+        ),
+        OpenApiParameter(
+            name="student",
+            type=OpenApiTypes.INT,
+            location=OpenApiParameter.QUERY,
+            required=False,
+            description="Primary key of the related student file.",
+        ),
+        OpenApiParameter(
+            name="created_by",
+            type=OpenApiTypes.INT,
+            location=OpenApiParameter.QUERY,
+            required=False,
+            description="Primary key of the user who created the invoice.",
+        ),
+        OpenApiParameter(
+            name="is_active",
+            type=OpenApiTypes.BOOL,
+            location=OpenApiParameter.QUERY,
+            required=False,
+            description="Filter by soft-delete visibility flag on the invoice record.",
+        ),
+        OpenApiParameter(
+            name="search",
+            type=OpenApiTypes.STR,
+            location=OpenApiParameter.QUERY,
+            required=False,
+            description=(
+                "Case-insensitive search across ``invoice_id``, agency name, student given/surname, "
+                "and ``custom_recipient_name``."
+            ),
+        ),
+        OpenApiParameter(
+            name="ordering",
+            type=OpenApiTypes.STR,
+            location=OpenApiParameter.QUERY,
+            required=False,
+            description=ordering_hint,
+        ),
+    ]
+
+
 def _invoice_group_breakdown(queryset, field_name, label_map):
     """
     Build status- or recipient-type-style rows with money totals per bucket.
@@ -90,20 +175,7 @@ class InvoiceViewSet(BaseModelViewSet):
             "``agency``, ``student``, ``created_by``, ``is_active``, ``search``, ``ordering``) "
             "and optional ``issue_date_from`` / ``issue_date_to`` (inclusive) on ``issue_date``."
         ),
-        parameters=[
-            OpenApiParameter(
-                name="issue_date_from",
-                type=OpenApiTypes.DATE,
-                location=OpenApiParameter.QUERY,
-                required=False,
-            ),
-            OpenApiParameter(
-                name="issue_date_to",
-                type=OpenApiTypes.DATE,
-                location=OpenApiParameter.QUERY,
-                required=False,
-            ),
-        ],
+        parameters=_invoice_report_openapi_parameters(),
         responses={status.HTTP_200_OK: InvoiceReportResponseSerializer},
     )
     @action(detail=False, methods=["get"], url_path="report")
