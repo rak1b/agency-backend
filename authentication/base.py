@@ -7,6 +7,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework import viewsets
 from simple_history.models import HistoricalRecords
 
+from authentication import constants
 
 
 class SoftDeleteManager(models.Manager):
@@ -122,6 +123,60 @@ class BaseModelViewSet(viewsets.ModelViewSet):
 
     permission_classes = [AllowAny]
 
+    def _is_agent_type_user(self, user):
+        if not user or not user.is_authenticated:
+            return False
+        return user.user_type in {
+            constants.UserTypeChoice.B2B_AGENT,
+            constants.UserTypeChoice.B2B_AGENT_EMPLOYEE,
+        }
+
+    def _has_model_field(self, model_class, field_name):
+        return any(field.name == field_name for field in model_class._meta.get_fields())
+
+    def _resolve_agent_owner_user(self, user):
+        """
+        Employee accounts are scoped under their parent B2B agent.
+        """
+        if (
+            user.user_type == constants.UserTypeChoice.B2B_AGENT_EMPLOYEE
+            and user.parent_b2b_agent_id
+        ):
+            return user.parent_b2b_agent
+        return user
+
+    def _apply_agent_scope(self, queryset):
+        """
+        Restrict agent-type users to only their owned records.
+        Priority: explicit `agent` field, then `agency`, then `Agency` id fallback.
+        """
+        user = getattr(self.request, "user", None)
+        if not self._is_agent_type_user(user):
+            return queryset
+        if not user:
+            return queryset.none()
+
+        scoped_agency_id = user.parent_agency_id
+        model_class = queryset.model
+        if self._has_model_field(model_class, "agent"):
+            return queryset.filter(agent=self._resolve_agent_owner_user(user))
+
+        if self._has_model_field(model_class, "agency"):
+            if scoped_agency_id:
+                return queryset.filter(agency_id=scoped_agency_id)
+            return queryset.none()
+
+        # Agency model itself has no `agency` FK, so scope by its own id.
+        if model_class._meta.app_label == "agency_inventory" and model_class.__name__ == "Agency":
+            if scoped_agency_id:
+                return queryset.filter(id=scoped_agency_id)
+            return queryset.none()
+
+        return queryset
+
+    def get_queryset(self):
+        base_queryset = super().get_queryset()
+        return self._apply_agent_scope(base_queryset)
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -133,15 +188,18 @@ class BaseModelViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['delete'], url_path='hard-delete')
     def hard_delete(self, request, *args, **kwargs):
-        # Use the dynamic lookup_field instead of hardcoded 'slug'
+        # Use the dynamic lookup_field and enforce agent-level ownership.
         lookup_value = kwargs.get(self.lookup_field)
-        instance = self.queryset.model.all_objects.get(**{self.lookup_field: lookup_value})
+        soft_deleted_queryset = self.queryset.model.all_objects.all()
+        soft_deleted_queryset = self._apply_agent_scope(soft_deleted_queryset)
+        instance = soft_deleted_queryset.get(**{self.lookup_field: lookup_value})
         instance.hard_delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(detail=False, methods=['get'], url_path='soft-deleted')
     def get_soft_deleted(self, request, *args, **kwargs):
         queryset = self.queryset.model.all_objects.filter(is_deleted=True)
+        queryset = self._apply_agent_scope(queryset)
         page = self.paginate_queryset(queryset)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
@@ -156,7 +214,9 @@ class BaseModelViewSet(viewsets.ModelViewSet):
         lookup_value = kwargs.get(self.lookup_field)
         
         try:
-            instance = self.queryset.model.all_objects.get(**{self.lookup_field: lookup_value}, is_deleted=True)
+            queryset = self.queryset.model.all_objects.filter(is_deleted=True)
+            queryset = self._apply_agent_scope(queryset)
+            instance = queryset.get(**{self.lookup_field: lookup_value})
         except self.queryset.model.DoesNotExist:
             return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
 

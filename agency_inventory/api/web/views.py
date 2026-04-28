@@ -52,9 +52,18 @@ class InventoryDashboardAPIView(APIView):
         validated_filters = query_serializer.validated_data
 
         agency = validated_filters.get("agency")
+        if self._is_agent_type_user(request.user):
+            agency = self._resolve_scoped_agency_for_agent_user(request.user)
+
         start_date, end_date = self._resolve_date_range(validated_filters)
 
         agencies_queryset = Agency.objects.all()
+        if self._is_agent_type_user(request.user):
+            if agency:
+                agencies_queryset = agencies_queryset.filter(id=agency.id)
+            else:
+                agencies_queryset = agencies_queryset.none()
+
         customers_queryset = Customer.objects.filter(created_at__date__range=(start_date, end_date))
         student_files_queryset = StudentFile.objects.filter(created_at__date__range=(start_date, end_date))
         office_costs_queryset = OfficeCost.objects.filter(created_at__date__range=(start_date, end_date))
@@ -169,6 +178,22 @@ class InventoryDashboardAPIView(APIView):
             "recent_student_files": recent_student_files,
         }
         return Response(response_payload)
+
+    def _is_agent_type_user(self, user):
+        if not user or not user.is_authenticated:
+            return False
+        return user.user_type in {
+            constants.UserTypeChoice.B2B_AGENT,
+            constants.UserTypeChoice.B2B_AGENT_EMPLOYEE,
+        }
+
+    def _resolve_scoped_agency_for_agent_user(self, user):
+        """
+        Dashboard data for agent users is always restricted to their parent agency.
+        """
+        if not user.parent_agency_id:
+            return None
+        return Agency.objects.filter(id=user.parent_agency_id).first()
 
     def _resolve_date_range(self, validated_filters):
         start_date = validated_filters.get("start_date")
