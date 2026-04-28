@@ -143,61 +143,62 @@ class NotificationViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins
 
 
 # Define your views here
+def get_section_wise_permissions_for_user(user):
+    """
+    Build section-grouped permissions for login response.
+    Each section includes permission codes available to the user via roles.
+    """
+    role_ids = list(user.role.values_list("id", flat=True))
+    if not role_ids:
+        return []
+
+    role_permission_rows = RolePermission.objects.filter(role_id__in=role_ids).prefetch_related(
+        "permissions",
+        "permissions__section",
+    )
+    section_permission_map = {}
+    for role_permission in role_permission_rows:
+        for permission in role_permission.permissions.all():
+            section = permission.section
+            if not section:
+                continue
+
+            if section.id not in section_permission_map:
+                section_permission_map[section.id] = {
+                    "section_id": section.id,
+                    "section_slug": section.slug,
+                    "section_name": section.name,
+                    "permissions": [],
+                    "_permission_codes": set(),
+                }
+
+            section_bucket = section_permission_map[section.id]
+            if permission.code in section_bucket["_permission_codes"]:
+                continue
+
+            section_bucket["_permission_codes"].add(permission.code)
+            section_bucket["permissions"].append(
+                {
+                    "id": permission.id,
+                    "code": permission.code,
+                    "name": permission.name,
+                    "slug": permission.slug,
+                }
+            )
+
+    section_wise_permissions = []
+    for section_bucket in section_permission_map.values():
+        section_bucket.pop("_permission_codes", None)
+        section_bucket["permissions"].sort(key=lambda item: (item["name"] or "", item["code"] or ""))
+        section_wise_permissions.append(section_bucket)
+
+    section_wise_permissions.sort(key=lambda item: (item["section_name"] or "", item["section_slug"] or ""))
+    return section_wise_permissions
+
+
 class WebUserLoginView(APIView):
     authentication_classes = []
     permission_classes = []
-
-    def _get_section_wise_permissions_for_user(self, user):
-        """
-        Build section-grouped permissions for login response.
-        Each section includes the permission codes available to the user via roles.
-        """
-        role_ids = list(user.role.values_list("id", flat=True))
-        if not role_ids:
-            return []
-
-        role_permission_rows = RolePermission.objects.filter(role_id__in=role_ids).prefetch_related(
-            "permissions",
-            "permissions__section",
-        )
-        section_permission_map = {}
-        for role_permission in role_permission_rows:
-            for permission in role_permission.permissions.all():
-                section = permission.section
-                if not section:
-                    continue
-
-                if section.id not in section_permission_map:
-                    section_permission_map[section.id] = {
-                        "section_id": section.id,
-                        "section_slug": section.slug,
-                        "section_name": section.name,
-                        "permissions": [],
-                        "_permission_codes": set(),
-                    }
-
-                section_bucket = section_permission_map[section.id]
-                if permission.code in section_bucket["_permission_codes"]:
-                    continue
-
-                section_bucket["_permission_codes"].add(permission.code)
-                section_bucket["permissions"].append(
-                    {
-                        "id": permission.id,
-                        "code": permission.code,
-                        "name": permission.name,
-                        "slug": permission.slug,
-                    }
-                )
-
-        section_wise_permissions = []
-        for section_bucket in section_permission_map.values():
-            section_bucket.pop("_permission_codes", None)
-            section_bucket["permissions"].sort(key=lambda item: (item["name"] or "", item["code"] or ""))
-            section_wise_permissions.append(section_bucket)
-
-        section_wise_permissions.sort(key=lambda item: (item["section_name"] or "", item["section_slug"] or ""))
-        return section_wise_permissions
 
     @extend_schema(
         request=LoginRequestSerializer,
@@ -260,7 +261,7 @@ class WebUserLoginView(APIView):
             context['access_token'] = access_token
             context['refresh_token'] = refresh_token
             context['user_slug'] = user_info.slug
-            context['section_wise_permissions'] = self._get_section_wise_permissions_for_user(user_info)
+            context['section_wise_permissions'] = get_section_wise_permissions_for_user(user_info)
             return Response(context)
         else:
             context['detail'] = 'Invalid Email or Password'
@@ -309,6 +310,7 @@ class WebLoginView(APIView):
             access_token, refresh_token = generate_tokens({'user_id':account.user.id,'user_name':user_info.name,'role':'3','role_title':'merchant'})
             context['access_token'] = access_token
             context['refresh_token'] = refresh_token
+            context['section_wise_permissions'] = get_section_wise_permissions_for_user(user_info)
             return Response(context)
         else:
             context['detail'] = 'Invalid Email or Password'
