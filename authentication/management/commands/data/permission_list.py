@@ -224,6 +224,27 @@ PERMISSION_LIST = [
         ],
     },
     {
+        "section_name": "Ticket",
+        "description": "Allows the user to manage support tickets.",
+        "permissions": [
+            {
+                "name": "Open Ticket",
+                "code": "open_ticket",
+                "description": "Allows the user to open tickets.",
+            },
+            {
+                "name": "Reply Ticket",
+                "code": "reply_ticket",
+                "description": "Allows the user to reply to tickets.",
+            },
+            {
+                "name": "View Ticket",
+                "code": "view_ticket",
+                "description": "Allows the user to view tickets.",
+            },
+        ],
+    },
+    {
         "section_name": "Roles",
         "description": "Allows the user to manage role records.",
         "permissions": [
