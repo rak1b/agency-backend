@@ -18,6 +18,7 @@ class UserTypeChoice(TextChoices):
     AGENCY_EMPLOYEE = "AGENCY_EMPLOYEE", _("Agency Employee")
     B2B_AGENT = "B2B_AGENT", _("B2B Agent")
     B2B_AGENT_EMPLOYEE = "B2B_AGENT_EMPLOYEE", _("B2B Agent Employee")
+    STUDENT = "STUDENT", _("Student")
 
 
 USER_TYPE_OPTIONS = UserTypeChoice.choices
