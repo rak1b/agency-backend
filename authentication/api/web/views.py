@@ -311,6 +311,26 @@ class WebLoginView(APIView):
             context['access_token'] = access_token
             context['refresh_token'] = refresh_token
             context['section_wise_permissions'] = get_section_wise_permissions_for_user(user_info)
+            context['user_type'] = user_info.user_type
+            context['user_type_label'] = user_info.get_user_type_display() if user_info.user_type else None
+            context['role_details'] = [
+                {
+                    "id": role.id,
+                    "name": role.name,
+                    "description": role.description,
+                    "is_active": role.is_active,
+                }
+                for role in user_info.role.all()
+            ]
+            context['agency_details'] = (
+                {
+                    "id": user_info.parent_agency.id,
+                    "name": user_info.parent_agency.name,
+                    "slug": user_info.parent_agency.slug,
+                }
+                if user_info.parent_agency
+                else None
+            )
             return Response(context)
         else:
             context['detail'] = 'Invalid Email or Password'
