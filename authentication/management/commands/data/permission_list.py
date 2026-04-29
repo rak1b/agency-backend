@@ -109,7 +109,17 @@ PERMISSION_LIST = [
                 "name": "Delete University",
                 "code": "delete_universities",
                 "description": "Allows the user to delete a university.",
-            },
+            }
+           
+        
+            
+        ],
+    },
+     {
+        "section_name": "Programs",
+        "description": "Allows the user to manage university records.",
+        "permissions": [
+        
             {
                 "name": "View programs",
                 "code": "view_programs",
