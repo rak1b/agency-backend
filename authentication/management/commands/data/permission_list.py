@@ -110,6 +110,29 @@ PERMISSION_LIST = [
                 "code": "delete_universities",
                 "description": "Allows the user to delete a university.",
             },
+            {
+                "name": "View programs",
+                "code": "view_programs",
+                "description": "Allows the user to view programs.",
+            },
+             {
+                "name": "Create program",
+                "code": "create_programs",
+                "description": "Allows the user to create a program.",
+            },
+            {
+                "name": "Edit program",
+                "code": "edit_programs",
+                "description": "Allows the user to edit a program.",
+            },
+            {
+                "name": "Delete program",
+                "code": "delete_programs",
+                "description": "Allows the user to delete a program.",
+            }
+           
+        
+            
         ],
     },
     {

@@ -8,17 +8,27 @@ from authentication.models import RolePermission
 
 
 def create_permissions():
-    for section in PERMISSION_LIST:
-        section_obj, created = Section.objects.get_or_create(name=section['section_name'])
-        if created:
-            print(f"Section {section['section_name']} created")
-        section_permissions = section['permissions']
-        for permission in section_permissions:
-            permission_obj, created = Permission.objects.get_or_create(name=permission['name'],code=permission['code'],description=permission['description'], section=section_obj)
-            if created:
-                print(f"Permission {permission['name']} created")
+    for section_data in PERMISSION_LIST:
+        section_name = section_data["section_name"]
+        section_obj, section_created = Section.objects.get_or_create(name=section_name)
+        if section_created:
+            print(f"Section {section_name} created")
+
+        section_permissions = section_data["permissions"]
+        for permission_data in section_permissions:
+            # Use stable identity fields for lookup, and only apply others on create.
+            _, permission_created = Permission.objects.get_or_create(
+                section=section_obj,
+                code=permission_data["code"],
+                defaults={
+                    "name": permission_data["name"],
+                    "description": permission_data["description"],
+                },
+            )
+            if permission_created:
+                print(f"Permission {permission_data['name']} created")
             else:
-                print(f"Permission {permission['name']} already exists")
+                print(f"Permission {permission_data['name']} already exists")
 def delete_permissions():
     # Hard-delete permissions first, then sections, to avoid orphaned references.
     total_deleted_permissions = 0
@@ -57,7 +67,7 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         try:
             with transaction.atomic():
-                delete_permissions()
+                # delete_permissions()
                 create_permissions()
                 # create_super_admin_role()
                 print("Permissions permanently deleted successfully")
