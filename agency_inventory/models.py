@@ -130,12 +130,6 @@ class Customer(BaseModel):
 
     class Meta:
         ordering = ["-created_at"]
-        constraints = [
-            models.UniqueConstraint(
-                fields=["agency", "passport_number"],
-                name="unique_customer_passport_per_agency",
-            ),
-        ]
 
     def __str__(self):
         return f"{self.customer_id or 'CUSTOMER'} - {self.given_name} {self.surname}".strip()
@@ -205,12 +199,6 @@ class StudentFile(BaseModel):
 
     class Meta:
         ordering = ["-created_at"]
-        constraints = [
-            models.UniqueConstraint(
-                fields=["agency", "passport_number"],
-                name="unique_studentfile_passport_per_agency",
-            ),
-        ]
 
     def __str__(self):
         return f"{self.student_file_id or 'STUDENT_FILE'} - {self.given_name} {self.surname}".strip()
@@ -371,12 +359,6 @@ class Country(BaseModel):
 
     class Meta:
         ordering = ["name"]
-        constraints = [
-            models.UniqueConstraint(
-                fields=["agency", "name"],
-                name="unique_country_name_per_agency",
-            ),
-        ]
 
     def __str__(self):
         return self.name
@@ -417,12 +399,6 @@ class University(BaseModel):
 
     class Meta:
         ordering = ["-created_at"]
-        constraints = [
-            models.UniqueConstraint(
-                fields=["agency", "university_name", "country"],
-                name="unique_university_name_country_per_agency",
-            ),
-        ]
 
     def __str__(self):
         return f"{self.university_name} ({self.country.name})"
@@ -471,9 +447,6 @@ class UniversityIntake(BaseModel):
 
     class Meta:
         ordering = ["-created_at"]
-        constraints = [
-            models.UniqueConstraint(fields=["university", "intake_name"], name="unique_intake_per_university"),
-        ]
 
     def __str__(self):
         return f"{self.university.university_name} - {self.intake_name}"
@@ -508,12 +481,6 @@ class Program(BaseModel):
 
     class Meta:
         ordering = ["-created_at"]
-        constraints = [
-            models.UniqueConstraint(
-                fields=["agency", "name"],
-                name="unique_program_name_per_agency",
-            ),
-        ]
 
     def __str__(self):
         return self.name
@@ -550,9 +517,6 @@ class UniversityProgram(BaseModel):
 
     class Meta:
         ordering = ["-created_at"]
-        constraints = [
-            models.UniqueConstraint(fields=["university", "program"], name="unique_program_per_university"),
-        ]
 
     def __str__(self):
         return f"{self.university.university_name} - {self.program}"

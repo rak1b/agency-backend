@@ -445,14 +445,9 @@ class UniversitySerializer(serializers.ModelSerializer):
         names = [item.get("intake_name", "").strip() for item in intakes]
         if any(not name for name in names):
             raise serializers.ValidationError("Each intake must have a non-empty name.")
-        if len(names) != len(set(names)):
-            raise serializers.ValidationError("Intake names must be unique for this university.")
         return intakes
 
     def validate_programs(self, programs):
-        codes = [item.get("program") for item in programs]
-        if len(codes) != len(set(codes)):
-            raise serializers.ValidationError("Each program type can only appear once per university.")
         return programs
 
     @transaction.atomic
