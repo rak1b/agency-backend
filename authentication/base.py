@@ -305,7 +305,12 @@ class BaseModelViewSet(viewsets.ModelViewSet):
             return {}
         user = getattr(self.request, "user", None)
         if not user_is_master_admin(user):
-            self._validate_tenant_related_values(serializer, tenant_business_id(user))
+            business_id = tenant_business_id(user)
+            if self._has_model_field(model, "business") and not business_id:
+                raise ValidationError(
+                    {"business": "Your user account is not assigned to a business."}
+                )
+            self._validate_tenant_related_values(serializer, business_id)
         return tenant_org_save_kwargs(user, model, self._has_model_field)
 
     def perform_create(self, serializer):
