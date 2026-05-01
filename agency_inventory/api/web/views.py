@@ -1,8 +1,10 @@
 from authentication.base import BaseModelViewSet, StudentPortalReadOnlyMixin
 from authentication import constants
 from authentication.tenant_utils import (
+    b2b_agent_tenant_agency_id,
     is_student_portal_user,
     tenant_business_id,
+    user_is_b2b_agent_or_employee,
     user_is_master_admin,
 )
 from authentication.notification_utils import create_notifications_for_event
@@ -420,6 +422,22 @@ class StudentFileViewSet(StudentPortalReadOnlyMixin, BaseModelViewSet):
     filterset_fields = ["business", "agency", "current_status", "file_from", "created_by", "is_active"]
     search_fields = ["student_file_id", "passport_number", "given_name", "surname", "email", "phone_whatsapp"]
     ordering_fields = ["created_at", "updated_at", "given_name", "current_status"]
+
+    def _apply_tenant_scope(self, queryset):
+        """
+        Apply business isolation from ``BaseModelViewSet``, then restrict B2B agents
+        (and their employees) to student files whose ``agency`` matches their tenant agency.
+        """
+        queryset = super()._apply_tenant_scope(queryset)
+        user = getattr(self.request, "user", None)
+        if not user or not user.is_authenticated or user_is_master_admin(user):
+            return queryset
+        if not user_is_b2b_agent_or_employee(user):
+            return queryset
+        agency_id = b2b_agent_tenant_agency_id(user)
+        if not agency_id:
+            return queryset.none()
+        return queryset.filter(agency_id=agency_id)
 
     def perform_create(self, serializer):
         created_student_file = serializer.save(**self.get_tenant_save_kwargs(serializer))

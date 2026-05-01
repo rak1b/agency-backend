@@ -29,6 +29,37 @@ def tenant_business_id(user):
     return getattr(user, "parent_business_id", None)
 
 
+def user_is_b2b_agent_or_employee(user) -> bool:
+    """Inventory users tied to a single agency (B2B partner or their staff)."""
+    if not user or not user.is_authenticated:
+        return False
+    ut = getattr(user, "user_type", None)
+    return ut in (
+        constants.UserTypeChoice.B2B_AGENT,
+        constants.UserTypeChoice.B2B_AGENT_EMPLOYEE,
+    )
+
+
+def b2b_agent_tenant_agency_id(user):
+    """
+    Agency used to scope rows for B2B users.
+
+    ``B2B_AGENT`` uses ``parent_agency``. ``B2B_AGENT_EMPLOYEE`` prefers the parent
+    agent's agency, then falls back to the employee's own ``parent_agency`` if set.
+    """
+    if not user or not user.is_authenticated:
+        return None
+    ut = getattr(user, "user_type", None)
+    if ut == constants.UserTypeChoice.B2B_AGENT:
+        return getattr(user, "parent_agency_id", None)
+    if ut == constants.UserTypeChoice.B2B_AGENT_EMPLOYEE:
+        parent = getattr(user, "parent_b2b_agent", None)
+        if parent is not None and getattr(parent, "parent_agency_id", None):
+            return parent.parent_agency_id
+        return getattr(user, "parent_agency_id", None)
+    return None
+
+
 def tenant_org_save_kwargs(user, model_class, has_field_fn) -> dict:
     """
     Merge into ``serializer.save(...)`` so tenant users persist the correct ``business_id``.
