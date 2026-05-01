@@ -80,22 +80,26 @@ def invoice_issuer_agency_stamp_id(user):
 
 def invoice_list_skips_agency_row_scope(user) -> bool:
     """
-    Invoice list/report uses ``business_id`` isolation only (no extra ``agency`` slice).
+    When True (default for non-B2B), invoice APIs only enforce ``business_id`` after
+    ``BaseModelViewSet`` — **no extra filter on Invoice.agency**.
 
-    Agency super admins are treated as **business owners**: they see every invoice in
-    ``parent_business``, even when their profile also has ``parent_agency`` set.
+    - ``AGENCY_SUPER_ADMIN`` / ``AGENCY_EMPLOYEE``: business-wide under ``parent_business``.
+    - ``B2B_AGENT`` / ``B2B_AGENT_EMPLOYEE``: callers apply ``apply_b2b_agency_scope_to_queryset``
+      so rows match the partner's scoped agency.
 
-    Master operators and portal students skip downstream agency narrowing here (same
-    effect as elsewhere in ``apply_b2b_agency_scope_to_queryset`` early returns).
+    Unknown or unset ``user_type`` is treated like agency-side staff (business-only invoices).
     """
     if not user or not user.is_authenticated:
-        return False
+        return True
     if user_is_master_admin(user):
         return True
     if is_student_portal_user(user):
         return True
     ut = getattr(user, "user_type", None)
-    return ut == constants.UserTypeChoice.AGENCY_SUPER_ADMIN
+    return ut not in (
+        constants.UserTypeChoice.B2B_AGENT,
+        constants.UserTypeChoice.B2B_AGENT_EMPLOYEE,
+    )
 
 
 def model_has_agency_fk(model_class) -> bool:

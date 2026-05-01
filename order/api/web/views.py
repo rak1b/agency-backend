@@ -172,9 +172,9 @@ class InvoiceViewSet(StudentPortalReadOnlyMixin, BaseModelViewSet):
 
     def _apply_tenant_scope(self, queryset):
         """
-        Tenant boundary is always ``business_id`` (via ``BaseModelViewSet``).
-        Agency / B2B users are further narrowed to their home agency; business owners
-        (``AGENCY_SUPER_ADMIN``) remain business-wide across all agencies under that tenant.
+        Scoped by ``business_id`` for everyone; only B2B partner accounts also filter by
+        ``agency`` via ``apply_b2b_agency_scope_to_queryset``. Agency super admins and
+        agency employees see all invoices within their business tenant.
         """
         queryset = super()._apply_tenant_scope(queryset)
         user = getattr(self.request, "user", None)
