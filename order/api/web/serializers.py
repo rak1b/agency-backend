@@ -169,8 +169,6 @@ class InvoiceSerializer(serializers.ModelSerializer):
             if tenant_bid:
                 if agency:
                     aid = _agency_business_pk(agency)
-                    if aid and aid != tenant_bid:
-                        raise serializers.ValidationError({"agency": "Agency must belong to your business."})
                 if student:
                     st_bid = getattr(student, "business_id", None) or _agency_business_pk(
                         getattr(student, "agency_id", None)
