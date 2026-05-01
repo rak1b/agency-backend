@@ -140,7 +140,7 @@ class Customer(BaseModel):
         if not self.slug:
             slug_source = f"{self.given_name}-{self.surname}-{self.passport_number}"
             self.slug = generate_unique_slug(slug_source, self)
-        if self.agency_id:
+        if self.business_id is None and self.agency_id:
             self.business_id = _agency_business_pk(self.agency_id)
         super().save(*args, **kwargs)
 
@@ -209,7 +209,7 @@ class StudentFile(BaseModel):
         if not self.slug:
             slug_source = f"{self.given_name}-{self.surname}-{self.passport_number}"
             self.slug = generate_unique_slug(slug_source, self)
-        if self.agency_id:
+        if self.business_id is None and self.agency_id:
             self.business_id = _agency_business_pk(self.agency_id)
         super().save(*args, **kwargs)
 
@@ -288,12 +288,13 @@ class AppliedUniversity(BaseModel):
                 else self.intake or "applied-university"
             )
             self.slug = generate_unique_slug(slug_source, self)
-        if self.university_id and getattr(self.university, "business_id", None):
-            self.business_id = self.university.business_id
-        elif self.agency_id:
-            self.business_id = _agency_business_pk(self.agency_id)
-        elif self.country_id and getattr(self.country, "business_id", None):
-            self.business_id = self.country.business_id
+        if self.business_id is None:
+            if self.university_id and getattr(self.university, "business_id", None):
+                self.business_id = self.university.business_id
+            elif self.agency_id:
+                self.business_id = _agency_business_pk(self.agency_id)
+            elif self.country_id and getattr(self.country, "business_id", None):
+                self.business_id = self.country.business_id
         super().save(*args, **kwargs)
 
 
@@ -330,7 +331,7 @@ class StudentFileAttachment(BaseModel):
         if not self.slug:
             slug_source = self.title or self.file_url or "student-file-attachment"
             self.slug = generate_unique_slug(slug_source, self)
-        if self.agency_id:
+        if self.business_id is None and self.agency_id:
             self.business_id = _agency_business_pk(self.agency_id)
         super().save(*args, **kwargs)
 
@@ -366,7 +367,7 @@ class Country(BaseModel):
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = generate_unique_slug(self.name, self)
-        if self.agency_id:
+        if self.business_id is None and self.agency_id:
             self.business_id = _agency_business_pk(self.agency_id)
         super().save(*args, **kwargs)
 
@@ -456,7 +457,7 @@ class UniversityIntake(BaseModel):
     def save(self, *args, **kwargs):
         if self.university_id and self.university.agency_id:
             self.agency_id = self.university.agency_id
-        if self.university_id and getattr(self.university, "business_id", None):
+        if self.business_id is None and self.university_id and getattr(self.university, "business_id", None):
             self.business_id = self.university.business_id
         if not self.slug and self.university_id:
             self.slug = generate_unique_slug(f"{self.university_id}-{self.intake_name}", self)
@@ -488,7 +489,7 @@ class Program(BaseModel):
         return self.name
 
     def save(self, *args, **kwargs):
-        if self.agency_id:
+        if self.business_id is None and self.agency_id:
             self.business_id = _agency_business_pk(self.agency_id)
         if not self.slug:
             self.slug = generate_unique_slug(self.name, self)
@@ -526,7 +527,7 @@ class UniversityProgram(BaseModel):
     def save(self, *args, **kwargs):
         if self.university_id and self.university.agency_id:
             self.agency_id = self.university.agency_id
-        if self.university_id and getattr(self.university, "business_id", None):
+        if self.business_id is None and self.university_id and getattr(self.university, "business_id", None):
             self.business_id = self.university.business_id
         if not self.slug and self.university_id:
             self.slug = generate_unique_slug(f"{self.university_id}-{self.program.name}", self)
@@ -567,7 +568,7 @@ class UniversityProgramSubject(BaseModel):
     def save(self, *args, **kwargs):
         if self.program_id and self.program.agency_id:
             self.agency_id = self.program.agency_id
-        if self.program_id and getattr(self.program, "business_id", None):
+        if self.business_id is None and self.program_id and getattr(self.program, "business_id", None):
             self.business_id = self.program.business_id
         if not self.slug and self.program_id:
             self.slug = generate_unique_slug(f"{self.program_id}-{self.subject_name}-{self.track_name}", self)
@@ -597,7 +598,7 @@ class OfficeCost(BaseModel):
         return f"{self.title} ({self.amount})"
 
     def save(self, *args, **kwargs):
-        if self.agency_id:
+        if self.business_id is None and self.agency_id:
             self.business_id = _agency_business_pk(self.agency_id)
         if not self.slug:
             self.slug = generate_unique_slug(f"{self.title}-{self.agency_id}", self)
@@ -630,10 +631,11 @@ class StudentCost(BaseModel):
     def save(self, *args, **kwargs):
         if self.student_file_id and self.student_file.agency_id and self.agency_id != self.student_file.agency_id:
             self.agency = self.student_file.agency
-        if self.student_file_id and getattr(self.student_file, "business_id", None) and self.business_id != self.student_file.business_id:
-            self.business_id = self.student_file.business_id
-        elif self.agency_id:
-            self.business_id = _agency_business_pk(self.agency_id)
+        if self.business_id is None:
+            if self.student_file_id and getattr(self.student_file, "business_id", None):
+                self.business_id = self.student_file.business_id
+            elif self.agency_id:
+                self.business_id = _agency_business_pk(self.agency_id)
         if not self.slug:
             self.slug = generate_unique_slug(f"{self.title}-{self.student_file_id}", self)
         super().save(*args, **kwargs)

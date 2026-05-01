@@ -25,6 +25,23 @@ from ...models import (
 )
 
 
+def _ensure_agency_in_tenant_business(serializer, agency):
+    """
+    When BaseModelViewSet forces ``business_id`` from the tenant, model ``save()`` no longer
+    overwrites it from ``agency``. Reject mismatched agencies here so rows cannot straddle tenants.
+    """
+    request = serializer.context.get("request")
+    user = getattr(request, "user", None)
+    if not user or not user.is_authenticated or user_is_master_admin(user):
+        return
+    tenant_bid = tenant_business_id(user)
+    if not tenant_bid or agency is None:
+        return
+    agency_bid = _agency_business_pk(agency)
+    if agency_bid and agency_bid != tenant_bid:
+        raise serializers.ValidationError({"agency": "Agency must belong to your business."})
+
+
 class AgencySerializer(serializers.ModelSerializer):
     created_by_name = serializers.CharField(source="created_by.name", read_only=True)
     active_customer_count = serializers.IntegerField(source="customers.count", read_only=True)
@@ -54,12 +71,22 @@ class CountrySerializer(serializers.ModelSerializer):
         exclude = ["deleted_at", "deleted_by", "is_deleted"]
         read_only_fields = ["slug", "created_at", "updated_at"]
 
+    def validate(self, attrs):
+        agency = attrs.get("agency", getattr(self.instance, "agency", None))
+        _ensure_agency_in_tenant_business(self, agency)
+        return attrs
+
 
 class ProgramSerializer(serializers.ModelSerializer):
     class Meta:
         model = Program
         exclude = ["deleted_at", "deleted_by", "is_deleted"]
         read_only_fields = ["slug", "created_at", "updated_at"]
+
+    def validate(self, attrs):
+        agency = attrs.get("agency", getattr(self.instance, "agency", None))
+        _ensure_agency_in_tenant_business(self, agency)
+        return attrs
 
 
 class InventoryDashboardQuerySerializer(serializers.Serializer):
@@ -100,6 +127,11 @@ class CustomerSerializer(serializers.ModelSerializer):
             "agency_name",
             "assigned_counselor_name",
         ]
+
+    def validate(self, attrs):
+        agency = attrs.get("agency", getattr(self.instance, "agency", None))
+        _ensure_agency_in_tenant_business(self, agency)
+        return attrs
 
 
 class StudentFileAttachmentPayloadSerializer(serializers.Serializer):
@@ -518,6 +550,11 @@ class OfficeCostSerializer(serializers.ModelSerializer):
         exclude = ["deleted_at", "deleted_by", "is_deleted"]
         read_only_fields = ["slug", "created_at", "updated_at", "created_by", "agency_name", "created_by_name"]
 
+    def validate(self, attrs):
+        agency = attrs.get("agency", getattr(self.instance, "agency", None))
+        _ensure_agency_in_tenant_business(self, agency)
+        return attrs
+
     def create(self, validated_data):
         request = self.context.get("request")
         if request and hasattr(request, "user"):
@@ -552,6 +589,17 @@ class StudentCostSerializer(serializers.ModelSerializer):
         agency = attrs.get("agency", getattr(self.instance, "agency", None))
         if student_file and agency and student_file.agency_id and student_file.agency_id != agency.id:
             raise serializers.ValidationError("Selected student file does not belong to the provided agency.")
+        _ensure_agency_in_tenant_business(self, agency)
+        request = self.context.get("request")
+        user = getattr(request, "user", None)
+        if user and user.is_authenticated and not user_is_master_admin(user):
+            tenant_bid = tenant_business_id(user)
+            if tenant_bid and student_file:
+                sf_bid = getattr(student_file, "business_id", None) or _agency_business_pk(
+                    getattr(student_file, "agency_id", None)
+                )
+                if sf_bid and sf_bid != tenant_bid:
+                    raise serializers.ValidationError({"student_file": "Student file must belong to your business."})
         return attrs
 
     def create(self, validated_data):

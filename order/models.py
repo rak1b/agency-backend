@@ -33,7 +33,7 @@ class InvoiceAttachment(BaseModel):
             parent_invoice = self.invoices.select_related("agency").first()
             if parent_invoice and parent_invoice.agency_id:
                 self.agency_id = parent_invoice.agency_id
-            if parent_invoice and getattr(parent_invoice, "business_id", None):
+            if self.business_id is None and parent_invoice and getattr(parent_invoice, "business_id", None):
                 self.business_id = parent_invoice.business_id
         if not self.slug:
             self.slug = generate_unique_slug(self.title or self.file_url or "invoice-attachment", self)
@@ -128,14 +128,15 @@ class Invoice(BaseModel):
             self.invoice_id = self._generate_next_invoice_id()
         if not self.slug:
             self.slug = generate_unique_slug(f"{self.invoice_id}-{self.issue_date}", self)
-        if self.student_id:
-            bid = StudentFile.objects.filter(pk=self.student_id).values_list("business_id", flat=True).first()
-            if bid:
-                self.business_id = bid
-        elif self.agency_id:
-            bid = Agency.objects.filter(pk=self.agency_id).values_list("business_id", flat=True).first()
-            if bid:
-                self.business_id = bid
+        if self.business_id is None:
+            if self.student_id:
+                bid = StudentFile.objects.filter(pk=self.student_id).values_list("business_id", flat=True).first()
+                if bid:
+                    self.business_id = bid
+            elif self.agency_id:
+                bid = Agency.objects.filter(pk=self.agency_id).values_list("business_id", flat=True).first()
+                if bid:
+                    self.business_id = bid
         self.full_clean()
         super().save(*args, **kwargs)
 
@@ -168,6 +169,6 @@ class InvoiceLineItem(BaseModel):
     def save(self, *args, **kwargs):
         if self.invoice_id and self.invoice.agency_id:
             self.agency_id = self.invoice.agency_id
-        if self.invoice_id and getattr(self.invoice, "business_id", None):
+        if self.business_id is None and self.invoice_id and getattr(self.invoice, "business_id", None):
             self.business_id = self.invoice.business_id
         super().save(*args, **kwargs)

@@ -4,6 +4,8 @@ from django.db import transaction
 from django.db.models import Sum
 from rest_framework import serializers
 
+from agency_inventory.models import _agency_business_pk
+
 from authentication.tenant_utils import tenant_business_id, user_is_master_admin
 
 from ...constants import DiscountTypeChoice, InvoiceStatusChoice, RecipientTypeChoice
@@ -160,6 +162,22 @@ class InvoiceSerializer(serializers.ModelSerializer):
                     {"custom_recipient_name": "Custom recipient name is required for recipient type 'custom'."}
                 )
 
+        request = self.context.get("request")
+        user = getattr(request, "user", None)
+        if user and user.is_authenticated and not user_is_master_admin(user):
+            tenant_bid = tenant_business_id(user)
+            if tenant_bid:
+                if agency:
+                    aid = _agency_business_pk(agency)
+                    if aid and aid != tenant_bid:
+                        raise serializers.ValidationError({"agency": "Agency must belong to your business."})
+                if student:
+                    st_bid = getattr(student, "business_id", None) or _agency_business_pk(
+                        getattr(student, "agency_id", None)
+                    )
+                    if st_bid and st_bid != tenant_bid:
+                        raise serializers.ValidationError({"student": "Student must belong to your business."})
+
         return attrs
 
     def _normalize_recipient_data(self, validated_data):
@@ -167,10 +185,13 @@ class InvoiceSerializer(serializers.ModelSerializer):
         Keep recipient fields consistent with selected recipient type.
         """
         recipient_type = validated_data.get("recipient_type")
+        request = self.context.get("request")
+        user = getattr(request, "user", None)
+        force_tenant = user and user.is_authenticated and not user_is_master_admin(user)
 
         if recipient_type == RecipientTypeChoice.AGENCY:
             agency_inst = validated_data.get("agency")
-            if agency_inst and getattr(agency_inst, "business_id", None):
+            if not force_tenant and agency_inst and getattr(agency_inst, "business_id", None):
                 validated_data["business"] = agency_inst.business
             validated_data["student"] = None
             validated_data["custom_recipient_name"] = None
@@ -181,7 +202,7 @@ class InvoiceSerializer(serializers.ModelSerializer):
             if student and student.agency_id:
                 # Keep agency synced from student to avoid cross-agency mismatch.
                 validated_data["agency"] = student.agency
-            if student and getattr(student, "business_id", None):
+            if not force_tenant and student and getattr(student, "business_id", None):
                 validated_data["business"] = getattr(student, "business", None)
             validated_data["custom_recipient_name"] = None
             validated_data["custom_recipient_email"] = None

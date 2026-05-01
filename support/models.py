@@ -94,18 +94,19 @@ class Ticket(BaseModel):
             self.resolved_at = timezone.now()
         elif self.status not in {TicketStatusChoice.SOLVED, TicketStatusChoice.CLOSED}:
             self.resolved_at = None
-        if self.student_file_id:
-            sid_business = StudentFile.objects.filter(pk=self.student_file_id).values_list(
-                "business_id", flat=True
-            ).first()
-            if sid_business:
-                self.business_id = sid_business
-        elif self.agency_id:
-            aid_business = Agency.objects.filter(pk=self.agency_id).values_list(
-                "business_id", flat=True
-            ).first()
-            if aid_business:
-                self.business_id = aid_business
+        if self.business_id is None:
+            if self.student_file_id:
+                sid_business = StudentFile.objects.filter(pk=self.student_file_id).values_list(
+                    "business_id", flat=True
+                ).first()
+                if sid_business:
+                    self.business_id = sid_business
+            elif self.agency_id:
+                aid_business = Agency.objects.filter(pk=self.agency_id).values_list(
+                    "business_id", flat=True
+                ).first()
+                if aid_business:
+                    self.business_id = aid_business
         self.full_clean()
         super().save(*args, **kwargs)
 
@@ -148,7 +149,7 @@ class TicketReply(BaseModel):
         if self.ticket_id:
             if self.ticket.agency_id:
                 self.agency_id = self.ticket.agency_id
-            if getattr(self.ticket, "business_id", None):
+            if self.business_id is None and getattr(self.ticket, "business_id", None):
                 self.business_id = self.ticket.business_id
         super().save(*args, **kwargs)
 
@@ -187,7 +188,7 @@ class TicketAttachment(BaseModel):
         if ticket:
             if ticket.agency_id:
                 self.agency_id = ticket.agency_id
-            if getattr(ticket, "business_id", None):
+            if self.business_id is None and getattr(ticket, "business_id", None):
                 self.business_id = ticket.business_id
         super().save(*args, **kwargs)
 

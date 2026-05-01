@@ -6,6 +6,8 @@ from datetime import datetime
 from django.db import transaction
 from rest_framework import serializers
 
+from agency_inventory.models import _agency_business_pk
+
 from authentication.constants import UserTypeChoice
 from authentication.tenant_utils import tenant_business_id, user_is_master_admin
 from utils.cloudflare_minio_utils import upload_file_to_r2
@@ -169,12 +171,20 @@ class TicketSerializer(serializers.ModelSerializer):
         """
         Keep ticket owner relations consistent with creator type.
         """
-        if request_user and request_user.is_authenticated and not user_is_master_admin(request_user):
-            validated_data["business_id"] = tenant_business_id(request_user)
+        force_tenant = (
+            request_user
+            and request_user.is_authenticated
+            and not user_is_master_admin(request_user)
+        )
+        if force_tenant:
+            tenant_bid = tenant_business_id(request_user)
+            if tenant_bid:
+                validated_data["business_id"] = tenant_bid
 
         if creator_type == TicketCreatorTypeChoice.AGENCY:
             agency_inst = validated_data.get("agency")
-            if agency_inst and getattr(agency_inst, "business_id", None):
+            # Tenant users: business stays forced above; do not replace with another agency's business.
+            if not force_tenant and agency_inst and getattr(agency_inst, "business_id", None):
                 validated_data["business"] = agency_inst.business
             validated_data["student_file"] = None
         elif creator_type == TicketCreatorTypeChoice.STUDENT:
@@ -184,7 +194,7 @@ class TicketSerializer(serializers.ModelSerializer):
                     {"student_file": "Student ticket requires `student_file`."}
                 )
             validated_data["agency"] = student_file.agency
-            if getattr(student_file, "business_id", None):
+            if not force_tenant and getattr(student_file, "business_id", None):
                 validated_data["business"] = student_file.business
 
     def _normalize_upload_name(self, original_name):
@@ -229,6 +239,27 @@ class TicketSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({"status": "Invalid ticket status."})
         if priority not in TicketPriorityChoice.values:
             raise serializers.ValidationError({"priority": "Invalid ticket priority."})
+
+        request = self.context.get("request")
+        user = getattr(request, "user", None)
+        if user and user.is_authenticated and not user_is_master_admin(user):
+            tenant_bid = tenant_business_id(user)
+            if tenant_bid:
+                agency = attrs.get("agency", getattr(self.instance, "agency", None))
+                student_file = attrs.get("student_file", getattr(self.instance, "student_file", None))
+                if agency:
+                    aid = _agency_business_pk(agency)
+                    if aid and aid != tenant_bid:
+                        raise serializers.ValidationError({"agency": "Agency must belong to your business."})
+                if student_file:
+                    sf_bid = getattr(student_file, "business_id", None) or _agency_business_pk(
+                        getattr(student_file, "agency_id", None)
+                    )
+                    if sf_bid and sf_bid != tenant_bid:
+                        raise serializers.ValidationError(
+                            {"student_file": "Student file must belong to your business."}
+                        )
+
         return attrs
 
     @transaction.atomic
