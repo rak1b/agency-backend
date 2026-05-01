@@ -341,7 +341,7 @@ class InventoryDashboardAPIView(APIView):
         return date(year, month, 1)
 
 
-class AgencyViewSet(StudentPortalReadOnlyMixin, BaseModelViewSet):
+class AgencyViewSet(BaseModelViewSet):
     queryset = Agency.objects.select_related("business", "created_by").all()
     serializer_class = AgencySerializer
     permission_classes = [IsAuthenticated ]
@@ -350,6 +350,8 @@ class AgencyViewSet(StudentPortalReadOnlyMixin, BaseModelViewSet):
     filterset_fields = ["business", "status", "is_active", "owner_name"]
     search_fields = ["name", "owner_name", "business_email", "phone", "address"]
     ordering_fields = ["created_at", "updated_at", "name", "status"]
+
+
 
     def perform_create(self, serializer):
         created_agency = serializer.save(**self.get_tenant_save_kwargs(serializer))
@@ -379,6 +381,9 @@ class CountryViewSet(StudentPortalReadOnlyMixin, BaseModelViewSet):
     filterset_fields = ["business", "agency", "is_active"]
     search_fields = ["name"]
     ordering_fields = ["created_at", "updated_at", "name"]
+
+    def get_queryset(self):
+        return Country.objects.select_related("agency", "business").all()
 
 
 class ProgramViewSet(StudentPortalReadOnlyMixin, BaseModelViewSet):
