@@ -156,7 +156,7 @@ class InvoiceViewSet(StudentPortalReadOnlyMixin, BaseModelViewSet):
     permission_classes = [IsAuthenticated]
     lookup_field = "slug"
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ["recipient_type", "status", "agency", "student", "created_by", "is_active"]
+    filterset_fields = ["business", "recipient_type", "status", "agency", "student", "created_by", "is_active"]
     search_fields = [
         "invoice_id",
         "agency__name",
@@ -172,7 +172,7 @@ class InvoiceViewSet(StudentPortalReadOnlyMixin, BaseModelViewSet):
             "Returns counts and money totals for the current filtered invoice set, "
             "plus breakdowns by status and recipient type. "
             "Supports the same query filters as the invoice list (``recipient_type``, ``status``, "
-            "``agency``, ``student``, ``created_by``, ``is_active``, ``search``, ``ordering``) "
+            "``business``, ``agency``, ``student``, ``created_by``, ``is_active``, ``search``, ``ordering``) "
             "and optional ``issue_date_from`` / ``issue_date_to`` (inclusive) on ``issue_date``."
         ),
         parameters=_invoice_report_openapi_parameters(),
@@ -208,6 +208,7 @@ class InvoiceViewSet(StudentPortalReadOnlyMixin, BaseModelViewSet):
             "issue_date_to",
             "recipient_type",
             "status",
+            "business",
             "agency",
             "student",
             "created_by",

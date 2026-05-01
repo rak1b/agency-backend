@@ -7,6 +7,7 @@ from django.db import transaction
 from rest_framework import serializers
 
 from authentication.constants import UserTypeChoice
+from authentication.tenant_utils import tenant_business_id, user_is_master_admin
 from utils.cloudflare_minio_utils import upload_file_to_r2
 
 from ...constants import TicketCreatorTypeChoice, TicketPriorityChoice, TicketStatusChoice
@@ -168,9 +169,10 @@ class TicketSerializer(serializers.ModelSerializer):
         """
         Keep ticket owner relations consistent with creator type.
         """
+        if request_user and request_user.is_authenticated and not user_is_master_admin(request_user):
+            validated_data["business_id"] = tenant_business_id(request_user)
+
         if creator_type == TicketCreatorTypeChoice.AGENCY:
-            if not validated_data.get("agency") and request_user.parent_agency_id:
-                validated_data["agency"] = request_user.parent_agency
             agency_inst = validated_data.get("agency")
             if agency_inst and getattr(agency_inst, "business_id", None):
                 validated_data["business"] = agency_inst.business

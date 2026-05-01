@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from authentication.models import *
 from authentication import constants
-from authentication.tenant_utils import tenant_agency_id, tenant_business_id
+from authentication.tenant_utils import tenant_business_id
 from rest_framework.validators import UniqueValidator
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import Group
@@ -23,6 +23,7 @@ class NotificationSerializer(serializers.ModelSerializer):
         model = Notification
         fields = [
             "id",
+            "business",
             "recipient",
             "recipient_name",
             "actor",
@@ -41,6 +42,7 @@ class NotificationSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = [
             "recipient",
+            "business",
             "recipient_name",
             "actor",
             "actor_name",
@@ -93,12 +95,9 @@ class UserSerializer(serializers.ModelSerializer):
         parent_business_field = self.fields.get("parent_business")
         if request and request.user.is_authenticated and not getattr(request.user, "is_superuser", False):
             tenant_bid = tenant_business_id(request.user)
-            tenant_aid = tenant_agency_id(request.user)
             if parent_agency_field is not None:
                 if tenant_bid:
                     parent_agency_field.queryset = Agency.objects.filter(business_id=tenant_bid)
-                elif tenant_aid:
-                    parent_agency_field.queryset = Agency.objects.filter(pk=tenant_aid)
                 else:
                     parent_agency_field.queryset = Agency.objects.none()
             if parent_business_field is not None:
@@ -109,8 +108,6 @@ class UserSerializer(serializers.ModelSerializer):
             if linked_field is not None:
                 if tenant_bid:
                     linked_field.queryset = StudentFile.objects.filter(business_id=tenant_bid)
-                elif tenant_aid:
-                    linked_field.queryset = StudentFile.objects.filter(agency_id=tenant_aid)
                 else:
                     linked_field.queryset = StudentFile.objects.none()
 
@@ -264,18 +261,16 @@ class UserSerializer(serializers.ModelSerializer):
 
         request = self.context.get('request')
         if linked and request and request.user.is_authenticated and not getattr(request.user, 'is_superuser', False):
-            tenant_aid = tenant_agency_id(request.user)
             tenant_bid = tenant_business_id(request.user)
             if tenant_bid:
                 if getattr(linked, 'business_id', None) != tenant_bid:
                     raise ValidationError(
                         {'linked_student_file': 'You may only assign student files that belong to your business.'}
                     )
-            elif tenant_aid:
-                if getattr(linked, 'agency_id', None) != tenant_aid:
-                    raise ValidationError(
-                        {'linked_student_file': 'You may only assign student files that belong to your agency.'}
-                    )
+            else:
+                raise ValidationError(
+                    {'linked_student_file': 'Your account is not assigned to a business.'}
+                )
 
         return attrs
 

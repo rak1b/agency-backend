@@ -4,7 +4,7 @@ from django.db import transaction
 from django.db.models import Sum
 from rest_framework import serializers
 
-from authentication.tenant_utils import user_is_master_admin
+from authentication.tenant_utils import tenant_business_id, user_is_master_admin
 
 from ...constants import DiscountTypeChoice, InvoiceStatusChoice, RecipientTypeChoice
 from ...models import Invoice, InvoiceAttachment, InvoiceLineItem
@@ -190,15 +190,9 @@ class InvoiceSerializer(serializers.ModelSerializer):
             # Keep the issuing tenant on the row so API scoping still applies.
             request = self.context.get("request")
             user = getattr(request, "user", None)
-            if user and user.is_authenticated and not user_is_master_admin(user) and user.parent_agency_id:
-                from agency_inventory.models import Agency
-
-                tenant_agency_row = Agency.objects.filter(pk=user.parent_agency_id).first()
-                validated_data["agency"] = tenant_agency_row
-                if tenant_agency_row and getattr(tenant_agency_row, "business_id", None):
-                    validated_data["business"] = tenant_agency_row.business
-            else:
-                validated_data["agency"] = None
+            validated_data["agency"] = None
+            if user and user.is_authenticated and not user_is_master_admin(user):
+                validated_data["business_id"] = tenant_business_id(user)
             validated_data["student"] = None
 
     def _upsert_attachments(self, invoice, attachments_data):

@@ -38,7 +38,7 @@ class TicketViewSet(BaseModelViewSet):
     permission_classes = [IsAuthenticated]
     lookup_field = "slug"
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ["status", "priority", "creator_type", "agency", "student_file", "created_by", "is_active"]
+    filterset_fields = ["business", "status", "priority", "creator_type", "agency", "student_file", "created_by", "is_active"]
     search_fields = ["ticket_id", "subject", "description", "created_by__name", "created_by__email"]
     ordering_fields = ["created_at", "updated_at", "last_replied_at", "status", "priority"]
 

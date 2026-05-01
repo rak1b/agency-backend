@@ -236,6 +236,13 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 
 class Notification(BaseModel):
+    business = models.ForeignKey(
+        "agency_inventory.Business",
+        on_delete=models.SET_NULL,
+        related_name="notifications",
+        blank=True,
+        null=True,
+    )
     recipient = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,

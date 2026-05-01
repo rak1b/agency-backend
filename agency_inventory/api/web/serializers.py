@@ -3,7 +3,6 @@ from rest_framework import serializers
 from django.db import transaction
 
 from authentication.tenant_utils import (
-    tenant_agency_id,
     tenant_business_id,
     user_is_master_admin,
 )
@@ -224,8 +223,7 @@ class StudentFileSerializer(serializers.ModelSerializer):
 
     def _tenant_scoped_queryset(self, queryset):
         """
-        Prevent cross-tenant FK picks: tenants may reference rows within their ``business``
-        slice, or their single legacy agency before business sync.
+        Prevent cross-tenant FK picks: tenants may reference rows within their ``business`` slice.
         """
         request = self.context.get("request")
         user = getattr(request, "user", None) if request else None
@@ -236,12 +234,7 @@ class StudentFileSerializer(serializers.ModelSerializer):
             concrete_names = {f.name for f in queryset.model._meta.fields}
             if "business" in concrete_names:
                 return queryset.filter(business_id=business_pk)
-            if "agency" in concrete_names:
-                return queryset.filter(agency__business_id=business_pk)
             return queryset.none()
-        agency_id = tenant_agency_id(user)
-        if agency_id:
-            return queryset.filter(agency_id=agency_id)
         return queryset.none()
 
     def _resolve_subject(self, subject_id=None):
@@ -303,6 +296,7 @@ class StudentFileSerializer(serializers.ModelSerializer):
                     title=title,
                     file_url=file_url,
                     agency=student_file.agency,
+                    business=getattr(student_file, "business", None),
                 )
             attachment_ids.append(attachment_obj.id)
         student_file.attachments.set(attachment_ids)
@@ -339,6 +333,7 @@ class StudentFileSerializer(serializers.ModelSerializer):
             else:
                 applied_university_obj = AppliedUniversity.objects.create(
                     agency=student_file.agency,
+                    business=getattr(student_file, "business", None),
                     university=university_obj,
                     country=country_obj,
                     intake=intake,
@@ -441,6 +436,9 @@ class UniversitySerializer(serializers.ModelSerializer):
         country = attrs.get("country", getattr(self.instance, "country", None))
         if agency and country and getattr(country, "agency_id", None) and country.agency_id != agency.id:
             raise serializers.ValidationError({"country": "Country must belong to the same agency as the university."})
+        business = attrs.get("business", getattr(self.instance, "business", None))
+        if business and country and getattr(country, "business_id", None) and country.business_id != business.id:
+            raise serializers.ValidationError({"country": "Country must belong to the same business as the university."})
         return attrs
 
     def validate_intakes(self, intakes):
@@ -469,7 +467,11 @@ class UniversitySerializer(serializers.ModelSerializer):
             program_fk = program_row.get("program")
             program_id = program_fk.id if hasattr(program_fk, "id") else program_fk
             program_master = Program.objects.get(pk=program_id)
-            if program_master.agency_id != university.agency_id:
+            if program_master.business_id and program_master.business_id != university.business_id:
+                raise serializers.ValidationError(
+                    {"programs": "Each program template must belong to the same business as the university."}
+                )
+            if university.agency_id and program_master.agency_id != university.agency_id:
                 raise serializers.ValidationError(
                     {"programs": "Each program template must belong to the same agency as the university."}
                 )
@@ -494,7 +496,11 @@ class UniversitySerializer(serializers.ModelSerializer):
                 program_fk = program_row.get("program")
                 program_id = program_fk.id if hasattr(program_fk, "id") else program_fk
                 program_master = Program.objects.get(pk=program_id)
-                if program_master.agency_id != university.agency_id:
+                if program_master.business_id and program_master.business_id != university.business_id:
+                    raise serializers.ValidationError(
+                        {"programs": "Each program template must belong to the same business as the university."}
+                    )
+                if university.agency_id and program_master.agency_id != university.agency_id:
                     raise serializers.ValidationError(
                         {"programs": "Each program template must belong to the same agency as the university."}
                     )

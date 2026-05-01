@@ -146,7 +146,7 @@ class Customer(BaseModel):
         if not self.slug:
             slug_source = f"{self.given_name}-{self.surname}-{self.passport_number}"
             self.slug = generate_unique_slug(slug_source, self)
-        if self.agency_id and not self.business_id:
+        if self.agency_id:
             self.business_id = _agency_business_pk(self.agency_id)
         super().save(*args, **kwargs)
 
@@ -221,7 +221,7 @@ class StudentFile(BaseModel):
         if not self.slug:
             slug_source = f"{self.given_name}-{self.surname}-{self.passport_number}"
             self.slug = generate_unique_slug(slug_source, self)
-        if self.agency_id and not self.business_id:
+        if self.agency_id:
             self.business_id = _agency_business_pk(self.agency_id)
         super().save(*args, **kwargs)
 
@@ -302,9 +302,9 @@ class AppliedUniversity(BaseModel):
             self.slug = generate_unique_slug(slug_source, self)
         if self.university_id and getattr(self.university, "business_id", None):
             self.business_id = self.university.business_id
-        elif self.agency_id and not self.business_id:
+        elif self.agency_id:
             self.business_id = _agency_business_pk(self.agency_id)
-        elif self.country_id and not self.business_id and getattr(self.country, "business_id", None):
+        elif self.country_id and getattr(self.country, "business_id", None):
             self.business_id = self.country.business_id
         super().save(*args, **kwargs)
 
@@ -342,7 +342,7 @@ class StudentFileAttachment(BaseModel):
         if not self.slug:
             slug_source = self.title or self.file_url or "student-file-attachment"
             self.slug = generate_unique_slug(slug_source, self)
-        if self.agency_id and not self.business_id:
+        if self.agency_id:
             self.business_id = _agency_business_pk(self.agency_id)
         super().save(*args, **kwargs)
 
@@ -384,7 +384,7 @@ class Country(BaseModel):
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = generate_unique_slug(self.name, self)
-        if self.agency_id and not self.business_id:
+        if self.agency_id:
             self.business_id = _agency_business_pk(self.agency_id)
         super().save(*args, **kwargs)
 
@@ -437,9 +437,9 @@ class University(BaseModel):
     def save(self, *args, **kwargs):
         if self.country_id and not self.agency_id:
             self.agency_id = self.country.agency_id
-        if self.country_id and not self.business_id and getattr(self.country, "business_id", None):
+        if self.country_id and getattr(self.country, "business_id", None):
             self.business_id = self.country.business_id
-        elif self.agency_id and not self.business_id:
+        elif self.agency_id:
             self.business_id = _agency_business_pk(self.agency_id)
         if not self.slug:
             self.slug = generate_unique_slug(f"{self.university_name}-{self.country_id}", self)
@@ -519,7 +519,7 @@ class Program(BaseModel):
         return self.name
 
     def save(self, *args, **kwargs):
-        if self.agency_id and not self.business_id:
+        if self.agency_id:
             self.business_id = _agency_business_pk(self.agency_id)
         if not self.slug:
             self.slug = generate_unique_slug(self.name, self)
@@ -631,7 +631,7 @@ class OfficeCost(BaseModel):
         return f"{self.title} ({self.amount})"
 
     def save(self, *args, **kwargs):
-        if self.agency_id and not self.business_id:
+        if self.agency_id:
             self.business_id = _agency_business_pk(self.agency_id)
         if not self.slug:
             self.slug = generate_unique_slug(f"{self.title}-{self.agency_id}", self)
@@ -666,7 +666,7 @@ class StudentCost(BaseModel):
             self.agency = self.student_file.agency
         if self.student_file_id and getattr(self.student_file, "business_id", None) and self.business_id != self.student_file.business_id:
             self.business_id = self.student_file.business_id
-        elif self.agency_id and not self.business_id:
+        elif self.agency_id:
             self.business_id = _agency_business_pk(self.agency_id)
         if not self.slug:
             self.slug = generate_unique_slug(f"{self.title}-{self.student_file_id}", self)

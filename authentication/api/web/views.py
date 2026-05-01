@@ -2,6 +2,7 @@ from datetime import datetime
 from authentication import constants
 from authentication.permissions import HasCustomPermission
 from authentication.notification_utils import create_notifications_for_event, user_is_admin
+from authentication.tenant_utils import tenant_business_id, user_is_master_admin
 from authentication.utils import auth_utils, email_utils
 from .serializers import *
 from rest_framework.decorators import action, api_view, authentication_classes, permission_classes
@@ -53,8 +54,6 @@ def login_agency_and_student_payload(user):
     Students may only have ``linked_student_file``; agency is taken from that file when needed.
     """
     from agency_inventory.models import Business, StudentFile
-
-    from authentication.tenant_utils import tenant_business_id
 
     linked_sf = getattr(user, "linked_student_file", None)
     if linked_sf is None and getattr(user, "linked_student_file_id", None):
@@ -117,11 +116,20 @@ class UserAPI(viewsets.ModelViewSet):
 
     def get_queryset(self):
         emails = ['rakib@admin.com','admin@admin.com','inventory@admin.com','salmansadi165324@gmail.com']
-        return super().get_queryset().exclude(email__in=emails).select_related(
+        queryset = super().get_queryset().exclude(email__in=emails).select_related(
             'parent_agency',
             'parent_business',
             'parent_b2b_agent',
         ).prefetch_related('role')
+        current_user = getattr(self.request, "user", None)
+        if not current_user or not current_user.is_authenticated:
+            return queryset.none()
+        if user_is_master_admin(current_user):
+            return queryset
+        business_id = tenant_business_id(current_user)
+        if business_id:
+            return queryset.filter(parent_business_id=business_id)
+        return queryset.none()
         
     
     def destroy(self, request, *args, **kwargs):
@@ -132,7 +140,12 @@ class UserAPI(viewsets.ModelViewSet):
         return super().destroy(request, *args, **kwargs)
 
     def perform_create(self, serializer):
-        created_user = serializer.save()
+        save_kwargs = {}
+        if not user_is_master_admin(self.request.user):
+            business_id = tenant_business_id(self.request.user)
+            if business_id:
+                save_kwargs["parent_business_id"] = business_id
+        created_user = serializer.save(**save_kwargs)
         create_notifications_for_event(
             entity_type=constants.NotificationEntityTypeChoice.USER,
             action=constants.NotificationActionChoice.CREATED,
@@ -141,7 +154,12 @@ class UserAPI(viewsets.ModelViewSet):
         )
 
     def perform_update(self, serializer):
-        updated_user = serializer.save()
+        save_kwargs = {}
+        if not user_is_master_admin(self.request.user):
+            business_id = tenant_business_id(self.request.user)
+            if business_id:
+                save_kwargs["parent_business_id"] = business_id
+        updated_user = serializer.save(**save_kwargs)
         create_notifications_for_event(
             entity_type=constants.NotificationEntityTypeChoice.USER,
             action=constants.NotificationActionChoice.UPDATED,
@@ -154,11 +172,11 @@ class NotificationViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins
     serializer_class = NotificationSerializer
     permission_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend, SearchFilter]
-    filterset_fields = ["entity_type", "action", "is_read"]
+    filterset_fields = ["business", "entity_type", "action", "is_read"]
     search_fields = ["title", "message", "reference_label"]
 
     def get_queryset(self):
-        notification_queryset = Notification.objects.select_related("recipient", "actor").filter(
+        notification_queryset = Notification.objects.select_related("business", "recipient", "actor").filter(
             recipient=self.request.user
         ).order_by("-created_at")
         if user_is_admin(self.request.user):

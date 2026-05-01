@@ -2,6 +2,7 @@ from django.db.models import Q
 
 from authentication import constants
 from authentication.models import Notification, User
+from authentication.tenant_utils import tenant_business_id
 
 
 ADMIN_ROLE_NAMES = {"Super Admin"}
@@ -28,16 +29,19 @@ def create_notifications_for_event(*, entity_type, action, instance, actor=None)
     - Non-admin users receive only StudentFile notifications for their own actions.
     """
 
-    admin_user_ids = set(
-        User.objects.filter(is_active=True)
-        .filter(
-            Q(is_superuser=True)
-            | Q(is_staff=True)
-            | Q(role__name__in=ADMIN_ROLE_NAMES)
-        )
-        .distinct()
-        .values_list("id", flat=True)
+    business_id = _resolve_notification_business_id(instance=instance, actor=actor)
+    admin_queryset = User.objects.filter(is_active=True).filter(
+        Q(is_superuser=True)
+        | Q(is_staff=True)
+        | Q(role__name__in=ADMIN_ROLE_NAMES)
     )
+    if business_id:
+        admin_queryset = admin_queryset.filter(
+            Q(is_superuser=True)
+            | Q(parent_business_id=business_id)
+        )
+
+    admin_user_ids = set(admin_queryset.distinct().values_list("id", flat=True))
 
     recipient_ids = set(admin_user_ids)
     if (
@@ -62,6 +66,7 @@ def create_notifications_for_event(*, entity_type, action, instance, actor=None)
     actor_id = actor.id if actor and getattr(actor, "is_authenticated", False) else None
     notification_rows = [
         Notification(
+            business_id=business_id,
             recipient_id=recipient_id,
             actor_id=actor_id,
             entity_type=entity_type,
@@ -76,6 +81,16 @@ def create_notifications_for_event(*, entity_type, action, instance, actor=None)
     ]
     Notification.objects.bulk_create(notification_rows)
     return len(notification_rows)
+
+
+def _resolve_notification_business_id(*, instance, actor=None):
+    """Prefer the event object's business, then the user's tenant business."""
+    instance_business_id = getattr(instance, "business_id", None) or getattr(instance, "parent_business_id", None)
+    if instance_business_id:
+        return instance_business_id
+    if actor and getattr(actor, "is_authenticated", False):
+        return tenant_business_id(actor)
+    return None
 
 
 def _build_notification_content(*, entity_type, action, instance, actor=None):

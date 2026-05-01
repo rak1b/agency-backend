@@ -4,7 +4,7 @@ from django.utils import timezone
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import action
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.permissions import SAFE_METHODS, AllowAny
 from rest_framework import viewsets
 from simple_history.models import HistoricalRecords
@@ -12,7 +12,7 @@ from simple_history.models import HistoricalRecords
 from authentication import constants
 from authentication.tenant_utils import (
     is_student_portal_user,
-    tenant_agency_save_kwargs,
+    tenant_org_save_kwargs,
     tenant_business_id,
     user_is_master_admin,
 )
@@ -173,7 +173,7 @@ class BaseModelViewSet(viewsets.ModelViewSet):
     def _apply_tenant_scope(self, queryset):
         """
         Row-level tenant isolation: master admins see everything; otherwise rows are scoped
-        by ``business_id`` when available, falling back to a single-agency PK for legacy rows.
+        only by ``business_id``.
 
         B2B users with an ``agent`` FK continue to use that column when present (separate pathway).
         """
@@ -192,37 +192,11 @@ class BaseModelViewSet(viewsets.ModelViewSet):
 
         scoped_business_id = tenant_business_id(user)
 
-        if scoped_business_id:
-            if self._has_model_field(model_class, "business"):
-                qs = queryset.filter(business_id=scoped_business_id)
-            elif self._has_model_field(model_class, "agency"):
-                qs = queryset.filter(agency__business_id=scoped_business_id)
-            elif model_class._meta.app_label == "agency_inventory" and model_class.__name__ == "Agency":
-                qs = queryset.filter(business_id=scoped_business_id)
-            else:
-                return queryset.none()
-            return self._apply_student_portal_row_scope(qs, user, model_class)
-
-        # Legacy path before every agency row has ``business_id`` populated.
-        scoped_agency_id = getattr(user, "parent_agency_id", None)
-        if not scoped_agency_id and getattr(user, "user_type", None) == constants.UserTypeChoice.STUDENT:
-            linked_sid = getattr(user, "linked_student_file_id", None)
-            if linked_sid:
-                from agency_inventory.models import StudentFile
-
-                scoped_agency_id = (
-                    StudentFile.objects.filter(pk=linked_sid)
-                    .values_list("agency_id", flat=True)
-                    .first()
-                )
-
-        if not scoped_agency_id:
+        if not scoped_business_id:
             return queryset.none()
 
-        if self._has_model_field(model_class, "agency"):
-            qs = queryset.filter(agency_id=scoped_agency_id)
-        elif model_class._meta.app_label == "agency_inventory" and model_class.__name__ == "Agency":
-            qs = queryset.filter(id=scoped_agency_id)
+        if self._has_model_field(model_class, "business"):
+            qs = queryset.filter(business_id=scoped_business_id)
         else:
             return queryset.none()
 
@@ -230,7 +204,7 @@ class BaseModelViewSet(viewsets.ModelViewSet):
 
     def _apply_student_portal_row_scope(self, queryset, user, model_class):
         """
-        After business/agency isolation, students only see rows tied to ``user.linked_student_file``.
+        After business isolation, students only see rows tied to ``user.linked_student_file``.
         Reference data (countries, programs, universities, etc.) stays visible within that tenant slice.
         """
         if not is_student_portal_user(user):
@@ -242,7 +216,7 @@ class BaseModelViewSet(viewsets.ModelViewSet):
 
         label = model_class._meta.label
 
-        # Read-only catalogue within the same agency (used by forms / lookups).
+        # Read-only catalogue within the same business (used by forms / lookups).
         if label in (
             "agency_inventory.Agency",
             "agency_inventory.Country",
@@ -293,16 +267,46 @@ class BaseModelViewSet(viewsets.ModelViewSet):
         base_queryset = super().get_queryset()
         return self._apply_tenant_scope(base_queryset)
 
+    def _validate_tenant_related_values(self, serializer, business_id):
+        """
+        Prevent cross-business FK assignment before saving.
+
+        Generic serializer-level tenant kwargs protect the row's own ``business_id``;
+        this check also rejects related objects (agency/student/university/etc.) that
+        belong to a different business.
+        """
+        if not business_id:
+            return
+
+        for field_name, value in serializer.validated_data.items():
+            if value is None or not hasattr(value, "_meta"):
+                continue
+
+            value_business_id = getattr(value, "business_id", None)
+            if value_business_id and value_business_id != business_id:
+                raise ValidationError(
+                    {field_name: "Selected record does not belong to your business."}
+                )
+
+            related_agency = getattr(value, "agency", None)
+            agency_business_id = getattr(related_agency, "business_id", None)
+            if agency_business_id and agency_business_id != business_id:
+                raise ValidationError(
+                    {field_name: "Selected record does not belong to your business."}
+                )
+
     def get_tenant_save_kwargs(self, serializer):
         """
         Merge into ``serializer.save()`` so tenant users always persist their own
-        ``business_id`` / ``agency_id`` when the model supports them (overrides client payload).
+        ``business_id`` when the model supports it (overrides client payload).
         """
         model = getattr(serializer.Meta, "model", None)
         if not model:
             return {}
         user = getattr(self.request, "user", None)
-        return tenant_agency_save_kwargs(user, model, self._has_model_field)
+        if not user_is_master_admin(user):
+            self._validate_tenant_related_values(serializer, tenant_business_id(user))
+        return tenant_org_save_kwargs(user, model, self._has_model_field)
 
     def perform_create(self, serializer):
         serializer.save(**self.get_tenant_save_kwargs(serializer))

@@ -73,8 +73,8 @@ class Ticket(BaseModel):
             return f"{prefix}{(last_number + 1):0{number_length}d}"
 
     def clean(self):
-        if self.creator_type == TicketCreatorTypeChoice.AGENCY and not self.agency_id:
-            raise ValidationError({"agency": "Agency is required for agency-created tickets."})
+        if self.creator_type == TicketCreatorTypeChoice.AGENCY and not self.business_id:
+            raise ValidationError({"business": "Business is required for business-created tickets."})
         if self.creator_type == TicketCreatorTypeChoice.STUDENT and not self.student_file_id:
             raise ValidationError({"student_file": "Student file is required for student-created tickets."})
         if (
@@ -100,7 +100,7 @@ class Ticket(BaseModel):
             ).first()
             if sid_business:
                 self.business_id = sid_business
-        if self.agency_id and not self.business_id:
+        elif self.agency_id:
             aid_business = Agency.objects.filter(pk=self.agency_id).values_list(
                 "business_id", flat=True
             ).first()

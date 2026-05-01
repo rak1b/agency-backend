@@ -2,7 +2,6 @@ from authentication.base import BaseModelViewSet, StudentPortalReadOnlyMixin
 from authentication import constants
 from authentication.tenant_utils import (
     is_student_portal_user,
-    tenant_agency_id,
     tenant_business_id,
     user_is_master_admin,
 )
@@ -59,25 +58,9 @@ class InventoryDashboardAPIView(APIView):
 
         agency = validated_filters.get("agency")
         scoped_business_id = None
-        scoped_agency_id = None
         if not user_is_master_admin(request.user):
             scoped_business_id = tenant_business_id(request.user)
-            scoped_agency_id = tenant_agency_id(request.user)
-
-            if scoped_business_id:
-                if agency and getattr(agency, "business_id", None) != scoped_business_id:
-                    agency = None
-                elif agency is None and scoped_agency_id:
-                    agency = (
-                        Agency.objects.filter(pk=scoped_agency_id, business_id=scoped_business_id)
-                        .first()
-                    )
-            elif scoped_agency_id:
-                if agency and agency.pk != scoped_agency_id:
-                    agency = None
-                if agency is None:
-                    agency = Agency.objects.filter(pk=scoped_agency_id).first()
-            else:
+            if not scoped_business_id or (agency and getattr(agency, "business_id", None) != scoped_business_id):
                 agency = None
 
         start_date, end_date = self._resolve_date_range(validated_filters)
@@ -88,10 +71,6 @@ class InventoryDashboardAPIView(APIView):
                 agencies_queryset = agencies_queryset.filter(pk=agency.pk)
         elif scoped_business_id:
             agencies_queryset = Agency.objects.filter(business_id=scoped_business_id)
-            if agency:
-                agencies_queryset = agencies_queryset.filter(pk=agency.pk)
-        elif scoped_agency_id:
-            agencies_queryset = Agency.objects.filter(pk=scoped_agency_id)
             if agency:
                 agencies_queryset = agencies_queryset.filter(pk=agency.pk)
         else:
@@ -113,11 +92,6 @@ class InventoryDashboardAPIView(APIView):
                     student_files_queryset = student_files_queryset.filter(agency=agency)
                     office_costs_queryset = office_costs_queryset.filter(agency=agency)
                     student_costs_queryset = student_costs_queryset.filter(agency=agency)
-            elif agency:
-                customers_queryset = customers_queryset.filter(agency=agency)
-                student_files_queryset = student_files_queryset.filter(agency=agency)
-                office_costs_queryset = office_costs_queryset.filter(agency=agency)
-                student_costs_queryset = student_costs_queryset.filter(agency=agency)
             else:
                 customers_queryset = Customer.objects.none()
                 student_files_queryset = StudentFile.objects.none()
@@ -368,12 +342,12 @@ class InventoryDashboardAPIView(APIView):
 
 
 class AgencyViewSet(StudentPortalReadOnlyMixin, BaseModelViewSet):
-    queryset = Agency.objects.select_related("created_by").all()
+    queryset = Agency.objects.select_related("business", "created_by").all()
     serializer_class = AgencySerializer
     permission_classes = [IsAuthenticated ]
     lookup_field = "slug"
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ["status", "is_active", "owner_name"]
+    filterset_fields = ["business", "status", "is_active", "owner_name"]
     search_fields = ["name", "owner_name", "business_email", "phone", "address"]
     ordering_fields = ["created_at", "updated_at", "name", "status"]
 
@@ -397,40 +371,40 @@ class AgencyViewSet(StudentPortalReadOnlyMixin, BaseModelViewSet):
 
 
 class CountryViewSet(StudentPortalReadOnlyMixin, BaseModelViewSet):
-    queryset = Country.objects.select_related("agency").all()
+    queryset = Country.objects.select_related("agency", "business").all()
     serializer_class = CountrySerializer
     permission_classes = [IsAuthenticated]
     lookup_field = "slug"
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ["agency", "is_active"]
+    filterset_fields = ["business", "agency", "is_active"]
     search_fields = ["name"]
     ordering_fields = ["created_at", "updated_at", "name"]
 
 
 class ProgramViewSet(StudentPortalReadOnlyMixin, BaseModelViewSet):
-    queryset = Program.objects.select_related("agency").all()
+    queryset = Program.objects.select_related("agency", "business").all()
     serializer_class = ProgramSerializer
     permission_classes = [IsAuthenticated]
     lookup_field = "slug"
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ["agency", "is_active"]
+    filterset_fields = ["business", "agency", "is_active"]
     search_fields = ["name", "description"]
     ordering_fields = ["created_at", "updated_at", "name"]
 
 
 class CustomerViewSet(StudentPortalReadOnlyMixin, BaseModelViewSet):
-    queryset = Customer.objects.select_related("agency", "assigned_counselor").all()
+    queryset = Customer.objects.select_related("agency", "business", "assigned_counselor").all()
     serializer_class = CustomerSerializer
     permission_classes = [IsAuthenticated ]
     lookup_field = "slug"
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ["agency", "current_status", "file_from", "assigned_counselor", "gender", "is_active"]
+    filterset_fields = ["business", "agency", "current_status", "file_from", "assigned_counselor", "gender", "is_active"]
     search_fields = ["customer_id", "passport_number", "given_name", "surname", "email", "phone_whatsapp"]
     ordering_fields = ["created_at", "updated_at", "given_name", "current_status"]
 
 
 class StudentFileViewSet(StudentPortalReadOnlyMixin, BaseModelViewSet):
-    queryset = StudentFile.objects.select_related("agency", "created_by").prefetch_related(
+    queryset = StudentFile.objects.select_related("agency", "business", "created_by").prefetch_related(
         "attachments",
         "applied_universities",
     ).all()
@@ -438,7 +412,7 @@ class StudentFileViewSet(StudentPortalReadOnlyMixin, BaseModelViewSet):
     permission_classes = [IsAuthenticated ]
     lookup_field = "slug"
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ["agency", "current_status", "file_from", "created_by", "is_active"]
+    filterset_fields = ["business", "agency", "current_status", "file_from", "created_by", "is_active"]
     search_fields = ["student_file_id", "passport_number", "given_name", "surname", "email", "phone_whatsapp"]
     ordering_fields = ["created_at", "updated_at", "given_name", "current_status"]
 
@@ -462,7 +436,7 @@ class StudentFileViewSet(StudentPortalReadOnlyMixin, BaseModelViewSet):
 
 
 class UniversityViewSet(StudentPortalReadOnlyMixin, BaseModelViewSet):
-    queryset = University.objects.select_related("country", "agency").prefetch_related(
+    queryset = University.objects.select_related("country", "agency", "business").prefetch_related(
         Prefetch("intakes", queryset=UniversityIntake.objects.order_by("id")),
         Prefetch(
             "programs",
@@ -475,25 +449,25 @@ class UniversityViewSet(StudentPortalReadOnlyMixin, BaseModelViewSet):
     permission_classes = [IsAuthenticated ]
     lookup_field = "slug"
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ["country", "agency", "is_active"]
+    filterset_fields = ["business", "country", "agency", "is_active"]
     search_fields = ["university_name", "country__name"]
     ordering_fields = ["created_at", "updated_at", "university_name", "country__name"]
 
 
 class UniversityIntakeViewSet(StudentPortalReadOnlyMixin, BaseModelViewSet):
-    queryset = UniversityIntake.objects.select_related("university", "university__country", "agency").all()
+    queryset = UniversityIntake.objects.select_related("university", "university__country", "agency", "business").all()
     serializer_class = UniversityIntakeSerializer
     permission_classes = [IsAuthenticated ]
     lookup_field = "slug"
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ["university", "agency", "intake_name", "is_active"]
+    filterset_fields = ["business", "university", "agency", "intake_name", "is_active"]
     search_fields = ["intake_name", "university__university_name", "university__country__name"]
     ordering_fields = ["created_at", "updated_at", "intake_name"]
 
 
 class UniversityProgramViewSet(StudentPortalReadOnlyMixin, BaseModelViewSet):
     queryset = UniversityProgram.objects.select_related(
-        "university", "university__country", "program", "agency"
+        "university", "university__country", "program", "agency", "business"
     ).prefetch_related(
         Prefetch("subjects", queryset=UniversityProgramSubject.objects.order_by("id"))
     )
@@ -501,29 +475,29 @@ class UniversityProgramViewSet(StudentPortalReadOnlyMixin, BaseModelViewSet):
     permission_classes = [IsAuthenticated ]
     lookup_field = "slug"
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ["university", "program", "agency", "is_active"]
+    filterset_fields = ["business", "university", "program", "agency", "is_active"]
     search_fields = ["program__name", "university__university_name", "university__country__name"]
     ordering_fields = ["created_at", "updated_at", "program__name"]
 
 
 class OfficeCostViewSet(StudentPortalReadOnlyMixin, BaseModelViewSet):
-    queryset = OfficeCost.objects.select_related("agency", "created_by").all()
+    queryset = OfficeCost.objects.select_related("agency", "business", "created_by").all()
     serializer_class = OfficeCostSerializer
     permission_classes = [IsAuthenticated ]
     lookup_field = "slug"
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ["agency", "created_by", "is_active"]
+    filterset_fields = ["business", "agency", "created_by", "is_active"]
     search_fields = ["title", "description", "agency__name"]
     ordering_fields = ["created_at", "updated_at", "amount", "title"]
 
 
 class StudentCostViewSet(StudentPortalReadOnlyMixin, BaseModelViewSet):
-    queryset = StudentCost.objects.select_related("agency", "student_file", "created_by").all()
+    queryset = StudentCost.objects.select_related("agency", "business", "student_file", "created_by").all()
     serializer_class = StudentCostSerializer
     permission_classes = [IsAuthenticated ]
     lookup_field = "slug"
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ["agency", "student_file", "created_by", "is_active"]
+    filterset_fields = ["business", "agency", "student_file", "created_by", "is_active"]
     search_fields = [
         "title",
         "description",
