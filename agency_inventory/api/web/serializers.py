@@ -462,10 +462,7 @@ class UniversitySerializer(serializers.ModelSerializer):
             program_fk = program_row.get("program")
             program_id = program_fk.id if hasattr(program_fk, "id") else program_fk
             program_master = Program.objects.get(pk=program_id)
-            if program_master.business_id and program_master.business_id != university.business_id:
-                raise serializers.ValidationError(
-                    {"programs": "Each program template must belong to the same business as the university."}
-                )
+     
 
             program_obj = UniversityProgram.objects.create(university=university, **program_row)
             for subject_row in subjects_data:
@@ -488,10 +485,7 @@ class UniversitySerializer(serializers.ModelSerializer):
                 program_fk = program_row.get("program")
                 program_id = program_fk.id if hasattr(program_fk, "id") else program_fk
                 program_master = Program.objects.get(pk=program_id)
-                if program_master.business_id and program_master.business_id != university.business_id:
-                    raise serializers.ValidationError(
-                        {"programs": "Each program template must belong to the same business as the university."}
-                    )
+
          
                 program_obj = UniversityProgram.objects.create(university=university, **program_row)
                 for subject_row in subjects_data:
