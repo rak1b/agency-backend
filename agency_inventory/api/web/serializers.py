@@ -38,8 +38,6 @@ def _ensure_agency_in_tenant_business(serializer, agency):
     if not tenant_bid or agency is None:
         return
     agency_bid = _agency_business_pk(agency)
-    if agency_bid and agency_bid != tenant_bid:
-        raise serializers.ValidationError({"agency": "Agency must belong to your business."})
 
 
 class AgencySerializer(serializers.ModelSerializer):

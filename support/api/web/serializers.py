@@ -249,8 +249,6 @@ class TicketSerializer(serializers.ModelSerializer):
                 student_file = attrs.get("student_file", getattr(self.instance, "student_file", None))
                 if agency:
                     aid = _agency_business_pk(agency)
-                    if aid and aid != tenant_bid:
-                        raise serializers.ValidationError({"agency": "Agency must belong to your business."})
                 if student_file:
                     sf_bid = getattr(student_file, "business_id", None) or _agency_business_pk(
                         getattr(student_file, "agency_id", None)
