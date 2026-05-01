@@ -1,5 +1,11 @@
-from authentication.base import BaseModelViewSet
+from authentication.base import BaseModelViewSet, StudentPortalReadOnlyMixin
 from authentication import constants
+from authentication.tenant_utils import (
+    is_student_portal_user,
+    tenant_agency_id,
+    tenant_business_id,
+    user_is_master_admin,
+)
 from authentication.notification_utils import create_notifications_for_event
 from datetime import date, timedelta
 from rest_framework import filters
@@ -52,28 +58,88 @@ class InventoryDashboardAPIView(APIView):
         validated_filters = query_serializer.validated_data
 
         agency = validated_filters.get("agency")
-        if self._is_agent_type_user(request.user):
-            agency = self._resolve_scoped_agency_for_agent_user(request.user)
+        scoped_business_id = None
+        scoped_agency_id = None
+        if not user_is_master_admin(request.user):
+            scoped_business_id = tenant_business_id(request.user)
+            scoped_agency_id = tenant_agency_id(request.user)
+
+            if scoped_business_id:
+                if agency and getattr(agency, "business_id", None) != scoped_business_id:
+                    agency = None
+                elif agency is None and scoped_agency_id:
+                    agency = (
+                        Agency.objects.filter(pk=scoped_agency_id, business_id=scoped_business_id)
+                        .first()
+                    )
+            elif scoped_agency_id:
+                if agency and agency.pk != scoped_agency_id:
+                    agency = None
+                if agency is None:
+                    agency = Agency.objects.filter(pk=scoped_agency_id).first()
+            else:
+                agency = None
 
         start_date, end_date = self._resolve_date_range(validated_filters)
 
         agencies_queryset = Agency.objects.all()
-        if self._is_agent_type_user(request.user):
+        if user_is_master_admin(request.user):
             if agency:
-                agencies_queryset = agencies_queryset.filter(id=agency.id)
-            else:
-                agencies_queryset = agencies_queryset.none()
+                agencies_queryset = agencies_queryset.filter(pk=agency.pk)
+        elif scoped_business_id:
+            agencies_queryset = Agency.objects.filter(business_id=scoped_business_id)
+            if agency:
+                agencies_queryset = agencies_queryset.filter(pk=agency.pk)
+        elif scoped_agency_id:
+            agencies_queryset = Agency.objects.filter(pk=scoped_agency_id)
+            if agency:
+                agencies_queryset = agencies_queryset.filter(pk=agency.pk)
+        else:
+            agencies_queryset = Agency.objects.none()
 
         customers_queryset = Customer.objects.filter(created_at__date__range=(start_date, end_date))
         student_files_queryset = StudentFile.objects.filter(created_at__date__range=(start_date, end_date))
         office_costs_queryset = OfficeCost.objects.filter(created_at__date__range=(start_date, end_date))
         student_costs_queryset = StudentCost.objects.filter(created_at__date__range=(start_date, end_date))
 
-        if agency:
+        if not user_is_master_admin(request.user):
+            if scoped_business_id:
+                customers_queryset = customers_queryset.filter(business_id=scoped_business_id)
+                student_files_queryset = student_files_queryset.filter(business_id=scoped_business_id)
+                office_costs_queryset = office_costs_queryset.filter(business_id=scoped_business_id)
+                student_costs_queryset = student_costs_queryset.filter(business_id=scoped_business_id)
+                if agency:
+                    customers_queryset = customers_queryset.filter(agency=agency)
+                    student_files_queryset = student_files_queryset.filter(agency=agency)
+                    office_costs_queryset = office_costs_queryset.filter(agency=agency)
+                    student_costs_queryset = student_costs_queryset.filter(agency=agency)
+            elif agency:
+                customers_queryset = customers_queryset.filter(agency=agency)
+                student_files_queryset = student_files_queryset.filter(agency=agency)
+                office_costs_queryset = office_costs_queryset.filter(agency=agency)
+                student_costs_queryset = student_costs_queryset.filter(agency=agency)
+            else:
+                customers_queryset = Customer.objects.none()
+                student_files_queryset = StudentFile.objects.none()
+                office_costs_queryset = OfficeCost.objects.none()
+                student_costs_queryset = StudentCost.objects.none()
+        elif agency:
             customers_queryset = customers_queryset.filter(agency=agency)
             student_files_queryset = student_files_queryset.filter(agency=agency)
             office_costs_queryset = office_costs_queryset.filter(agency=agency)
             student_costs_queryset = student_costs_queryset.filter(agency=agency)
+
+        student_portal_linked_id = None
+        if is_student_portal_user(request.user):
+            student_portal_linked_id = getattr(request.user, "linked_student_file_id", None)
+            customers_queryset = customers_queryset.none()
+            office_costs_queryset = office_costs_queryset.none()
+            if student_portal_linked_id:
+                student_files_queryset = student_files_queryset.filter(pk=student_portal_linked_id)
+                student_costs_queryset = student_costs_queryset.filter(student_file_id=student_portal_linked_id)
+            else:
+                student_files_queryset = student_files_queryset.none()
+                student_costs_queryset = student_costs_queryset.none()
 
         month_starts = self._build_month_starts(start_date, end_date)
         monthly_customer_files = self._build_monthly_series(
@@ -113,14 +179,28 @@ class InventoryDashboardAPIView(APIView):
         current_month_end = self._last_day_of_month(current_month_start)
         previous_month_end = self._last_day_of_month(previous_month_start)
 
-        current_month_student_files_count = StudentFile.objects.filter(
+        sf_scope_kwargs = {}
+        if agency:
+            sf_scope_kwargs["agency"] = agency
+        elif scoped_business_id and not user_is_master_admin(request.user):
+            sf_scope_kwargs["business_id"] = scoped_business_id
+
+        current_sf_qs = StudentFile.objects.filter(
             created_at__date__range=(current_month_start, current_month_end),
-            **({"agency": agency} if agency else {}),
-        ).count()
-        previous_month_student_files_count = StudentFile.objects.filter(
+            **sf_scope_kwargs,
+        )
+        previous_sf_qs = StudentFile.objects.filter(
             created_at__date__range=(previous_month_start, previous_month_end),
-            **({"agency": agency} if agency else {}),
-        ).count()
+            **sf_scope_kwargs,
+        )
+        if student_portal_linked_id:
+            current_sf_qs = current_sf_qs.filter(pk=student_portal_linked_id)
+            previous_sf_qs = previous_sf_qs.filter(pk=student_portal_linked_id)
+        elif is_student_portal_user(request.user):
+            current_sf_qs = current_sf_qs.none()
+            previous_sf_qs = previous_sf_qs.none()
+        current_month_student_files_count = current_sf_qs.count()
+        previous_month_student_files_count = previous_sf_qs.count()
 
         month_over_month_growth = self._calculate_growth_percentage(
             current_value=current_month_student_files_count,
@@ -178,22 +258,6 @@ class InventoryDashboardAPIView(APIView):
             "recent_student_files": recent_student_files,
         }
         return Response(response_payload)
-
-    def _is_agent_type_user(self, user):
-        if not user or not user.is_authenticated:
-            return False
-        return user.user_type in {
-            constants.UserTypeChoice.B2B_AGENT,
-            constants.UserTypeChoice.B2B_AGENT_EMPLOYEE,
-        }
-
-    def _resolve_scoped_agency_for_agent_user(self, user):
-        """
-        Dashboard data for agent users is always restricted to their parent agency.
-        """
-        if not user.parent_agency_id:
-            return None
-        return Agency.objects.filter(id=user.parent_agency_id).first()
 
     def _resolve_date_range(self, validated_filters):
         start_date = validated_filters.get("start_date")
@@ -303,7 +367,7 @@ class InventoryDashboardAPIView(APIView):
         return date(year, month, 1)
 
 
-class AgencyViewSet(BaseModelViewSet):
+class AgencyViewSet(StudentPortalReadOnlyMixin, BaseModelViewSet):
     queryset = Agency.objects.select_related("created_by").all()
     serializer_class = AgencySerializer
     permission_classes = [IsAuthenticated ]
@@ -314,7 +378,7 @@ class AgencyViewSet(BaseModelViewSet):
     ordering_fields = ["created_at", "updated_at", "name", "status"]
 
     def perform_create(self, serializer):
-        created_agency = serializer.save()
+        created_agency = serializer.save(**self.get_tenant_save_kwargs(serializer))
         create_notifications_for_event(
             entity_type=constants.NotificationEntityTypeChoice.AGENCY,
             action=constants.NotificationActionChoice.CREATED,
@@ -323,7 +387,7 @@ class AgencyViewSet(BaseModelViewSet):
         )
 
     def perform_update(self, serializer):
-        updated_agency = serializer.save()
+        updated_agency = serializer.save(**self.get_tenant_save_kwargs(serializer))
         create_notifications_for_event(
             entity_type=constants.NotificationEntityTypeChoice.AGENCY,
             action=constants.NotificationActionChoice.UPDATED,
@@ -332,29 +396,29 @@ class AgencyViewSet(BaseModelViewSet):
         )
 
 
-class CountryViewSet(BaseModelViewSet):
-    queryset = Country.objects.all()
+class CountryViewSet(StudentPortalReadOnlyMixin, BaseModelViewSet):
+    queryset = Country.objects.select_related("agency").all()
     serializer_class = CountrySerializer
     permission_classes = [IsAuthenticated]
     lookup_field = "slug"
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ["is_active"]
+    filterset_fields = ["agency", "is_active"]
     search_fields = ["name"]
     ordering_fields = ["created_at", "updated_at", "name"]
 
 
-class ProgramViewSet(BaseModelViewSet):
-    queryset = Program.objects.all()
+class ProgramViewSet(StudentPortalReadOnlyMixin, BaseModelViewSet):
+    queryset = Program.objects.select_related("agency").all()
     serializer_class = ProgramSerializer
     permission_classes = [IsAuthenticated]
     lookup_field = "slug"
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ["is_active"]
+    filterset_fields = ["agency", "is_active"]
     search_fields = ["name", "description"]
     ordering_fields = ["created_at", "updated_at", "name"]
 
 
-class CustomerViewSet(BaseModelViewSet):
+class CustomerViewSet(StudentPortalReadOnlyMixin, BaseModelViewSet):
     queryset = Customer.objects.select_related("agency", "assigned_counselor").all()
     serializer_class = CustomerSerializer
     permission_classes = [IsAuthenticated ]
@@ -365,7 +429,7 @@ class CustomerViewSet(BaseModelViewSet):
     ordering_fields = ["created_at", "updated_at", "given_name", "current_status"]
 
 
-class StudentFileViewSet(BaseModelViewSet):
+class StudentFileViewSet(StudentPortalReadOnlyMixin, BaseModelViewSet):
     queryset = StudentFile.objects.select_related("agency", "created_by").prefetch_related(
         "attachments",
         "applied_universities",
@@ -379,7 +443,7 @@ class StudentFileViewSet(BaseModelViewSet):
     ordering_fields = ["created_at", "updated_at", "given_name", "current_status"]
 
     def perform_create(self, serializer):
-        created_student_file = serializer.save()
+        created_student_file = serializer.save(**self.get_tenant_save_kwargs(serializer))
         create_notifications_for_event(
             entity_type=constants.NotificationEntityTypeChoice.STUDENT_FILE,
             action=constants.NotificationActionChoice.CREATED,
@@ -388,7 +452,7 @@ class StudentFileViewSet(BaseModelViewSet):
         )
 
     def perform_update(self, serializer):
-        updated_student_file = serializer.save()
+        updated_student_file = serializer.save(**self.get_tenant_save_kwargs(serializer))
         create_notifications_for_event(
             entity_type=constants.NotificationEntityTypeChoice.STUDENT_FILE,
             action=constants.NotificationActionChoice.UPDATED,
@@ -397,8 +461,8 @@ class StudentFileViewSet(BaseModelViewSet):
         )
 
 
-class UniversityViewSet(BaseModelViewSet):
-    queryset = University.objects.select_related("country").prefetch_related(
+class UniversityViewSet(StudentPortalReadOnlyMixin, BaseModelViewSet):
+    queryset = University.objects.select_related("country", "agency").prefetch_related(
         Prefetch("intakes", queryset=UniversityIntake.objects.order_by("id")),
         Prefetch(
             "programs",
@@ -411,36 +475,38 @@ class UniversityViewSet(BaseModelViewSet):
     permission_classes = [IsAuthenticated ]
     lookup_field = "slug"
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ["country", "is_active"]
+    filterset_fields = ["country", "agency", "is_active"]
     search_fields = ["university_name", "country__name"]
     ordering_fields = ["created_at", "updated_at", "university_name", "country__name"]
 
 
-class UniversityIntakeViewSet(BaseModelViewSet):
-    queryset = UniversityIntake.objects.select_related("university", "university__country").all()
+class UniversityIntakeViewSet(StudentPortalReadOnlyMixin, BaseModelViewSet):
+    queryset = UniversityIntake.objects.select_related("university", "university__country", "agency").all()
     serializer_class = UniversityIntakeSerializer
     permission_classes = [IsAuthenticated ]
     lookup_field = "slug"
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ["university", "intake_name", "is_active"]
+    filterset_fields = ["university", "agency", "intake_name", "is_active"]
     search_fields = ["intake_name", "university__university_name", "university__country__name"]
     ordering_fields = ["created_at", "updated_at", "intake_name"]
 
 
-class UniversityProgramViewSet(BaseModelViewSet):
-    queryset = UniversityProgram.objects.select_related("university", "university__country", "program").prefetch_related(
+class UniversityProgramViewSet(StudentPortalReadOnlyMixin, BaseModelViewSet):
+    queryset = UniversityProgram.objects.select_related(
+        "university", "university__country", "program", "agency"
+    ).prefetch_related(
         Prefetch("subjects", queryset=UniversityProgramSubject.objects.order_by("id"))
     )
     serializer_class = UniversityProgramSerializer
     permission_classes = [IsAuthenticated ]
     lookup_field = "slug"
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ["university", "program", "is_active"]
+    filterset_fields = ["university", "program", "agency", "is_active"]
     search_fields = ["program__name", "university__university_name", "university__country__name"]
     ordering_fields = ["created_at", "updated_at", "program__name"]
 
 
-class OfficeCostViewSet(BaseModelViewSet):
+class OfficeCostViewSet(StudentPortalReadOnlyMixin, BaseModelViewSet):
     queryset = OfficeCost.objects.select_related("agency", "created_by").all()
     serializer_class = OfficeCostSerializer
     permission_classes = [IsAuthenticated ]
@@ -451,7 +517,7 @@ class OfficeCostViewSet(BaseModelViewSet):
     ordering_fields = ["created_at", "updated_at", "amount", "title"]
 
 
-class StudentCostViewSet(BaseModelViewSet):
+class StudentCostViewSet(StudentPortalReadOnlyMixin, BaseModelViewSet):
     queryset = StudentCost.objects.select_related("agency", "student_file", "created_by").all()
     serializer_class = StudentCostSerializer
     permission_classes = [IsAuthenticated ]

@@ -2,10 +2,12 @@ from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import extend_schema
 from rest_framework import filters, status
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.exceptions import PermissionDenied
+from rest_framework.permissions import SAFE_METHODS, IsAuthenticated
 from rest_framework.response import Response
 
 from authentication.base import BaseModelViewSet
+from authentication.tenant_utils import is_student_portal_user
 
 from ...models import Ticket
 from .serializers import (
@@ -16,9 +18,14 @@ from .serializers import (
 
 
 class TicketViewSet(BaseModelViewSet):
+    """
+    Students may POST new tickets and POST ``reply``; other mutating verbs are blocked.
+    """
+
     queryset = Ticket.objects.select_related(
         "created_by",
         "agency",
+        "business",
         "student_file",
         "last_reply_by",
     ).prefetch_related(
@@ -34,6 +41,18 @@ class TicketViewSet(BaseModelViewSet):
     filterset_fields = ["status", "priority", "creator_type", "agency", "student_file", "created_by", "is_active"]
     search_fields = ["ticket_id", "subject", "description", "created_by__name", "created_by__email"]
     ordering_fields = ["created_at", "updated_at", "last_replied_at", "status", "priority"]
+
+    def dispatch(self, request, *args, **kwargs):
+        user = getattr(request, "user", None)
+        if (
+            user
+            and user.is_authenticated
+            and is_student_portal_user(user)
+            and request.method not in SAFE_METHODS
+            and request.method != "POST"
+        ):
+            raise PermissionDenied("Students may only create tickets or add replies (POST).")
+        return super().dispatch(request, *args, **kwargs)
 
     @extend_schema(
         request=TicketReplyPayloadSerializer,

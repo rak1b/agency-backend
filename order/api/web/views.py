@@ -10,7 +10,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from authentication.base import BaseModelViewSet
+from authentication.base import BaseModelViewSet, StudentPortalReadOnlyMixin
 
 from ...constants import InvoiceStatusChoice, RecipientTypeChoice
 from ...models import Invoice
@@ -147,8 +147,8 @@ def _invoice_group_breakdown(queryset, field_name, label_map):
     return out
 
 
-class InvoiceViewSet(BaseModelViewSet):
-    queryset = Invoice.objects.select_related("agency", "student", "created_by").prefetch_related(
+class InvoiceViewSet(StudentPortalReadOnlyMixin, BaseModelViewSet):
+    queryset = Invoice.objects.select_related("agency", "business", "student", "created_by").prefetch_related(
         "attachments",
         "line_items",
     )

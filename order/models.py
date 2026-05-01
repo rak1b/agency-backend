@@ -3,7 +3,7 @@ from decimal import Decimal
 from django.core.exceptions import ValidationError
 from django.db import models, transaction
 
-from agency_inventory.models import Agency, StudentFile
+from agency_inventory.models import Agency, Business, StudentFile
 from authentication.base import BaseModel
 from utils.slug_utils import generate_unique_slug
 
@@ -11,6 +11,12 @@ from .constants import DiscountTypeChoice, InvoiceStatusChoice, RecipientTypeCho
 
 
 class InvoiceAttachment(BaseModel):
+    """
+    Scoped to the same agency as the invoice once the invoice is linked.
+    """
+
+    agency = models.ForeignKey(Agency, on_delete=models.CASCADE, related_name="invoice_attachments", null=True, blank=True)
+    business = models.ForeignKey(Business, on_delete=models.CASCADE, related_name="business_invoice_attachments", null=True, blank=True)
     title = models.CharField(max_length=255, blank=True, null=True)
     file_url = models.URLField(max_length=1000, blank=True, null=True)
     slug = models.SlugField(max_length=255, unique=True, null=True, blank=True, editable=False)
@@ -22,6 +28,13 @@ class InvoiceAttachment(BaseModel):
         return self.title or "Invoice attachment"
 
     def save(self, *args, **kwargs):
+        # Linked through M2M ``Invoice.attachments``; resolve agency from any parent invoice.
+        if self.pk:
+            parent_invoice = self.invoices.select_related("agency").first()
+            if parent_invoice and parent_invoice.agency_id:
+                self.agency_id = parent_invoice.agency_id
+            if parent_invoice and getattr(parent_invoice, "business_id", None):
+                self.business_id = parent_invoice.business_id
         if not self.slug:
             self.slug = generate_unique_slug(self.title or self.file_url or "invoice-attachment", self)
         super().save(*args, **kwargs)
@@ -40,6 +53,7 @@ class Invoice(BaseModel):
         default=RecipientTypeChoice.CUSTOM,
     )
     agency = models.ForeignKey(Agency, on_delete=models.SET_NULL, related_name="invoices", null=True, blank=True)
+    business = models.ForeignKey(Business, on_delete=models.SET_NULL, related_name="business_invoices", null=True, blank=True)
     student = models.ForeignKey(StudentFile, on_delete=models.SET_NULL, related_name="invoices", null=True, blank=True)
     custom_recipient_name = models.CharField(max_length=255, blank=True, null=True)
     custom_recipient_email = models.EmailField(blank=True, null=True)
@@ -114,11 +128,33 @@ class Invoice(BaseModel):
             self.invoice_id = self._generate_next_invoice_id()
         if not self.slug:
             self.slug = generate_unique_slug(f"{self.invoice_id}-{self.issue_date}", self)
+        if self.student_id:
+            bid = StudentFile.objects.filter(pk=self.student_id).values_list("business_id", flat=True).first()
+            if bid:
+                self.business_id = bid
+        elif self.agency_id:
+            bid = Agency.objects.filter(pk=self.agency_id).values_list("business_id", flat=True).first()
+            if bid:
+                self.business_id = bid
         self.full_clean()
         super().save(*args, **kwargs)
 
 
 class InvoiceLineItem(BaseModel):
+    agency = models.ForeignKey(
+        Agency,
+        on_delete=models.CASCADE,
+        related_name="invoice_line_items",
+        null=True,
+        blank=True,
+    )
+    business = models.ForeignKey(
+        Business,
+        on_delete=models.CASCADE,
+        related_name="business_invoice_line_items",
+        null=True,
+        blank=True,
+    )
     invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE, related_name="line_items")
     title = models.CharField(max_length=255)
     amount = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal("0.00"))
@@ -128,3 +164,10 @@ class InvoiceLineItem(BaseModel):
 
     def __str__(self):
         return f"{self.title} ({self.amount})"
+
+    def save(self, *args, **kwargs):
+        if self.invoice_id and self.invoice.agency_id:
+            self.agency_id = self.invoice.agency_id
+        if self.invoice_id and getattr(self.invoice, "business_id", None):
+            self.business_id = self.invoice.business_id
+        super().save(*args, **kwargs)

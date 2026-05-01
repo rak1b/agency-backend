@@ -13,7 +13,7 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.contrib import admin
+from Config.master_admin_site import master_admin_site
 from django.urls import path,include,re_path
 from django.conf import settings
 from django.conf.urls.static import static
@@ -52,7 +52,7 @@ def health_check(request):
     return HttpResponse("OK")
 urlpatterns = [
     path('swagger/login/', custom_login_view, name='login'),
-    path('auth/secure/super-admin/', admin.site.urls),
+    path('auth/secure/super-admin/', master_admin_site.urls),
     path('api/', include('Config.api.base')),
     path('accounts/', include('allauth.urls')),
     path('health/', health_check),

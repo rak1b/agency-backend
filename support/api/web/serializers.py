@@ -171,6 +171,9 @@ class TicketSerializer(serializers.ModelSerializer):
         if creator_type == TicketCreatorTypeChoice.AGENCY:
             if not validated_data.get("agency") and request_user.parent_agency_id:
                 validated_data["agency"] = request_user.parent_agency
+            agency_inst = validated_data.get("agency")
+            if agency_inst and getattr(agency_inst, "business_id", None):
+                validated_data["business"] = agency_inst.business
             validated_data["student_file"] = None
         elif creator_type == TicketCreatorTypeChoice.STUDENT:
             student_file = validated_data.get("student_file")
@@ -179,6 +182,8 @@ class TicketSerializer(serializers.ModelSerializer):
                     {"student_file": "Student ticket requires `student_file`."}
                 )
             validated_data["agency"] = student_file.agency
+            if getattr(student_file, "business_id", None):
+                validated_data["business"] = student_file.business
 
     def _normalize_upload_name(self, original_name):
         name_without_ext, extension = os.path.splitext(original_name or "")

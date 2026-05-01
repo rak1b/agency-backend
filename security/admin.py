@@ -1,7 +1,8 @@
-from django.contrib import admin
+from Config.master_admin_site import master_admin_site
+
 from .models import BlockedIP, LoginAttempt, WhitelistedIP
 
 # Register your models here.
-admin.site.register(LoginAttempt)
-admin.site.register(BlockedIP)
-admin.site.register(WhitelistedIP)
+master_admin_site.register(LoginAttempt)
+master_admin_site.register(BlockedIP)
+master_admin_site.register(WhitelistedIP)

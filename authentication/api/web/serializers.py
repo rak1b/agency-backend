@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from authentication.models import *
 from authentication import constants
+from authentication.tenant_utils import tenant_agency_id, tenant_business_id
 from rest_framework.validators import UniqueValidator
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import Group
@@ -8,7 +9,7 @@ from django.db import models
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError as DjangoValidationError
 from rest_framework.exceptions import ValidationError
-from agency_inventory.models import Agency
+from agency_inventory.models import Agency, Business, StudentFile
 class DashboardRequestSerializer(serializers.Serializer):
     start_date = serializers.DateField()
     end_date = serializers.DateField()
@@ -71,12 +72,47 @@ class UserSerializer(serializers.ModelSerializer):
     role_details = serializers.SerializerMethodField()
     user_type_label = serializers.CharField(source='get_user_type_display', read_only=True)
     parent_agency_details = serializers.SerializerMethodField()
+    parent_business_details = serializers.SerializerMethodField()
     parent_b2b_agent_details = serializers.SerializerMethodField()
     confirm_password = serializers.CharField(write_only=True, required=False, allow_blank=False)
     full_name = serializers.CharField(source='name', required=False)
     profile_photo_url = serializers.URLField(source='image_url', required=False, allow_blank=True, allow_null=True)
     date_of_birth = serializers.DateField(source='dob', required=False, allow_null=True)
     status = serializers.BooleanField(source='is_active', required=False)
+    linked_student_file = serializers.PrimaryKeyRelatedField(
+        queryset=StudentFile.objects.all(),
+        required=False,
+        allow_null=True,
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        request = self.context.get("request")
+        linked_field = self.fields.get("linked_student_file")
+        parent_agency_field = self.fields.get("parent_agency")
+        parent_business_field = self.fields.get("parent_business")
+        if request and request.user.is_authenticated and not getattr(request.user, "is_superuser", False):
+            tenant_bid = tenant_business_id(request.user)
+            tenant_aid = tenant_agency_id(request.user)
+            if parent_agency_field is not None:
+                if tenant_bid:
+                    parent_agency_field.queryset = Agency.objects.filter(business_id=tenant_bid)
+                elif tenant_aid:
+                    parent_agency_field.queryset = Agency.objects.filter(pk=tenant_aid)
+                else:
+                    parent_agency_field.queryset = Agency.objects.none()
+            if parent_business_field is not None:
+                if tenant_bid:
+                    parent_business_field.queryset = Business.objects.filter(pk=tenant_bid)
+                else:
+                    parent_business_field.queryset = Business.objects.none()
+            if linked_field is not None:
+                if tenant_bid:
+                    linked_field.queryset = StudentFile.objects.filter(business_id=tenant_bid)
+                elif tenant_aid:
+                    linked_field.queryset = StudentFile.objects.filter(agency_id=tenant_aid)
+                else:
+                    linked_field.queryset = StudentFile.objects.none()
 
     class Meta:
         model = User
@@ -96,8 +132,11 @@ class UserSerializer(serializers.ModelSerializer):
             'user_type_label',
             'parent_agency',
             'parent_agency_details',
+            'parent_business',
+            'parent_business_details',
             'parent_b2b_agent',
             'parent_b2b_agent_details',
+            'linked_student_file',
             'employee_id',
             'designation',
             'trade_license_no',
@@ -125,6 +164,7 @@ class UserSerializer(serializers.ModelSerializer):
             'created_at': {'read_only': True},
             'updated_at': {'read_only': True},
             'parent_agency': {'queryset': Agency.objects.all(), 'required': False, 'allow_null': True},
+            'parent_business': {'queryset': Business.objects.all(), 'required': False, 'allow_null': True},
             'parent_b2b_agent': {'queryset': User.objects.all(), 'required': False, 'allow_null': True},
             'role': {'required': False},
             'name': {'required': False, 'allow_blank': True},
@@ -163,6 +203,15 @@ class UserSerializer(serializers.ModelSerializer):
             'slug': obj.parent_agency.slug,
         }
 
+    def get_parent_business_details(self, obj):
+        if not obj.parent_business:
+            return None
+        return {
+            'id': obj.parent_business.id,
+            'name': obj.parent_business.name,
+            'slug': obj.parent_business.slug,
+        }
+
     def get_parent_b2b_agent_details(self, obj):
         if not obj.parent_b2b_agent:
             return None
@@ -189,6 +238,44 @@ class UserSerializer(serializers.ModelSerializer):
                 raise ValidationError({'confirm_password': ['Password and confirm password must match.']})
         elif confirm_password:
             raise ValidationError({'password': ['Password is required when confirm password is provided.']})
+
+        linked = attrs.get('linked_student_file', getattr(instance, 'linked_student_file', None) if instance else None)
+        parent_agency = attrs.get('parent_agency', getattr(instance, 'parent_agency', None) if instance else None)
+        parent_business = attrs.get('parent_business', getattr(instance, 'parent_business', None) if instance else None)
+        user_type = attrs.get('user_type', getattr(instance, 'user_type', None) if instance else None)
+        if linked and user_type and user_type != constants.UserTypeChoice.STUDENT:
+            raise ValidationError(
+                {'linked_student_file': 'This field may only be set when user_type is STUDENT.'}
+            )
+        if linked and parent_agency and getattr(linked, 'agency_id', None) and linked.agency_id != parent_agency.id:
+            raise ValidationError(
+                {'linked_student_file': 'The student file must belong to the same agency as parent_agency.'}
+            )
+        if linked and parent_business and getattr(linked, 'business_id', None) and linked.business_id != parent_business.id:
+            raise ValidationError(
+                {'linked_student_file': 'The student file must belong to the same business as parent_business.'}
+            )
+        if parent_agency and parent_business:
+            pb_from_agency = getattr(parent_agency, 'business_id', None)
+            if pb_from_agency and pb_from_agency != parent_business.id:
+                raise ValidationError(
+                    {'parent_business': 'parent_business does not match the selected parent_agency business.'}
+                )
+
+        request = self.context.get('request')
+        if linked and request and request.user.is_authenticated and not getattr(request.user, 'is_superuser', False):
+            tenant_aid = tenant_agency_id(request.user)
+            tenant_bid = tenant_business_id(request.user)
+            if tenant_bid:
+                if getattr(linked, 'business_id', None) != tenant_bid:
+                    raise ValidationError(
+                        {'linked_student_file': 'You may only assign student files that belong to your business.'}
+                    )
+            elif tenant_aid:
+                if getattr(linked, 'agency_id', None) != tenant_aid:
+                    raise ValidationError(
+                        {'linked_student_file': 'You may only assign student files that belong to your agency.'}
+                    )
 
         return attrs
 

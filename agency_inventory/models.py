@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 
 from authentication.base import BaseModel
@@ -10,11 +11,45 @@ from .constants import (
 )
 
 
+class Business(BaseModel):
+    """
+    Top-level tenant. All operational data that belongs to an agency also carries
+    ``business_id`` so APIs can isolate rows by business without chaining joins.
+    """
+
+    name = models.CharField(max_length=255, unique=True)
+    slug = models.SlugField(max_length=255, unique=True, null=True, blank=True, editable=False)
+    owner_name = models.CharField(max_length=255, blank=True, default="")
+    status = models.CharField(max_length=20, choices=AgencyStatusChoice.choices, default=AgencyStatusChoice.ACTIVE)
+    business_email = models.EmailField(blank=True, null=True)
+    phone = models.CharField(max_length=30, blank=True, default="")
+    address = models.TextField(blank=True, default="")
+    logo_image_url = models.URLField(max_length=1000, blank=True, null=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        if not self.slug and self.name:
+            self.slug = generate_unique_slug(self.name, self)
+        super().save(*args, **kwargs)
+
+
 class Agency(BaseModel):
     """
     Core agency profile used by the student-management workflow.
     """
 
+    business = models.ForeignKey(
+        Business,
+        on_delete=models.PROTECT,
+        related_name="agencies",
+        null=True,
+        blank=True,
+    )
     name = models.CharField(max_length=255, unique=True)
     slug = models.SlugField(max_length=255, unique=True, null=True, blank=True, editable=False)
     owner_name = models.CharField(max_length=255)
@@ -43,6 +78,14 @@ class Agency(BaseModel):
         super().save(*args, **kwargs)
 
 
+def _agency_business_pk(agency):
+    if agency is None:
+        return None
+    if isinstance(agency, int):
+        return Agency.objects.filter(pk=agency).values_list("business_id", flat=True).first()
+    return getattr(agency, "business_id", None)
+
+
 class Customer(BaseModel):
     """
     Student/customer file profile linked to an agency.
@@ -51,7 +94,14 @@ class Customer(BaseModel):
     customer_id = models.CharField(max_length=20, unique=True, blank=True, null=True)
     slug = models.SlugField(max_length=255, unique=True, null=True, blank=True, editable=False)
     agency = models.ForeignKey(Agency, on_delete=models.CASCADE, related_name="customers")
-    passport_number = models.CharField(max_length=100, unique=True)
+    business = models.ForeignKey(
+        Business,
+        on_delete=models.CASCADE,
+        related_name="business_customers",
+        null=True,
+        blank=True,
+    )
+    passport_number = models.CharField(max_length=100)
     passport_copy_url = models.URLField(max_length=1000, blank=True, null=True)
     surname = models.CharField(max_length=100)
     given_name = models.CharField(max_length=100)
@@ -80,6 +130,12 @@ class Customer(BaseModel):
 
     class Meta:
         ordering = ["-created_at"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["agency", "passport_number"],
+                name="unique_customer_passport_per_agency",
+            ),
+        ]
 
     def __str__(self):
         return f"{self.customer_id or 'CUSTOMER'} - {self.given_name} {self.surname}".strip()
@@ -90,6 +146,8 @@ class Customer(BaseModel):
         if not self.slug:
             slug_source = f"{self.given_name}-{self.surname}-{self.passport_number}"
             self.slug = generate_unique_slug(slug_source, self)
+        if self.agency_id and not self.business_id:
+            self.business_id = _agency_business_pk(self.agency_id)
         super().save(*args, **kwargs)
 
 
@@ -100,9 +158,22 @@ class StudentFile(BaseModel):
 
     student_file_id = models.CharField(max_length=20, unique=True, blank=True, null=True)
     slug = models.SlugField(max_length=255, unique=True, null=True, blank=True, editable=False)
-    agency = models.ForeignKey(Agency, on_delete=models.SET_NULL, related_name="student_files", null=True, blank=True)
+    agency = models.ForeignKey(
+        Agency,
+        on_delete=models.CASCADE,
+        related_name="student_files",
+        null=True,
+        blank=True,
+    )
+    business = models.ForeignKey(
+        Business,
+        on_delete=models.CASCADE,
+        related_name="business_student_files",
+        null=True,
+        blank=True,
+    )
     is_own_agency = models.BooleanField(default=False)
-    passport_number = models.CharField(max_length=100, unique=True)
+    passport_number = models.CharField(max_length=100)
     passport_copy_url = models.URLField(max_length=1000, blank=True, null=True)
     surname = models.CharField(max_length=100)
     given_name = models.CharField(max_length=100)
@@ -134,6 +205,12 @@ class StudentFile(BaseModel):
 
     class Meta:
         ordering = ["-created_at"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["agency", "passport_number"],
+                name="unique_studentfile_passport_per_agency",
+            ),
+        ]
 
     def __str__(self):
         return f"{self.student_file_id or 'STUDENT_FILE'} - {self.given_name} {self.surname}".strip()
@@ -144,6 +221,8 @@ class StudentFile(BaseModel):
         if not self.slug:
             slug_source = f"{self.given_name}-{self.surname}-{self.passport_number}"
             self.slug = generate_unique_slug(slug_source, self)
+        if self.agency_id and not self.business_id:
+            self.business_id = _agency_business_pk(self.agency_id)
         super().save(*args, **kwargs)
 
 
@@ -152,6 +231,20 @@ class AppliedUniversity(BaseModel):
     Optional applied-university records linked to student files.
     """
 
+    agency = models.ForeignKey(
+        Agency,
+        on_delete=models.CASCADE,
+        related_name="agency_applied_universities",
+        null=True,
+        blank=True,
+    )
+    business = models.ForeignKey(
+        Business,
+        on_delete=models.CASCADE,
+        related_name="business_applied_universities",
+        null=True,
+        blank=True,
+    )
     university = models.ForeignKey(
         "University",
         on_delete=models.SET_NULL,
@@ -193,9 +286,13 @@ class AppliedUniversity(BaseModel):
                 # Defensive fallback for unexpected legacy/corrupt relation values.
                 resolved_country = resolved_country.country
             self.country = resolved_country
+            if self.university.agency_id:
+                self.agency_id = self.university.agency_id
         elif isinstance(self.country, University):
             # Defensive fallback for unexpected legacy/corrupt relation values.
             self.country = self.country.country
+        if self.country_id and not self.agency_id and getattr(self.country, "agency_id", None):
+            self.agency_id = self.country.agency_id
         if not self.slug:
             slug_source = (
                 self.university.university_name
@@ -203,6 +300,12 @@ class AppliedUniversity(BaseModel):
                 else self.intake or "applied-university"
             )
             self.slug = generate_unique_slug(slug_source, self)
+        if self.university_id and getattr(self.university, "business_id", None):
+            self.business_id = self.university.business_id
+        elif self.agency_id and not self.business_id:
+            self.business_id = _agency_business_pk(self.agency_id)
+        elif self.country_id and not self.business_id and getattr(self.country, "business_id", None):
+            self.business_id = self.country.business_id
         super().save(*args, **kwargs)
 
 
@@ -211,6 +314,20 @@ class StudentFileAttachment(BaseModel):
     Attachment metadata for student files (title + uploaded file URL).
     """
 
+    agency = models.ForeignKey(
+        Agency,
+        on_delete=models.CASCADE,
+        related_name="student_file_attachments",
+        null=True,
+        blank=True,
+    )
+    business = models.ForeignKey(
+        Business,
+        on_delete=models.CASCADE,
+        related_name="business_student_file_attachments",
+        null=True,
+        blank=True,
+    )
     title = models.CharField(max_length=255, blank=True, null=True)
     file_url = models.URLField(max_length=1000, blank=True, null=True)
     slug = models.SlugField(max_length=255, unique=True, null=True, blank=True, editable=False)
@@ -225,19 +342,41 @@ class StudentFileAttachment(BaseModel):
         if not self.slug:
             slug_source = self.title or self.file_url or "student-file-attachment"
             self.slug = generate_unique_slug(slug_source, self)
+        if self.agency_id and not self.business_id:
+            self.business_id = _agency_business_pk(self.agency_id)
         super().save(*args, **kwargs)
 
 
 class Country(BaseModel):
     """
-    Country master used by universities and applied-university rows.
+    Country catalog scoped to a single agency tenant.
     """
 
-    name = models.CharField(max_length=120, unique=True)
+    agency = models.ForeignKey(
+        Agency,
+        on_delete=models.CASCADE,
+        related_name="tenant_countries",
+        null=True,
+        blank=True,
+    )
+    business = models.ForeignKey(
+        Business,
+        on_delete=models.CASCADE,
+        related_name="countries",
+        null=True,
+        blank=True,
+    )
+    name = models.CharField(max_length=120)
     slug = models.SlugField(max_length=255, unique=True, null=True, blank=True, editable=False)
 
     class Meta:
         ordering = ["name"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["agency", "name"],
+                name="unique_country_name_per_agency",
+            ),
+        ]
 
     def __str__(self):
         return self.name
@@ -245,6 +384,8 @@ class Country(BaseModel):
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = generate_unique_slug(self.name, self)
+        if self.agency_id and not self.business_id:
+            self.business_id = _agency_business_pk(self.agency_id)
         super().save(*args, **kwargs)
 
 
@@ -255,6 +396,20 @@ class University(BaseModel):
     university API (nested ``intakes`` and ``programs`` payloads).
     """
 
+    agency = models.ForeignKey(
+        Agency,
+        on_delete=models.CASCADE,
+        related_name="tenant_universities",
+        null=True,
+        blank=True,
+    )
+    business = models.ForeignKey(
+        Business,
+        on_delete=models.CASCADE,
+        related_name="universities",
+        null=True,
+        blank=True,
+    )
     university_name = models.CharField(max_length=255)
     slug = models.SlugField(max_length=255, unique=True, null=True, blank=True, editable=False)
     country = models.ForeignKey(Country, on_delete=models.PROTECT, related_name="universities")
@@ -264,15 +419,28 @@ class University(BaseModel):
         ordering = ["-created_at"]
         constraints = [
             models.UniqueConstraint(
-                fields=["university_name", "country"],
-                name="unique_university_name_country",
+                fields=["agency", "university_name", "country"],
+                name="unique_university_name_country_per_agency",
             ),
         ]
 
     def __str__(self):
         return f"{self.university_name} ({self.country.name})"
 
+    def clean(self):
+        super().clean()
+        if self.country_id and self.agency_id and self.country.agency_id != self.agency_id:
+            raise ValidationError({"country": "Country must belong to the same agency as this university."})
+        if self.country_id and self.business_id and self.country.business_id and self.country.business_id != self.business_id:
+            raise ValidationError({"country": "Country must belong to the same business as this university."})
+
     def save(self, *args, **kwargs):
+        if self.country_id and not self.agency_id:
+            self.agency_id = self.country.agency_id
+        if self.country_id and not self.business_id and getattr(self.country, "business_id", None):
+            self.business_id = self.country.business_id
+        elif self.agency_id and not self.business_id:
+            self.business_id = _agency_business_pk(self.agency_id)
         if not self.slug:
             self.slug = generate_unique_slug(f"{self.university_name}-{self.country_id}", self)
         super().save(*args, **kwargs)
@@ -283,6 +451,20 @@ class UniversityIntake(BaseModel):
     Intake periods available under a university (e.g. June, March, September).
     """
 
+    agency = models.ForeignKey(
+        Agency,
+        on_delete=models.CASCADE,
+        related_name="university_intakes",
+        null=True,
+        blank=True,
+    )
+    business = models.ForeignKey(
+        Business,
+        on_delete=models.CASCADE,
+        related_name="business_university_intakes",
+        null=True,
+        blank=True,
+    )
     slug = models.SlugField(max_length=255, unique=True, null=True, blank=True, editable=False)
     university = models.ForeignKey(University, on_delete=models.CASCADE, related_name="intakes")
     intake_name = models.CharField(max_length=50)
@@ -297,22 +479,48 @@ class UniversityIntake(BaseModel):
         return f"{self.university.university_name} - {self.intake_name}"
 
     def save(self, *args, **kwargs):
+        if self.university_id and self.university.agency_id:
+            self.agency_id = self.university.agency_id
+        if self.university_id and getattr(self.university, "business_id", None):
+            self.business_id = self.university.business_id
         if not self.slug and self.university_id:
             self.slug = generate_unique_slug(f"{self.university_id}-{self.intake_name}", self)
         super().save(*args, **kwargs)
 
 class Program(BaseModel):
+    agency = models.ForeignKey(
+        Agency,
+        on_delete=models.CASCADE,
+        related_name="tenant_programs",
+        null=True,
+        blank=True,
+    )
+    business = models.ForeignKey(
+        Business,
+        on_delete=models.CASCADE,
+        related_name="business_programs",
+        null=True,
+        blank=True,
+    )
     slug = models.SlugField(max_length=255, unique=True, null=True, blank=True, editable=False)
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
 
     class Meta:
         ordering = ["-created_at"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["agency", "name"],
+                name="unique_program_name_per_agency",
+            ),
+        ]
 
     def __str__(self):
         return self.name
 
     def save(self, *args, **kwargs):
+        if self.agency_id and not self.business_id:
+            self.business_id = _agency_business_pk(self.agency_id)
         if not self.slug:
             self.slug = generate_unique_slug(self.name, self)
         super().save(*args, **kwargs)
@@ -322,6 +530,20 @@ class UniversityProgram(BaseModel):
     Program options enabled for a university.
     """
 
+    agency = models.ForeignKey(
+        Agency,
+        on_delete=models.CASCADE,
+        related_name="university_program_links",
+        null=True,
+        blank=True,
+    )
+    business = models.ForeignKey(
+        Business,
+        on_delete=models.CASCADE,
+        related_name="business_university_program_links",
+        null=True,
+        blank=True,
+    )
     slug = models.SlugField(max_length=255, unique=True, null=True, blank=True, editable=False)
     university = models.ForeignKey(University, on_delete=models.CASCADE, related_name="programs")
     program = models.ForeignKey(Program, on_delete=models.CASCADE, related_name="programs")
@@ -336,6 +558,10 @@ class UniversityProgram(BaseModel):
         return f"{self.university.university_name} - {self.program}"
 
     def save(self, *args, **kwargs):
+        if self.university_id and self.university.agency_id:
+            self.agency_id = self.university.agency_id
+        if self.university_id and getattr(self.university, "business_id", None):
+            self.business_id = self.university.business_id
         if not self.slug and self.university_id:
             self.slug = generate_unique_slug(f"{self.university_id}-{self.program.name}", self)
         super().save(*args, **kwargs)
@@ -347,6 +573,20 @@ class UniversityProgramSubject(BaseModel):
     Matches super-admin "Subjects under program" form sections.
     """
 
+    agency = models.ForeignKey(
+        Agency,
+        on_delete=models.CASCADE,
+        related_name="university_program_subjects",
+        null=True,
+        blank=True,
+    )
+    business = models.ForeignKey(
+        Business,
+        on_delete=models.CASCADE,
+        related_name="business_university_program_subjects",
+        null=True,
+        blank=True,
+    )
     slug = models.SlugField(max_length=255, unique=True, null=True, blank=True, editable=False)
     program = models.ForeignKey(UniversityProgram, on_delete=models.CASCADE, related_name="subjects")
     subject_name = models.CharField(max_length=255)
@@ -359,6 +599,10 @@ class UniversityProgramSubject(BaseModel):
         return f"{self.program.program.name} — {self.subject_name}"
 
     def save(self, *args, **kwargs):
+        if self.program_id and self.program.agency_id:
+            self.agency_id = self.program.agency_id
+        if self.program_id and getattr(self.program, "business_id", None):
+            self.business_id = self.program.business_id
         if not self.slug and self.program_id:
             self.slug = generate_unique_slug(f"{self.program_id}-{self.subject_name}-{self.track_name}", self)
         super().save(*args, **kwargs)
@@ -371,6 +615,9 @@ class OfficeCost(BaseModel):
 
     slug = models.SlugField(max_length=255, unique=True, null=True, blank=True, editable=False)
     agency = models.ForeignKey(Agency, on_delete=models.SET_NULL, related_name="office_costs", null=True, blank=True)
+    business = models.ForeignKey(
+        Business, on_delete=models.SET_NULL, related_name="business_office_costs", null=True, blank=True
+    )
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
     amount = models.PositiveIntegerField(default=0)
@@ -384,6 +631,8 @@ class OfficeCost(BaseModel):
         return f"{self.title} ({self.amount})"
 
     def save(self, *args, **kwargs):
+        if self.agency_id and not self.business_id:
+            self.business_id = _agency_business_pk(self.agency_id)
         if not self.slug:
             self.slug = generate_unique_slug(f"{self.title}-{self.agency_id}", self)
         super().save(*args, **kwargs)
@@ -396,6 +645,9 @@ class StudentCost(BaseModel):
 
     slug = models.SlugField(max_length=255, unique=True, null=True, blank=True, editable=False)
     agency = models.ForeignKey(Agency, on_delete=models.SET_NULL, related_name="student_costs", null=True, blank=True)
+    business = models.ForeignKey(
+        Business, on_delete=models.SET_NULL, related_name="business_student_costs", null=True, blank=True
+    )
     student_file = models.ForeignKey(StudentFile, on_delete=models.SET_NULL, related_name="costs", null=True, blank=True)
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
@@ -412,6 +664,10 @@ class StudentCost(BaseModel):
     def save(self, *args, **kwargs):
         if self.student_file_id and self.student_file.agency_id and self.agency_id != self.student_file.agency_id:
             self.agency = self.student_file.agency
+        if self.student_file_id and getattr(self.student_file, "business_id", None) and self.business_id != self.student_file.business_id:
+            self.business_id = self.student_file.business_id
+        elif self.agency_id and not self.business_id:
+            self.business_id = _agency_business_pk(self.agency_id)
         if not self.slug:
             self.slug = generate_unique_slug(f"{self.title}-{self.student_file_id}", self)
         super().save(*args, **kwargs)

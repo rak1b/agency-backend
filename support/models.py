@@ -2,7 +2,7 @@ from django.core.exceptions import ValidationError
 from django.db import models, transaction
 from django.utils import timezone
 
-from agency_inventory.models import Agency, StudentFile
+from agency_inventory.models import Agency, Business, StudentFile
 from authentication.base import BaseModel
 from utils.slug_utils import generate_unique_slug
 
@@ -24,6 +24,13 @@ class Ticket(BaseModel):
         choices=TicketCreatorTypeChoice.choices,
     )
     agency = models.ForeignKey(Agency, on_delete=models.SET_NULL, related_name="support_tickets", null=True, blank=True)
+    business = models.ForeignKey(
+        Business,
+        on_delete=models.SET_NULL,
+        related_name="business_support_tickets",
+        null=True,
+        blank=True,
+    )
     student_file = models.ForeignKey(
         StudentFile,
         on_delete=models.SET_NULL,
@@ -87,6 +94,18 @@ class Ticket(BaseModel):
             self.resolved_at = timezone.now()
         elif self.status not in {TicketStatusChoice.SOLVED, TicketStatusChoice.CLOSED}:
             self.resolved_at = None
+        if self.student_file_id:
+            sid_business = StudentFile.objects.filter(pk=self.student_file_id).values_list(
+                "business_id", flat=True
+            ).first()
+            if sid_business:
+                self.business_id = sid_business
+        if self.agency_id and not self.business_id:
+            aid_business = Agency.objects.filter(pk=self.agency_id).values_list(
+                "business_id", flat=True
+            ).first()
+            if aid_business:
+                self.business_id = aid_business
         self.full_clean()
         super().save(*args, **kwargs)
 
@@ -101,6 +120,20 @@ class TicketReply(BaseModel):
     reverse accessor and duplicate the same relationship.
     """
 
+    agency = models.ForeignKey(
+        Agency,
+        on_delete=models.CASCADE,
+        related_name="ticket_replies",
+        null=True,
+        blank=True,
+    )
+    business = models.ForeignKey(
+        Business,
+        on_delete=models.CASCADE,
+        related_name="business_ticket_replies",
+        null=True,
+        blank=True,
+    )
     ticket = models.ForeignKey(Ticket, on_delete=models.CASCADE, related_name="replies")
     message = models.TextField(blank=True, null=True)
     replied_by = models.ForeignKey("authentication.User", on_delete=models.SET_NULL, null=True, blank=True)
@@ -111,8 +144,30 @@ class TicketReply(BaseModel):
     def __str__(self):
         return f"Reply #{self.id} on {self.ticket.ticket_id}"
 
+    def save(self, *args, **kwargs):
+        if self.ticket_id:
+            if self.ticket.agency_id:
+                self.agency_id = self.ticket.agency_id
+            if getattr(self.ticket, "business_id", None):
+                self.business_id = self.ticket.business_id
+        super().save(*args, **kwargs)
+
 
 class TicketAttachment(BaseModel):
+    agency = models.ForeignKey(
+        Agency,
+        on_delete=models.CASCADE,
+        related_name="ticket_attachments",
+        null=True,
+        blank=True,
+    )
+    business = models.ForeignKey(
+        Business,
+        on_delete=models.CASCADE,
+        related_name="business_ticket_attachments",
+        null=True,
+        blank=True,
+    )
     ticket = models.ForeignKey(Ticket, on_delete=models.CASCADE, related_name="attachments", null=True, blank=True)
     reply = models.ForeignKey(TicketReply, on_delete=models.CASCADE, related_name="attachments", null=True, blank=True)
     file_name = models.CharField(max_length=255, blank=True, null=True)
@@ -124,6 +179,17 @@ class TicketAttachment(BaseModel):
 
     def __str__(self):
         return self.file_name or self.file_url
+
+    def save(self, *args, **kwargs):
+        ticket = self.ticket
+        if ticket is None and self.reply_id:
+            ticket = self.reply.ticket
+        if ticket:
+            if ticket.agency_id:
+                self.agency_id = ticket.agency_id
+            if getattr(ticket, "business_id", None):
+                self.business_id = ticket.business_id
+        super().save(*args, **kwargs)
 
     def clean(self):
         if not self.ticket_id and not self.reply_id:

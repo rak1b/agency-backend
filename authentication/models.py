@@ -125,12 +125,31 @@ class User(AbstractBaseUser, PermissionsMixin):
         blank=True,
         null=True,
     )
+    parent_business = models.ForeignKey(
+        "agency_inventory.Business",
+        on_delete=models.SET_NULL,
+        related_name="linked_users",
+        blank=True,
+        null=True,
+        help_text=(
+            "Optional explicit tenant scope. When unset for staff users it is inferred from "
+            "parent_agency.business (or student's file business for portal accounts)."
+        ),
+    )
     parent_b2b_agent = models.ForeignKey(
         "self",
         on_delete=models.SET_NULL,
         related_name="managed_b2b_agent_employees",
         blank=True,
         null=True,
+    )
+    linked_student_file = models.OneToOneField(
+        "agency_inventory.StudentFile",
+        on_delete=models.SET_NULL,
+        related_name="portal_user",
+        blank=True,
+        null=True,
+        help_text="When user_type is STUDENT, this file is the only student-file row this user may access.",
     )
     employee_id = models.CharField(max_length=50, blank=True, null=True)
     designation = models.CharField(max_length=100, blank=True, null=True)
@@ -159,6 +178,20 @@ class User(AbstractBaseUser, PermissionsMixin):
     
     def save(self, *args, **kwargs):
         import uuid
+
+        # Keep tenant pointers aligned when only an agency is assigned.
+        if self.parent_agency_id and not self.parent_business_id:
+            from django.apps import apps
+
+            AgencyModel = apps.get_model("agency_inventory", "Agency")
+            bid = (
+                AgencyModel.objects.filter(pk=self.parent_agency_id)
+                .values_list("business_id", flat=True)
+                .first()
+            )
+            if bid:
+                self.parent_business_id = bid
+
         if not self.slug:
             self.slug = str(uuid.uuid4())
         if not self.user_id:

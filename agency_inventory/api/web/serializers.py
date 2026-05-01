@@ -2,6 +2,12 @@ from rest_framework import serializers
 
 from django.db import transaction
 
+from authentication.tenant_utils import (
+    tenant_agency_id,
+    tenant_business_id,
+    user_is_master_admin,
+)
+
 from ...models import (
     Agency,
     AppliedUniversity,
@@ -216,10 +222,32 @@ class StudentFileSerializer(serializers.ModelSerializer):
             for row in raw_rows
         ]
 
+    def _tenant_scoped_queryset(self, queryset):
+        """
+        Prevent cross-tenant FK picks: tenants may reference rows within their ``business``
+        slice, or their single legacy agency before business sync.
+        """
+        request = self.context.get("request")
+        user = getattr(request, "user", None) if request else None
+        if not user or not user.is_authenticated or user_is_master_admin(user):
+            return queryset
+        business_pk = tenant_business_id(user)
+        if business_pk:
+            concrete_names = {f.name for f in queryset.model._meta.fields}
+            if "business" in concrete_names:
+                return queryset.filter(business_id=business_pk)
+            if "agency" in concrete_names:
+                return queryset.filter(agency__business_id=business_pk)
+            return queryset.none()
+        agency_id = tenant_agency_id(user)
+        if agency_id:
+            return queryset.filter(agency_id=agency_id)
+        return queryset.none()
+
     def _resolve_subject(self, subject_id=None):
         if subject_id is not None:
             try:
-                return UniversityProgramSubject.objects.get(id=subject_id)
+                return self._tenant_scoped_queryset(UniversityProgramSubject.objects.all()).get(id=subject_id)
             except UniversityProgramSubject.DoesNotExist:
                 raise serializers.ValidationError({"subject": f"Subject id {subject_id} does not exist."})
         return None
@@ -230,7 +258,9 @@ class StudentFileSerializer(serializers.ModelSerializer):
 
         if university_id is not None:
             try:
-                university_obj = University.objects.select_related("country").get(id=university_id)
+                university_obj = self._tenant_scoped_queryset(
+                    University.objects.select_related("country")
+                ).get(id=university_id)
             except University.DoesNotExist:
                 raise serializers.ValidationError({"university": f"University id {university_id} does not exist."})
             country_obj = university_obj.country
@@ -241,7 +271,7 @@ class StudentFileSerializer(serializers.ModelSerializer):
 
         if country_id is not None:
             try:
-                requested_country = Country.objects.get(id=country_id)
+                requested_country = self._tenant_scoped_queryset(Country.objects.all()).get(id=country_id)
             except Country.DoesNotExist:
                 raise serializers.ValidationError({"country": f"Country id {country_id} does not exist."})
             if university_obj and requested_country.id != university_obj.country_id:
@@ -260,14 +290,20 @@ class StudentFileSerializer(serializers.ModelSerializer):
             file_url = row.get("file_url")
             if attachment_id:
                 try:
-                    attachment_obj = StudentFileAttachment.objects.get(id=attachment_id)
+                    attachment_obj = self._tenant_scoped_queryset(StudentFileAttachment.objects.all()).get(
+                        id=attachment_id
+                    )
                 except StudentFileAttachment.DoesNotExist:
                     raise serializers.ValidationError({"attachments": f"Attachment id {attachment_id} does not exist."})
                 attachment_obj.title = title if title is not None else attachment_obj.title
                 attachment_obj.file_url = file_url if file_url is not None else attachment_obj.file_url
                 attachment_obj.save()
             else:
-                attachment_obj = StudentFileAttachment.objects.create(title=title, file_url=file_url)
+                attachment_obj = StudentFileAttachment.objects.create(
+                    title=title,
+                    file_url=file_url,
+                    agency=student_file.agency,
+                )
             attachment_ids.append(attachment_obj.id)
         student_file.attachments.set(attachment_ids)
 
@@ -285,7 +321,9 @@ class StudentFileSerializer(serializers.ModelSerializer):
             intake = row.get("intake")
             if applied_university_id:
                 try:
-                    applied_university_obj = AppliedUniversity.objects.get(id=applied_university_id)
+                    applied_university_obj = self._tenant_scoped_queryset(AppliedUniversity.objects.all()).get(
+                        id=applied_university_id
+                    )
                 except AppliedUniversity.DoesNotExist:
                     raise serializers.ValidationError(
                         {"applied_universities": f"Applied university id {applied_university_id} does not exist."}
@@ -300,6 +338,7 @@ class StudentFileSerializer(serializers.ModelSerializer):
                 applied_university_obj.save()
             else:
                 applied_university_obj = AppliedUniversity.objects.create(
+                    agency=student_file.agency,
                     university=university_obj,
                     country=country_obj,
                     intake=intake,
@@ -397,6 +436,13 @@ class UniversitySerializer(serializers.ModelSerializer):
         exclude = ["deleted_at", "deleted_by", "is_deleted"]
         read_only_fields = ["slug", "created_at", "updated_at", "country_name"]
 
+    def validate(self, attrs):
+        agency = attrs.get("agency", getattr(self.instance, "agency", None))
+        country = attrs.get("country", getattr(self.instance, "country", None))
+        if agency and country and getattr(country, "agency_id", None) and country.agency_id != agency.id:
+            raise serializers.ValidationError({"country": "Country must belong to the same agency as the university."})
+        return attrs
+
     def validate_intakes(self, intakes):
         names = [item.get("intake_name", "").strip() for item in intakes]
         if any(not name for name in names):
@@ -420,6 +466,13 @@ class UniversitySerializer(serializers.ModelSerializer):
             UniversityIntake.objects.create(university=university, **intake_row)
         for program_row in programs_data:
             subjects_data = program_row.pop("subjects", [])
+            program_fk = program_row.get("program")
+            program_id = program_fk.id if hasattr(program_fk, "id") else program_fk
+            program_master = Program.objects.get(pk=program_id)
+            if program_master.agency_id != university.agency_id:
+                raise serializers.ValidationError(
+                    {"programs": "Each program template must belong to the same agency as the university."}
+                )
             program_obj = UniversityProgram.objects.create(university=university, **program_row)
             for subject_row in subjects_data:
                 UniversityProgramSubject.objects.create(program=program_obj, **subject_row)
@@ -438,6 +491,13 @@ class UniversitySerializer(serializers.ModelSerializer):
             university.programs.all().delete()
             for program_row in programs_data:
                 subjects_data = program_row.pop("subjects", [])
+                program_fk = program_row.get("program")
+                program_id = program_fk.id if hasattr(program_fk, "id") else program_fk
+                program_master = Program.objects.get(pk=program_id)
+                if program_master.agency_id != university.agency_id:
+                    raise serializers.ValidationError(
+                        {"programs": "Each program template must belong to the same agency as the university."}
+                    )
                 program_obj = UniversityProgram.objects.create(university=university, **program_row)
                 for subject_row in subjects_data:
                     UniversityProgramSubject.objects.create(program=program_obj, **subject_row)

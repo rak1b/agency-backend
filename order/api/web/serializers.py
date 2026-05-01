@@ -4,6 +4,8 @@ from django.db import transaction
 from django.db.models import Sum
 from rest_framework import serializers
 
+from authentication.tenant_utils import user_is_master_admin
+
 from ...constants import DiscountTypeChoice, InvoiceStatusChoice, RecipientTypeChoice
 from ...models import Invoice, InvoiceAttachment, InvoiceLineItem
 
@@ -167,6 +169,9 @@ class InvoiceSerializer(serializers.ModelSerializer):
         recipient_type = validated_data.get("recipient_type")
 
         if recipient_type == RecipientTypeChoice.AGENCY:
+            agency_inst = validated_data.get("agency")
+            if agency_inst and getattr(agency_inst, "business_id", None):
+                validated_data["business"] = agency_inst.business
             validated_data["student"] = None
             validated_data["custom_recipient_name"] = None
             validated_data["custom_recipient_email"] = None
@@ -176,11 +181,24 @@ class InvoiceSerializer(serializers.ModelSerializer):
             if student and student.agency_id:
                 # Keep agency synced from student to avoid cross-agency mismatch.
                 validated_data["agency"] = student.agency
+            if student and getattr(student, "business_id", None):
+                validated_data["business"] = getattr(student, "business", None)
             validated_data["custom_recipient_name"] = None
             validated_data["custom_recipient_email"] = None
             validated_data["custom_recipient_phone"] = None
         elif recipient_type == RecipientTypeChoice.CUSTOM:
-            validated_data["agency"] = None
+            # Keep the issuing tenant on the row so API scoping still applies.
+            request = self.context.get("request")
+            user = getattr(request, "user", None)
+            if user and user.is_authenticated and not user_is_master_admin(user) and user.parent_agency_id:
+                from agency_inventory.models import Agency
+
+                tenant_agency_row = Agency.objects.filter(pk=user.parent_agency_id).first()
+                validated_data["agency"] = tenant_agency_row
+                if tenant_agency_row and getattr(tenant_agency_row, "business_id", None):
+                    validated_data["business"] = tenant_agency_row.business
+            else:
+                validated_data["agency"] = None
             validated_data["student"] = None
 
     def _upsert_attachments(self, invoice, attachments_data):
@@ -199,9 +217,16 @@ class InvoiceSerializer(serializers.ModelSerializer):
                 attachment.file_url = file_url if file_url is not None else attachment.file_url
                 attachment.save()
             else:
-                attachment = InvoiceAttachment.objects.create(title=title, file_url=file_url)
+                attachment = InvoiceAttachment.objects.create(
+                    title=title,
+                    file_url=file_url,
+                    agency=invoice.agency,
+                    business=getattr(invoice, "business", None),
+                )
             attachment_ids.append(attachment.id)
         invoice.attachments.set(attachment_ids)
+        for attachment in invoice.attachments.all():
+            attachment.save()
 
     def _upsert_line_items(self, invoice, line_items_data):
         retained_item_ids = []

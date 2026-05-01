@@ -1,9 +1,9 @@
 from django.contrib import admin
-from .models import User, Role, Permission, RolePermission, Merchant, Confirmation, Notification, OauthToken, Section 
 from django.contrib.auth.hashers import make_password
 
-admin.site.site_header = 'Paymentsave Inventory Management Portal'
-admin.site.site_title = 'Paymentsave Inventory'
+from Config.master_admin_site import master_admin_site
+
+from .models import User, Role, Permission, RolePermission, Merchant, Confirmation, Notification, OauthToken, Section
 
 # Register your models here.
 class RoleAdmin(admin.ModelAdmin):
@@ -38,7 +38,7 @@ class CustomUserAdmin(admin.ModelAdmin):
         ('User Information', {
             'fields': (
                 'name', 'email', 'phone', 'slug', 'user_id', 'role', 'user_type',
-                'parent_agency', 'parent_b2b_agent', 'employee_id', 'designation',
+                'parent_business', 'parent_agency', 'parent_b2b_agent', 'linked_student_file', 'employee_id', 'designation',
                 'trade_license_no', 'commission_rate', 'contract_start_date',
                 'contract_end_date', 'joining_date', 'gender', 'address', 'dob', 'image_url'
             )
@@ -73,12 +73,12 @@ class CustomUserAdmin(admin.ModelAdmin):
             obj.password = make_password(form.cleaned_data['password'])
         super().save_model(request, obj, form, change)
 
-admin.site.register(User, CustomUserAdmin)
-admin.site.register(Role, RoleAdmin)
-admin.site.register(Permission)
-admin.site.register(RolePermission)
-admin.site.register(OauthToken)
-admin.site.register(Merchant)
-admin.site.register(Confirmation)
-admin.site.register(Notification)
-admin.site.register(Section)
+master_admin_site.register(User, CustomUserAdmin)
+master_admin_site.register(Role, RoleAdmin)
+master_admin_site.register(Permission)
+master_admin_site.register(RolePermission)
+master_admin_site.register(OauthToken)
+master_admin_site.register(Merchant)
+master_admin_site.register(Confirmation)
+master_admin_site.register(Notification)
+master_admin_site.register(Section)

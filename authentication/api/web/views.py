@@ -47,6 +47,52 @@ from rest_framework import status
 from rest_framework.response import Response
 
 
+def login_agency_and_student_payload(user):
+    """
+    Build ``agency_details``, ``business_details``, and ``linked_student_file`` for login responses.
+    Students may only have ``linked_student_file``; agency is taken from that file when needed.
+    """
+    from agency_inventory.models import Business, StudentFile
+
+    from authentication.tenant_utils import tenant_business_id
+
+    linked_sf = getattr(user, "linked_student_file", None)
+    if linked_sf is None and getattr(user, "linked_student_file_id", None):
+        linked_sf = (
+            StudentFile.objects.filter(pk=user.linked_student_file_id)
+            .select_related("agency")
+            .first()
+        )
+    agency = user.parent_agency
+    if agency is None and linked_sf and linked_sf.agency_id:
+        agency = linked_sf.agency
+    agency_details = (
+        {"id": agency.id, "name": agency.name, "slug": agency.slug} if agency else None
+    )
+    business_details = None
+    direct_business = getattr(user, "parent_business", None)
+    if direct_business:
+        business_details = {
+            "id": direct_business.id,
+            "name": direct_business.name,
+            "slug": direct_business.slug,
+        }
+    else:
+        bid = tenant_business_id(user)
+        if bid:
+            row = Business.objects.filter(pk=bid).values("id", "name", "slug").first()
+            if row:
+                business_details = {"id": row["id"], "name": row["name"], "slug": row["slug"]}
+    linked_details = None
+    if linked_sf:
+        linked_details = {
+            "id": linked_sf.id,
+            "slug": linked_sf.slug,
+            "student_file_id": linked_sf.student_file_id,
+        }
+    return agency_details, business_details, linked_details
+
+
 class StandardUserListPagination(DRFPageNumberPagination):
     """Use DRF's default paginated response shape while keeping page_size configurable."""
 
@@ -61,7 +107,7 @@ class UserAPI(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend,SearchFilter]
     search_fields = ['name','email','phone','employee_id','designation']
     DYNAMIC_PERMISSION_CODE = 'user'
-    filterset_fields = ['role','user_id','user_type','parent_agency','parent_b2b_agent','gender','is_active']
+    filterset_fields = ['role','user_id','user_type','parent_agency','parent_business','parent_b2b_agent','gender','is_active']
     pagination_class = StandardUserListPagination
 
     def get_renderers(self):
@@ -73,6 +119,7 @@ class UserAPI(viewsets.ModelViewSet):
         emails = ['rakib@admin.com','admin@admin.com','inventory@admin.com','salmansadi165324@gmail.com']
         return super().get_queryset().exclude(email__in=emails).select_related(
             'parent_agency',
+            'parent_business',
             'parent_b2b_agent',
         ).prefetch_related('role')
         
@@ -273,15 +320,10 @@ class WebUserLoginView(APIView):
                 }
                 for role in user_info.role.all()
             ]
-            context['agency_details'] = (
-                {
-                    "id": user_info.parent_agency.id,
-                    "name": user_info.parent_agency.name,
-                    "slug": user_info.parent_agency.slug,
-                }
-                if user_info.parent_agency
-                else None
-            )
+            agency_details, business_details, linked_student_file_payload = login_agency_and_student_payload(user_info)
+            context["agency_details"] = agency_details
+            context["business_details"] = business_details
+            context["linked_student_file"] = linked_student_file_payload
             return Response(context)
         else:
             context['detail'] = 'Invalid Email or Password'
@@ -342,15 +384,10 @@ class WebLoginView(APIView):
                 }
                 for role in user_info.role.all()
             ]
-            context['agency_details'] = (
-                {
-                    "id": user_info.parent_agency.id,
-                    "name": user_info.parent_agency.name,
-                    "slug": user_info.parent_agency.slug,
-                }
-                if user_info.parent_agency
-                else None
-            )
+            agency_details, business_details, linked_student_file_payload = login_agency_and_student_payload(user_info)
+            context["agency_details"] = agency_details
+            context["business_details"] = business_details
+            context["linked_student_file"] = linked_student_file_payload
             return Response(context)
         else:
             context['detail'] = 'Invalid Email or Password'
