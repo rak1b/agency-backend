@@ -63,6 +63,21 @@ def b2b_agent_tenant_agency_id(user):
     return None
 
 
+def invoice_issuer_agency_stamp_id(user):
+    """
+    Primary key of the agency to store on an **issued** invoice when the row
+    needs the creator's desk/context (e.g. ``CUSTOM`` recipient).
+
+    B2B users use the same resolution as ``b2b_agent_tenant_agency_id``;
+    agency-side staff use ``User.parent_agency`` when set.
+    """
+    if not user or not user.is_authenticated:
+        return None
+    if user_is_b2b_agent_or_employee(user):
+        return b2b_agent_tenant_agency_id(user)
+    return getattr(user, "parent_agency_id", None)
+
+
 def model_has_agency_fk(model_class) -> bool:
     """True if the model defines a field named ``agency`` (typical FK to ``Agency``)."""
     try:

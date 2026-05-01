@@ -7,9 +7,8 @@ from rest_framework import serializers
 from agency_inventory.models import _agency_business_pk
 
 from authentication.tenant_utils import (
-    b2b_agent_tenant_agency_id,
+    invoice_issuer_agency_stamp_id,
     tenant_business_id,
-    user_is_b2b_agent_or_employee,
     user_is_master_admin,
 )
 
@@ -205,25 +204,30 @@ class InvoiceSerializer(serializers.ModelSerializer):
             if student and student.agency_id:
                 # Keep agency synced from student to avoid cross-agency mismatch.
                 validated_data["agency"] = student.agency
+            elif force_tenant and user:
+                # Student file may exist without an agency FK; still stamp issuer context.
+                stamp = invoice_issuer_agency_stamp_id(user)
+                if stamp:
+                    validated_data["agency_id"] = stamp
             if not force_tenant and student and getattr(student, "business_id", None):
                 validated_data["business"] = getattr(student, "business", None)
             validated_data["custom_recipient_name"] = None
             validated_data["custom_recipient_email"] = None
             validated_data["custom_recipient_phone"] = None
         elif recipient_type == RecipientTypeChoice.CUSTOM:
-            # Stamp business always; stamp agency for B2B so queryset scoping sees the row.
+            # Stamp business; stamp agency from issuer (B2B or ``parent_agency``) for API scoping and reporting.
             validated_data.pop("agency", None)
             validated_data.pop("agency_id", None)
+            validated_data.pop("business", None)
             user = getattr(self.context.get("request"), "user", None)
             validated_data["student"] = None
             if user and user.is_authenticated and not user_is_master_admin(user):
                 tenant_bid = tenant_business_id(user)
                 if tenant_bid:
                     validated_data["business_id"] = tenant_bid
-                if user_is_b2b_agent_or_employee(user):
-                    b2b_agency_pk = b2b_agent_tenant_agency_id(user)
-                    if b2b_agency_pk:
-                        validated_data["agency_id"] = b2b_agency_pk
+                stamp = invoice_issuer_agency_stamp_id(user)
+                if stamp:
+                    validated_data["agency_id"] = stamp
 
     def _upsert_attachments(self, invoice, attachments_data):
         attachment_ids = []
