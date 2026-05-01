@@ -11,6 +11,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from authentication.base import BaseModelViewSet, StudentPortalReadOnlyMixin
+from authentication.tenant_utils import apply_b2b_agency_scope_to_queryset
 
 from ...constants import InvoiceStatusChoice, RecipientTypeChoice
 from ...models import Invoice
@@ -165,6 +166,10 @@ class InvoiceViewSet(StudentPortalReadOnlyMixin, BaseModelViewSet):
         "custom_recipient_name",
     ]
     ordering_fields = ["created_at", "updated_at", "issue_date", "due_date", "total_amount", "status"]
+
+    def _apply_tenant_scope(self, queryset):
+        queryset = super()._apply_tenant_scope(queryset)
+        return apply_b2b_agency_scope_to_queryset(queryset, getattr(self.request, "user", None))
 
     @extend_schema(
         summary="Invoice aggregates report",

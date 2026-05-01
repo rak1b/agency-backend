@@ -4,6 +4,8 @@ Helpers for multi-tenant access control (business → student row scope).
 Master operators use Django ``is_superuser`` and bypass tenant filters everywhere.
 """
 
+from django.core.exceptions import FieldDoesNotExist
+
 from authentication import constants
 
 
@@ -58,6 +60,35 @@ def b2b_agent_tenant_agency_id(user):
             return parent.parent_agency_id
         return getattr(user, "parent_agency_id", None)
     return None
+
+
+def model_has_agency_fk(model_class) -> bool:
+    """True if the model defines a field named ``agency`` (typical FK to ``Agency``)."""
+    try:
+        model_class._meta.get_field("agency")
+        return True
+    except FieldDoesNotExist:
+        return False
+
+
+def apply_b2b_agency_scope_to_queryset(queryset, user):
+    """
+    After business-level tenant scope, narrow rows to the B2B user's agency.
+
+    Agency super admins and employees (non-B2B user types) keep business-wide access
+    within their tenant. B2B agents and their staff only see rows for their
+    ``parent_agency`` (see ``b2b_agent_tenant_agency_id``).
+    """
+    if not user or not user.is_authenticated or user_is_master_admin(user):
+        return queryset
+    if not user_is_b2b_agent_or_employee(user):
+        return queryset
+    if not model_has_agency_fk(queryset.model):
+        return queryset
+    agency_id = b2b_agent_tenant_agency_id(user)
+    if not agency_id:
+        return queryset.none()
+    return queryset.filter(agency_id=agency_id)
 
 
 def tenant_org_save_kwargs(user, model_class, has_field_fn) -> dict:

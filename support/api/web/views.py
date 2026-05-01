@@ -7,7 +7,7 @@ from rest_framework.permissions import SAFE_METHODS, IsAuthenticated
 from rest_framework.response import Response
 
 from authentication.base import BaseModelViewSet
-from authentication.tenant_utils import is_student_portal_user
+from authentication.tenant_utils import apply_b2b_agency_scope_to_queryset, is_student_portal_user
 
 from ...models import Ticket
 from .serializers import (
@@ -41,6 +41,10 @@ class TicketViewSet(BaseModelViewSet):
     filterset_fields = ["business", "status", "priority", "creator_type", "agency", "student_file", "created_by", "is_active"]
     search_fields = ["ticket_id", "subject", "description", "created_by__name", "created_by__email"]
     ordering_fields = ["created_at", "updated_at", "last_replied_at", "status", "priority"]
+
+    def _apply_tenant_scope(self, queryset):
+        queryset = super()._apply_tenant_scope(queryset)
+        return apply_b2b_agency_scope_to_queryset(queryset, getattr(self.request, "user", None))
 
     def dispatch(self, request, *args, **kwargs):
         user = getattr(request, "user", None)

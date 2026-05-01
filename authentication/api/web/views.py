@@ -2,7 +2,12 @@ from datetime import datetime
 from authentication import constants
 from authentication.permissions import HasCustomPermission
 from authentication.notification_utils import create_notifications_for_event, user_is_admin
-from authentication.tenant_utils import tenant_business_id, user_is_master_admin
+from authentication.tenant_utils import (
+    b2b_agent_tenant_agency_id,
+    tenant_business_id,
+    user_is_b2b_agent_or_employee,
+    user_is_master_admin,
+)
 from authentication.utils import auth_utils, email_utils
 from .serializers import *
 from rest_framework.decorators import action, api_view, authentication_classes, permission_classes
@@ -127,9 +132,15 @@ class UserAPI(viewsets.ModelViewSet):
         if user_is_master_admin(current_user):
             return queryset
         business_id = tenant_business_id(current_user)
-        if business_id:
-            return queryset.filter(parent_business_id=business_id)
-        return queryset.none()
+        if not business_id:
+            return queryset.none()
+        queryset = queryset.filter(parent_business_id=business_id)
+        if user_is_b2b_agent_or_employee(current_user):
+            agency_id = b2b_agent_tenant_agency_id(current_user)
+            if not agency_id:
+                return queryset.none()
+            queryset = queryset.filter(parent_agency_id=agency_id)
+        return queryset
         
     
     def destroy(self, request, *args, **kwargs):
@@ -141,10 +152,15 @@ class UserAPI(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         save_kwargs = {}
-        if not user_is_master_admin(self.request.user):
-            business_id = tenant_business_id(self.request.user)
+        actor = self.request.user
+        if not user_is_master_admin(actor):
+            business_id = tenant_business_id(actor)
             if business_id:
                 save_kwargs["parent_business_id"] = business_id
+            if user_is_b2b_agent_or_employee(actor):
+                agency_id = b2b_agent_tenant_agency_id(actor)
+                if agency_id:
+                    save_kwargs["parent_agency_id"] = agency_id
         created_user = serializer.save(**save_kwargs)
         create_notifications_for_event(
             entity_type=constants.NotificationEntityTypeChoice.USER,
@@ -155,10 +171,15 @@ class UserAPI(viewsets.ModelViewSet):
 
     def perform_update(self, serializer):
         save_kwargs = {}
-        if not user_is_master_admin(self.request.user):
-            business_id = tenant_business_id(self.request.user)
+        actor = self.request.user
+        if not user_is_master_admin(actor):
+            business_id = tenant_business_id(actor)
             if business_id:
                 save_kwargs["parent_business_id"] = business_id
+            if user_is_b2b_agent_or_employee(actor):
+                agency_id = b2b_agent_tenant_agency_id(actor)
+                if agency_id:
+                    save_kwargs["parent_agency_id"] = agency_id
         updated_user = serializer.save(**save_kwargs)
         create_notifications_for_event(
             entity_type=constants.NotificationEntityTypeChoice.USER,
