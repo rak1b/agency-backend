@@ -466,10 +466,7 @@ class UniversitySerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError(
                     {"programs": "Each program template must belong to the same business as the university."}
                 )
-            if university.agency_id and program_master.agency_id != university.agency_id:
-                raise serializers.ValidationError(
-                    {"programs": "Each program template must belong to the same agency as the university."}
-                )
+
             program_obj = UniversityProgram.objects.create(university=university, **program_row)
             for subject_row in subjects_data:
                 UniversityProgramSubject.objects.create(program=program_obj, **subject_row)
@@ -495,10 +492,7 @@ class UniversitySerializer(serializers.ModelSerializer):
                     raise serializers.ValidationError(
                         {"programs": "Each program template must belong to the same business as the university."}
                     )
-                if university.agency_id and program_master.agency_id != university.agency_id:
-                    raise serializers.ValidationError(
-                        {"programs": "Each program template must belong to the same agency as the university."}
-                    )
+         
                 program_obj = UniversityProgram.objects.create(university=university, **program_row)
                 for subject_row in subjects_data:
                     UniversityProgramSubject.objects.create(program=program_obj, **subject_row)
