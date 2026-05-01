@@ -404,12 +404,7 @@ class University(BaseModel):
     def __str__(self):
         return f"{self.university_name} ({self.country.name})"
 
-    def clean(self):
-        super().clean()
-        if self.country_id and self.agency_id and self.country.agency_id != self.agency_id:
-            raise ValidationError({"country": "Country must belong to the same agency as this university."})
-        if self.country_id and self.business_id and self.country.business_id and self.country.business_id != self.business_id:
-            raise ValidationError({"country": "Country must belong to the same business as this university."})
+
 
     def save(self, *args, **kwargs):
         if self.country_id and not self.agency_id:
