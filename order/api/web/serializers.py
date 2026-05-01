@@ -6,7 +6,12 @@ from rest_framework import serializers
 
 from agency_inventory.models import _agency_business_pk
 
-from authentication.tenant_utils import tenant_business_id, user_is_master_admin
+from authentication.tenant_utils import (
+    b2b_agent_tenant_agency_id,
+    tenant_business_id,
+    user_is_b2b_agent_or_employee,
+    user_is_master_admin,
+)
 
 from ...constants import DiscountTypeChoice, InvoiceStatusChoice, RecipientTypeChoice
 from ...models import Invoice, InvoiceAttachment, InvoiceLineItem
@@ -206,13 +211,19 @@ class InvoiceSerializer(serializers.ModelSerializer):
             validated_data["custom_recipient_email"] = None
             validated_data["custom_recipient_phone"] = None
         elif recipient_type == RecipientTypeChoice.CUSTOM:
-            # Keep the issuing tenant on the row so API scoping still applies.
-            request = self.context.get("request")
-            user = getattr(request, "user", None)
-            validated_data["agency"] = None
-            if user and user.is_authenticated and not user_is_master_admin(user):
-                validated_data["business_id"] = tenant_business_id(user)
+            # Stamp business always; stamp agency for B2B so queryset scoping sees the row.
+            validated_data.pop("agency", None)
+            validated_data.pop("agency_id", None)
+            user = getattr(self.context.get("request"), "user", None)
             validated_data["student"] = None
+            if user and user.is_authenticated and not user_is_master_admin(user):
+                tenant_bid = tenant_business_id(user)
+                if tenant_bid:
+                    validated_data["business_id"] = tenant_bid
+                if user_is_b2b_agent_or_employee(user):
+                    b2b_agency_pk = b2b_agent_tenant_agency_id(user)
+                    if b2b_agency_pk:
+                        validated_data["agency_id"] = b2b_agency_pk
 
     def _upsert_attachments(self, invoice, attachments_data):
         attachment_ids = []

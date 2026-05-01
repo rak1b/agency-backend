@@ -169,7 +169,11 @@ class InvoiceViewSet(StudentPortalReadOnlyMixin, BaseModelViewSet):
 
     def _apply_tenant_scope(self, queryset):
         queryset = super()._apply_tenant_scope(queryset)
-        return apply_b2b_agency_scope_to_queryset(queryset, getattr(self.request, "user", None))
+        return apply_b2b_agency_scope_to_queryset(
+            queryset,
+            getattr(self.request, "user", None),
+            include_null_agency_created_by_user=True,
+        )
 
     @extend_schema(
         summary="Invoice aggregates report",

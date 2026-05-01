@@ -5,6 +5,7 @@ Master operators use Django ``is_superuser`` and bypass tenant filters everywher
 """
 
 from django.core.exceptions import FieldDoesNotExist
+from django.db.models import Q
 
 from authentication import constants
 
@@ -71,13 +72,18 @@ def model_has_agency_fk(model_class) -> bool:
         return False
 
 
-def apply_b2b_agency_scope_to_queryset(queryset, user):
+def apply_b2b_agency_scope_to_queryset(queryset, user, *, include_null_agency_created_by_user=False):
     """
     After business-level tenant scope, narrow rows to the B2B user's agency.
 
     Agency super admins and employees (non-B2B user types) keep business-wide access
     within their tenant. B2B agents and their staff only see rows for their
     ``parent_agency`` (see ``b2b_agent_tenant_agency_id``).
+
+    When ``include_null_agency_created_by_user`` is True and the model has a
+    ``created_by`` field, rows with no agency but authored by ``user`` remain
+    visible (backward compatibility for CUSTOM invoices issued before agency
+    was stamped for B2B users).
     """
     if not user or not user.is_authenticated or user_is_master_admin(user):
         return queryset
@@ -88,7 +94,16 @@ def apply_b2b_agency_scope_to_queryset(queryset, user):
     agency_id = b2b_agent_tenant_agency_id(user)
     if not agency_id:
         return queryset.none()
-    return queryset.filter(agency_id=agency_id)
+
+    if not include_null_agency_created_by_user:
+        return queryset.filter(agency_id=agency_id)
+
+    try:
+        queryset.model._meta.get_field("created_by")
+    except FieldDoesNotExist:
+        return queryset.filter(agency_id=agency_id)
+
+    return queryset.filter(Q(agency_id=agency_id) | Q(agency__isnull=True, created_by=user))
 
 
 def tenant_org_save_kwargs(user, model_class, has_field_fn) -> dict:
