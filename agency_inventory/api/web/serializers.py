@@ -21,6 +21,7 @@ from ...models import (
     UniversityIntake,
     UniversityProgram,
     UniversityProgramSubject,
+    _agency_business_pk,
 )
 
 
@@ -432,13 +433,28 @@ class UniversitySerializer(serializers.ModelSerializer):
         read_only_fields = ["slug", "created_at", "updated_at", "country_name"]
 
     def validate(self, attrs):
+        request = self.context.get("request")
+        user = getattr(request, "user", None)
+
         agency = attrs.get("agency", getattr(self.instance, "agency", None))
         country = attrs.get("country", getattr(self.instance, "country", None))
         if agency and country and getattr(country, "agency_id", None) and country.agency_id != agency.id:
             raise serializers.ValidationError({"country": "Country must belong to the same agency as the university."})
+
         business = attrs.get("business", getattr(self.instance, "business", None))
         if business and country and getattr(country, "business_id", None) and country.business_id != business.id:
             raise serializers.ValidationError({"country": "Country must belong to the same business as the university."})
+
+        # Tenant business is applied in perform_create/perform_update after validation; enforce country scope here.
+        if user and user.is_authenticated and not user_is_master_admin(user):
+            tenant_bid = tenant_business_id(user)
+            if tenant_bid and country:
+                country_bid = getattr(country, "business_id", None) or _agency_business_pk(getattr(country, "agency_id", None))
+                if country_bid and country_bid != tenant_bid:
+                    raise serializers.ValidationError(
+                        {"country": "Country must belong to your business."}
+                    )
+
         return attrs
 
     def validate_intakes(self, intakes):

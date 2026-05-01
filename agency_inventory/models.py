@@ -413,10 +413,12 @@ class University(BaseModel):
     def save(self, *args, **kwargs):
         if self.country_id and not self.agency_id:
             self.agency_id = self.country.agency_id
-        if self.country_id and getattr(self.country, "business_id", None):
-            self.business_id = self.country.business_id
-        elif self.agency_id:
-            self.business_id = _agency_business_pk(self.agency_id)
+        # Do not overwrite an explicit business (e.g. tenant from API). Derive only when unset.
+        if self.business_id is None:
+            if self.country_id and getattr(self.country, "business_id", None):
+                self.business_id = self.country.business_id
+            elif self.agency_id:
+                self.business_id = _agency_business_pk(self.agency_id)
         if not self.slug:
             self.slug = generate_unique_slug(f"{self.university_name}-{self.country_id}", self)
         super().save(*args, **kwargs)
