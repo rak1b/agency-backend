@@ -3,7 +3,7 @@ from authentication import constants
 from authentication.permissions import HasCustomPermission
 from authentication.notification_utils import create_notifications_for_event, user_is_admin
 from authentication.tenant_utils import (
-    b2b_agent_tenant_agency_id,
+    invoice_issuer_agency_stamp_id,
     tenant_business_id,
     user_is_b2b_agent_or_employee,
     user_is_master_admin,
@@ -135,11 +135,13 @@ class UserAPI(viewsets.ModelViewSet):
         if not business_id:
             return queryset.none()
         queryset = queryset.filter(parent_business_id=business_id)
+        stamped_agency_id = invoice_issuer_agency_stamp_id(current_user)
         if user_is_b2b_agent_or_employee(current_user):
-            agency_id = b2b_agent_tenant_agency_id(current_user)
-            if not agency_id:
+            if not stamped_agency_id:
                 return queryset.none()
-            queryset = queryset.filter(parent_agency_id=agency_id)
+            queryset = queryset.filter(parent_agency_id=stamped_agency_id)
+        elif stamped_agency_id:
+            queryset = queryset.filter(parent_agency_id=stamped_agency_id)
         return queryset
         
     
@@ -157,10 +159,9 @@ class UserAPI(viewsets.ModelViewSet):
             business_id = tenant_business_id(actor)
             if business_id:
                 save_kwargs["parent_business_id"] = business_id
-            if user_is_b2b_agent_or_employee(actor):
-                agency_id = b2b_agent_tenant_agency_id(actor)
-                if agency_id:
-                    save_kwargs["parent_agency_id"] = agency_id
+            pin_agency = invoice_issuer_agency_stamp_id(actor)
+            if pin_agency:
+                save_kwargs["parent_agency_id"] = pin_agency
         created_user = serializer.save(**save_kwargs)
         create_notifications_for_event(
             entity_type=constants.NotificationEntityTypeChoice.USER,
@@ -176,10 +177,9 @@ class UserAPI(viewsets.ModelViewSet):
             business_id = tenant_business_id(actor)
             if business_id:
                 save_kwargs["parent_business_id"] = business_id
-            if user_is_b2b_agent_or_employee(actor):
-                agency_id = b2b_agent_tenant_agency_id(actor)
-                if agency_id:
-                    save_kwargs["parent_agency_id"] = agency_id
+            pin_agency = invoice_issuer_agency_stamp_id(actor)
+            if pin_agency:
+                save_kwargs["parent_agency_id"] = pin_agency
         updated_user = serializer.save(**save_kwargs)
         create_notifications_for_event(
             entity_type=constants.NotificationEntityTypeChoice.USER,

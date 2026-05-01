@@ -78,6 +78,26 @@ def invoice_issuer_agency_stamp_id(user):
     return getattr(user, "parent_agency_id", None)
 
 
+def invoice_list_skips_agency_row_scope(user) -> bool:
+    """
+    Invoice list/report uses ``business_id`` isolation only (no extra ``agency`` slice).
+
+    Agency super admins are treated as **business owners**: they see every invoice in
+    ``parent_business``, even when their profile also has ``parent_agency`` set.
+
+    Master operators and portal students skip downstream agency narrowing here (same
+    effect as elsewhere in ``apply_b2b_agency_scope_to_queryset`` early returns).
+    """
+    if not user or not user.is_authenticated:
+        return False
+    if user_is_master_admin(user):
+        return True
+    if is_student_portal_user(user):
+        return True
+    ut = getattr(user, "user_type", None)
+    return ut == constants.UserTypeChoice.AGENCY_SUPER_ADMIN
+
+
 def model_has_agency_fk(model_class) -> bool:
     """True if the model defines a field named ``agency`` (typical FK to ``Agency``)."""
     try:
@@ -89,36 +109,49 @@ def model_has_agency_fk(model_class) -> bool:
 
 def apply_b2b_agency_scope_to_queryset(queryset, user, *, include_null_agency_created_by_user=False):
     """
-    After business-level tenant scope, narrow rows to the B2B user's agency.
+    After business isolation, optionally narrow rows to the user's **home agency**
+    whenever one can be resolved (``invoice_issuer_agency_stamp_id``).
 
-    Agency super admins and employees (non-B2B user types) keep business-wide access
-    within their tenant. B2B agents and their staff only see rows for their
-    ``parent_agency`` (see ``b2b_agent_tenant_agency_id``).
+    Tenants whose users have ``parent_agency`` (or are B2B with a scoped agency)
+    always see sibling rows only within that agency. Users with only ``parent_business``
+    and no home agency retain business-wide access within that business.
 
-    When ``include_null_agency_created_by_user`` is True and the model has a
-    ``created_by`` field, rows with no agency but authored by ``user`` remain
-    visible (backward compatibility for CUSTOM invoices issued before agency
-    was stamped for B2B users).
+    B2B agents/employees whose agency cannot be resolved get an empty queryset
+    (their account is mis-linked).
+
+    Students skip this layer (caller still applies business / portal rules elsewhere).
+
+    When ``include_null_agency_created_by_user`` applies (Invoice legacy rows), orphaned
+    ``agency=NULL`` rows created by ``user`` may still appear.
     """
     if not user or not user.is_authenticated or user_is_master_admin(user):
         return queryset
-    if not user_is_b2b_agent_or_employee(user):
+    if is_student_portal_user(user):
         return queryset
+
+    stamp_agency_id = invoice_issuer_agency_stamp_id(user)
+
+    # B2B accounts must never fall back to business-wide rows.
+    if user_is_b2b_agent_or_employee(user):
+        if not stamp_agency_id:
+            return queryset.none()
+    elif not stamp_agency_id:
+        return queryset
+
     if not model_has_agency_fk(queryset.model):
         return queryset
-    agency_id = b2b_agent_tenant_agency_id(user)
-    if not agency_id:
-        return queryset.none()
+
+    agency_scope_id = stamp_agency_id
 
     if not include_null_agency_created_by_user:
-        return queryset.filter(agency_id=agency_id)
+        return queryset.filter(agency_id=agency_scope_id)
 
     try:
         queryset.model._meta.get_field("created_by")
     except FieldDoesNotExist:
-        return queryset.filter(agency_id=agency_id)
+        return queryset.filter(agency_id=agency_scope_id)
 
-    return queryset.filter(Q(agency_id=agency_id) | Q(agency__isnull=True, created_by=user))
+    return queryset.filter(Q(agency_id=agency_scope_id) | Q(agency__isnull=True, created_by=user))
 
 
 def tenant_org_save_kwargs(user, model_class, has_field_fn) -> dict:

@@ -11,7 +11,10 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from authentication.base import BaseModelViewSet, StudentPortalReadOnlyMixin
-from authentication.tenant_utils import apply_b2b_agency_scope_to_queryset
+from authentication.tenant_utils import (
+    apply_b2b_agency_scope_to_queryset,
+    invoice_list_skips_agency_row_scope,
+)
 
 from ...constants import InvoiceStatusChoice, RecipientTypeChoice
 from ...models import Invoice
@@ -168,10 +171,18 @@ class InvoiceViewSet(StudentPortalReadOnlyMixin, BaseModelViewSet):
     ordering_fields = ["created_at", "updated_at", "issue_date", "due_date", "total_amount", "status"]
 
     def _apply_tenant_scope(self, queryset):
+        """
+        Tenant boundary is always ``business_id`` (via ``BaseModelViewSet``).
+        Agency / B2B users are further narrowed to their home agency; business owners
+        (``AGENCY_SUPER_ADMIN``) remain business-wide across all agencies under that tenant.
+        """
         queryset = super()._apply_tenant_scope(queryset)
+        user = getattr(self.request, "user", None)
+        if invoice_list_skips_agency_row_scope(user):
+            return queryset
         return apply_b2b_agency_scope_to_queryset(
             queryset,
-            getattr(self.request, "user", None),
+            user,
             include_null_agency_created_by_user=True,
         )
 

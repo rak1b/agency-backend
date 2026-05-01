@@ -2,8 +2,10 @@ from authentication.base import BaseModelViewSet, StudentPortalReadOnlyMixin
 from authentication import constants
 from authentication.tenant_utils import (
     apply_b2b_agency_scope_to_queryset,
+    invoice_issuer_agency_stamp_id,
     is_student_portal_user,
     tenant_business_id,
+    user_is_b2b_agent_or_employee,
     user_is_master_admin,
 )
 from authentication.notification_utils import create_notifications_for_event
@@ -30,6 +32,19 @@ from ...models import (
     UniversityProgram,
     UniversityProgramSubject,
 )
+
+
+class TenantHomeAgencyRowMixin:
+    """
+    After ``BaseModelViewSet`` business isolation, narrows queryset rows to the user's
+    home agency when resolved (mirrors invoices / orders / tickets).
+    """
+
+    def _apply_tenant_scope(self, queryset):
+        queryset = super()._apply_tenant_scope(queryset)
+        return apply_b2b_agency_scope_to_queryset(queryset, getattr(self.request, "user", None))
+
+
 from .serializers import (
     AgencySerializer,
     CountrySerializer,
@@ -352,7 +367,25 @@ class AgencyViewSet(BaseModelViewSet):
     search_fields = ["name", "owner_name", "business_email", "phone", "address"]
     ordering_fields = ["created_at", "updated_at", "name", "status"]
 
-
+    def _apply_tenant_scope(self, queryset):
+        """
+        ``Agency`` rows carry ``business``, not ``agency``; desk users only see their own
+        Agency profile PK (their ``parent_agency``).
+        """
+        queryset = super()._apply_tenant_scope(queryset)
+        user = getattr(self.request, "user", None)
+        if not user or not user.is_authenticated or user_is_master_admin(user):
+            return queryset
+        if is_student_portal_user(user):
+            return queryset
+        stamped_agency_pk = invoice_issuer_agency_stamp_id(user)
+        if user_is_b2b_agent_or_employee(user):
+            if not stamped_agency_pk:
+                return queryset.none()
+            return queryset.filter(pk=stamped_agency_pk)
+        if stamped_agency_pk:
+            return queryset.filter(pk=stamped_agency_pk)
+        return queryset
 
     def perform_create(self, serializer):
         created_agency = serializer.save(**self.get_tenant_save_kwargs(serializer))
@@ -373,7 +406,7 @@ class AgencyViewSet(BaseModelViewSet):
         )
 
 
-class CountryViewSet(StudentPortalReadOnlyMixin, BaseModelViewSet):
+class CountryViewSet(StudentPortalReadOnlyMixin, TenantHomeAgencyRowMixin, BaseModelViewSet):
     queryset = Country.objects.select_related("agency", "business").all()
     serializer_class = CountrySerializer
     permission_classes = [IsAuthenticated]
@@ -383,11 +416,8 @@ class CountryViewSet(StudentPortalReadOnlyMixin, BaseModelViewSet):
     search_fields = ["name"]
     ordering_fields = ["created_at", "updated_at", "name"]
 
-    def get_queryset(self):
-        return Country.objects.select_related("agency", "business").all()
 
-
-class ProgramViewSet(StudentPortalReadOnlyMixin, BaseModelViewSet):
+class ProgramViewSet(StudentPortalReadOnlyMixin, TenantHomeAgencyRowMixin, BaseModelViewSet):
     queryset = Program.objects.select_related("agency", "business").all()
     serializer_class = ProgramSerializer
     permission_classes = [IsAuthenticated]
@@ -398,7 +428,7 @@ class ProgramViewSet(StudentPortalReadOnlyMixin, BaseModelViewSet):
     ordering_fields = ["created_at", "updated_at", "name"]
 
 
-class CustomerViewSet(StudentPortalReadOnlyMixin, BaseModelViewSet):
+class CustomerViewSet(StudentPortalReadOnlyMixin, TenantHomeAgencyRowMixin, BaseModelViewSet):
     queryset = Customer.objects.select_related("agency", "business", "assigned_counselor").all()
     serializer_class = CustomerSerializer
     permission_classes = [IsAuthenticated ]
@@ -409,7 +439,7 @@ class CustomerViewSet(StudentPortalReadOnlyMixin, BaseModelViewSet):
     ordering_fields = ["created_at", "updated_at", "given_name", "current_status"]
 
 
-class StudentFileViewSet(StudentPortalReadOnlyMixin, BaseModelViewSet):
+class StudentFileViewSet(StudentPortalReadOnlyMixin, TenantHomeAgencyRowMixin, BaseModelViewSet):
     queryset = StudentFile.objects.select_related("agency", "business", "created_by").prefetch_related(
         "attachments",
         "applied_universities",
@@ -421,14 +451,6 @@ class StudentFileViewSet(StudentPortalReadOnlyMixin, BaseModelViewSet):
     filterset_fields = ["business", "agency", "current_status", "file_from", "created_by", "is_active"]
     search_fields = ["student_file_id", "passport_number", "given_name", "surname", "email", "phone_whatsapp"]
     ordering_fields = ["created_at", "updated_at", "given_name", "current_status"]
-
-    def _apply_tenant_scope(self, queryset):
-        """
-        Apply business isolation from ``BaseModelViewSet``, then restrict B2B agents
-        (and their employees) to student files whose ``agency`` matches their tenant agency.
-        """
-        queryset = super()._apply_tenant_scope(queryset)
-        return apply_b2b_agency_scope_to_queryset(queryset, getattr(self.request, "user", None))
 
     def perform_create(self, serializer):
         created_student_file = serializer.save(**self.get_tenant_save_kwargs(serializer))
@@ -449,7 +471,7 @@ class StudentFileViewSet(StudentPortalReadOnlyMixin, BaseModelViewSet):
         )
 
 
-class UniversityViewSet(StudentPortalReadOnlyMixin, BaseModelViewSet):
+class UniversityViewSet(StudentPortalReadOnlyMixin, TenantHomeAgencyRowMixin, BaseModelViewSet):
     queryset = University.objects.select_related("country", "agency", "business").prefetch_related(
         Prefetch("intakes", queryset=UniversityIntake.objects.order_by("id")),
         Prefetch(
@@ -468,7 +490,7 @@ class UniversityViewSet(StudentPortalReadOnlyMixin, BaseModelViewSet):
     ordering_fields = ["created_at", "updated_at", "university_name", "country__name"]
 
 
-class UniversityIntakeViewSet(StudentPortalReadOnlyMixin, BaseModelViewSet):
+class UniversityIntakeViewSet(StudentPortalReadOnlyMixin, TenantHomeAgencyRowMixin, BaseModelViewSet):
     queryset = UniversityIntake.objects.select_related("university", "university__country", "agency", "business").all()
     serializer_class = UniversityIntakeSerializer
     permission_classes = [IsAuthenticated ]
@@ -479,7 +501,7 @@ class UniversityIntakeViewSet(StudentPortalReadOnlyMixin, BaseModelViewSet):
     ordering_fields = ["created_at", "updated_at", "intake_name"]
 
 
-class UniversityProgramViewSet(StudentPortalReadOnlyMixin, BaseModelViewSet):
+class UniversityProgramViewSet(StudentPortalReadOnlyMixin, TenantHomeAgencyRowMixin, BaseModelViewSet):
     queryset = UniversityProgram.objects.select_related(
         "university", "university__country", "program", "agency", "business"
     ).prefetch_related(
@@ -494,7 +516,7 @@ class UniversityProgramViewSet(StudentPortalReadOnlyMixin, BaseModelViewSet):
     ordering_fields = ["created_at", "updated_at", "program__name"]
 
 
-class OfficeCostViewSet(StudentPortalReadOnlyMixin, BaseModelViewSet):
+class OfficeCostViewSet(StudentPortalReadOnlyMixin, TenantHomeAgencyRowMixin, BaseModelViewSet):
     queryset = OfficeCost.objects.select_related("agency", "business", "created_by").all()
     serializer_class = OfficeCostSerializer
     permission_classes = [IsAuthenticated ]
@@ -504,12 +526,8 @@ class OfficeCostViewSet(StudentPortalReadOnlyMixin, BaseModelViewSet):
     search_fields = ["title", "description", "agency__name"]
     ordering_fields = ["created_at", "updated_at", "amount", "title"]
 
-    def _apply_tenant_scope(self, queryset):
-        queryset = super()._apply_tenant_scope(queryset)
-        return apply_b2b_agency_scope_to_queryset(queryset, getattr(self.request, "user", None))
 
-
-class StudentCostViewSet(StudentPortalReadOnlyMixin, BaseModelViewSet):
+class StudentCostViewSet(StudentPortalReadOnlyMixin, TenantHomeAgencyRowMixin, BaseModelViewSet):
     queryset = StudentCost.objects.select_related("agency", "business", "student_file", "created_by").all()
     serializer_class = StudentCostSerializer
     permission_classes = [IsAuthenticated ]
@@ -524,7 +542,3 @@ class StudentCostViewSet(StudentPortalReadOnlyMixin, BaseModelViewSet):
         "student_file__student_file_id",
     ]
     ordering_fields = ["created_at", "updated_at", "amount", "title"]
-
-    def _apply_tenant_scope(self, queryset):
-        queryset = super()._apply_tenant_scope(queryset)
-        return apply_b2b_agency_scope_to_queryset(queryset, getattr(self.request, "user", None))
