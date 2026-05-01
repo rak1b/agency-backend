@@ -73,6 +73,14 @@ class Invoice(BaseModel):
 
     attachments = models.ManyToManyField(InvoiceAttachment, related_name="invoices", blank=True)
     created_by = models.ForeignKey("authentication.User", on_delete=models.SET_NULL, null=True, blank=True)
+    is_created_by_business_owner = models.BooleanField(
+        default=False,
+        db_index=True,
+        help_text=(
+            "True when the invoice was created by business-tier staff (AGENCY_SUPER_ADMIN or "
+            "AGENCY_EMPLOYEE). They only list invoices with this flag; B2B-issued invoices stay False."
+        ),
+    )
 
     class Meta:
         ordering = ["-created_at"]

@@ -78,6 +78,22 @@ def invoice_issuer_agency_stamp_id(user):
     return getattr(user, "parent_agency_id", None)
 
 
+def invoice_requires_business_staff_flag_filter(user) -> bool:
+    """
+    ``AGENCY_SUPER_ADMIN`` / ``AGENCY_EMPLOYEE`` users only see invoices with
+    ``Invoice.is_created_by_business_owner`` set, excluding B2B-originated rows.
+    """
+    if not user or not user.is_authenticated or user_is_master_admin(user):
+        return False
+    if is_student_portal_user(user):
+        return False
+    ut = getattr(user, "user_type", None)
+    return ut in (
+        constants.UserTypeChoice.AGENCY_SUPER_ADMIN,
+        constants.UserTypeChoice.AGENCY_EMPLOYEE,
+    )
+
+
 def invoice_list_skips_agency_row_scope(user) -> bool:
     """
     When True (default for non-B2B), invoice APIs only enforce ``business_id`` after

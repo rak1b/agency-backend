@@ -26,10 +26,19 @@ class InvoiceAdmin(admin.ModelAdmin):
         "issue_date",
         "total_amount",
         "created_by",
+        "is_created_by_business_owner",
         "created_at",
         "is_active",
     )
-    list_filter = ("recipient_type", "status", "business", "agency", "is_active", "is_deleted")
+    list_filter = (
+        "recipient_type",
+        "status",
+        "business",
+        "agency",
+        "is_created_by_business_owner",
+        "is_active",
+        "is_deleted",
+    )
     search_fields = (
         "invoice_id",
         "custom_recipient_name",

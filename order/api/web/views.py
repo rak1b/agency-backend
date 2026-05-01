@@ -14,6 +14,7 @@ from authentication.base import BaseModelViewSet, StudentPortalReadOnlyMixin
 from authentication.tenant_utils import (
     apply_b2b_agency_scope_to_queryset,
     invoice_list_skips_agency_row_scope,
+    invoice_requires_business_staff_flag_filter,
 )
 
 from ...constants import InvoiceStatusChoice, RecipientTypeChoice
@@ -99,6 +100,16 @@ def _invoice_report_openapi_parameters():
             description="Filter by soft-delete visibility flag on the invoice record.",
         ),
         OpenApiParameter(
+            name="is_created_by_business_owner",
+            type=OpenApiTypes.BOOL,
+            location=OpenApiParameter.QUERY,
+            required=False,
+            description=(
+                "Exact match on business-staff origin flag. Scoped list already enforces this "
+                "for ``AGENCY_SUPER_ADMIN`` / ``AGENCY_EMPLOYEE`` callers."
+            ),
+        ),
+        OpenApiParameter(
             name="search",
             type=OpenApiTypes.STR,
             location=OpenApiParameter.QUERY,
@@ -160,7 +171,16 @@ class InvoiceViewSet(StudentPortalReadOnlyMixin, BaseModelViewSet):
     permission_classes = [IsAuthenticated]
     lookup_field = "slug"
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ["business", "recipient_type", "status", "agency", "student", "created_by", "is_active"]
+    filterset_fields = [
+        "business",
+        "recipient_type",
+        "status",
+        "agency",
+        "student",
+        "created_by",
+        "is_active",
+        "is_created_by_business_owner",
+    ]
     search_fields = [
         "invoice_id",
         "agency__name",
@@ -172,12 +192,14 @@ class InvoiceViewSet(StudentPortalReadOnlyMixin, BaseModelViewSet):
 
     def _apply_tenant_scope(self, queryset):
         """
-        Scoped by ``business_id`` for everyone; only B2B partner accounts also filter by
-        ``agency`` via ``apply_b2b_agency_scope_to_queryset``. Agency super admins and
-        agency employees see all invoices within their business tenant.
+        - ``business_id`` for all non–master users.
+        - ``AGENCY_SUPER_ADMIN`` / ``AGENCY_EMPLOYEE``: only ``is_created_by_business_owner`` rows.
+        - ``B2B_AGENT`` / ``B2B_AGENT_EMPLOYEE``: also filter by partner ``agency`` FK.
         """
         queryset = super()._apply_tenant_scope(queryset)
         user = getattr(self.request, "user", None)
+        if invoice_requires_business_staff_flag_filter(user):
+            queryset = queryset.filter(is_created_by_business_owner=True)
         if invoice_list_skips_agency_row_scope(user):
             return queryset
         return apply_b2b_agency_scope_to_queryset(
@@ -192,7 +214,8 @@ class InvoiceViewSet(StudentPortalReadOnlyMixin, BaseModelViewSet):
             "Returns counts and money totals for the current filtered invoice set, "
             "plus breakdowns by status and recipient type. "
             "Supports the same query filters as the invoice list (``recipient_type``, ``status``, "
-            "``business``, ``agency``, ``student``, ``created_by``, ``is_active``, ``search``, ``ordering``) "
+            "``business``, ``agency``, ``student``, ``created_by``, ``is_active``, "
+            "``is_created_by_business_owner``, ``search``, ``ordering``) "
             "and optional ``issue_date_from`` / ``issue_date_to`` (inclusive) on ``issue_date``."
         ),
         parameters=_invoice_report_openapi_parameters(),
@@ -233,6 +256,7 @@ class InvoiceViewSet(StudentPortalReadOnlyMixin, BaseModelViewSet):
             "student",
             "created_by",
             "is_active",
+            "is_created_by_business_owner",
             "search",
             "ordering",
         )

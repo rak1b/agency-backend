@@ -6,6 +6,8 @@ from rest_framework import serializers
 
 from agency_inventory.models import _agency_business_pk
 
+from authentication import constants as auth_constants
+
 from authentication.tenant_utils import (
     invoice_issuer_agency_stamp_id,
     tenant_business_id,
@@ -59,6 +61,7 @@ class InvoiceSerializer(serializers.ModelSerializer):
             "created_by_details",
             "attachment_details",
             "invoice_item_details",
+            "is_created_by_business_owner",
         ]
 
     def to_internal_value(self, data):
@@ -130,6 +133,36 @@ class InvoiceSerializer(serializers.ModelSerializer):
             "name": getattr(obj.created_by, "name", None),
             "email": getattr(obj.created_by, "email", None),
         }
+
+    def _enforce_created_by_business_owner_flag(self, validated_data, instance=None):
+        """
+        Server-side only: drop client input, set on create from ``request.user`` types.
+        Updates never change the flag (immutable after issue).
+        """
+        validated_data.pop("is_created_by_business_owner", None)
+        if instance is not None:
+            return
+        request = self.context.get("request")
+        request_user = getattr(request, "user", None) if request else None
+        if not request_user or not request_user.is_authenticated:
+            validated_data["is_created_by_business_owner"] = False
+            return
+        if user_is_master_admin(request_user):
+            validated_data["is_created_by_business_owner"] = True
+            return
+        ut = getattr(request_user, "user_type", None)
+        if ut in (
+            auth_constants.UserTypeChoice.AGENCY_SUPER_ADMIN,
+            auth_constants.UserTypeChoice.AGENCY_EMPLOYEE,
+        ):
+            validated_data["is_created_by_business_owner"] = True
+        elif ut in (
+            auth_constants.UserTypeChoice.B2B_AGENT,
+            auth_constants.UserTypeChoice.B2B_AGENT_EMPLOYEE,
+        ):
+            validated_data["is_created_by_business_owner"] = False
+        else:
+            validated_data["is_created_by_business_owner"] = False
 
     def validate(self, attrs):
         recipient_type = attrs.get("recipient_type", getattr(self.instance, "recipient_type", None))
@@ -310,6 +343,8 @@ class InvoiceSerializer(serializers.ModelSerializer):
         if request and hasattr(request, "user"):
             validated_data["created_by"] = request.user
 
+        self._enforce_created_by_business_owner_flag(validated_data, instance=None)
+
         invoice = Invoice.objects.create(**validated_data)
 
         if attachments_data:
@@ -326,6 +361,8 @@ class InvoiceSerializer(serializers.ModelSerializer):
         invoice_items_data = validated_data.pop("line_items", None)
 
         self._normalize_recipient_data(validated_data)
+
+        self._enforce_created_by_business_owner_flag(validated_data, instance=instance)
 
         invoice = super().update(instance, validated_data)
 
