@@ -60,6 +60,39 @@ from .serializers import (
 )
 
 
+def inventory_first_day_of_month(value):
+    """First calendar day of the month for ``value`` (``date``)."""
+    return value.replace(day=1)
+
+
+def inventory_add_months(value, months):
+    """Add ``months`` to ``value`` (``date``), anchored on the first of the month."""
+    month_index = value.month - 1 + months
+    year = value.year + month_index // 12
+    month = month_index % 12 + 1
+    return date(year, month, 1)
+
+
+def inventory_resolve_dashboard_date_range(validated_filters):
+    """
+    Same default and partial-date rules as ``InventoryDashboardAPIView._resolve_date_range``.
+
+    Used so student-file list counts align with dashboard ``student_files`` filtering.
+    """
+    start_date = validated_filters.get("start_date")
+    end_date = validated_filters.get("end_date")
+    current_date = timezone.localdate()
+    if start_date and not end_date:
+        end_date = current_date
+    elif end_date and not start_date:
+        start_date = inventory_add_months(inventory_first_day_of_month(end_date), -11)
+    elif not start_date and not end_date:
+        end_date = current_date
+        current_month_start = inventory_first_day_of_month(current_date)
+        start_date = inventory_add_months(current_month_start, -11)
+    return start_date, end_date
+
+
 class InventoryDashboardAPIView(APIView):
     """
     Dashboard endpoint aligned with the inventory domain instead of the template's ecommerce labels.
@@ -250,20 +283,7 @@ class InventoryDashboardAPIView(APIView):
         return Response(response_payload)
 
     def _resolve_date_range(self, validated_filters):
-        start_date = validated_filters.get("start_date")
-        end_date = validated_filters.get("end_date")
-
-        current_date = timezone.localdate()
-        if start_date and not end_date:
-            end_date = current_date
-        elif end_date and not start_date:
-            start_date = self._add_months(self._first_day_of_month(end_date), -11)
-        elif not start_date and not end_date:
-            end_date = current_date
-            current_month_start = self._first_day_of_month(current_date)
-            start_date = self._add_months(current_month_start, -11)
-
-        return start_date, end_date
+        return inventory_resolve_dashboard_date_range(validated_filters)
 
     def _build_monthly_series(self, queryset, month_starts, value_field_name, aggregate_field=None):
         monthly_queryset = queryset.annotate(month=TruncMonth("created_at")).values("month")
@@ -345,16 +365,13 @@ class InventoryDashboardAPIView(APIView):
         return round(((current_value - previous_value) / previous_value) * 100, 2)
 
     def _first_day_of_month(self, value):
-        return value.replace(day=1)
+        return inventory_first_day_of_month(value)
 
     def _last_day_of_month(self, value):
-        return self._add_months(value, 1) - timedelta(days=1)
+        return inventory_add_months(value, 1) - timedelta(days=1)
 
     def _add_months(self, value, months):
-        month_index = value.month - 1 + months
-        year = value.year + month_index // 12
-        month = month_index % 12 + 1
-        return date(year, month, 1)
+        return inventory_add_months(value, months)
 
 
 class AgencyViewSet(BaseModelViewSet):
@@ -448,9 +465,50 @@ class StudentFileViewSet(StudentPortalReadOnlyMixin, TenantHomeAgencyRowMixin, B
     permission_classes = [IsAuthenticated ]
     lookup_field = "slug"
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ["business", "agency", "current_status", "file_from", "created_by", "is_active"]
+    # ``agency`` is applied in ``get_queryset`` for ``list`` using the same validation as the dashboard.
+    filterset_fields = ["business", "current_status", "file_from", "created_by", "is_active"]
     search_fields = ["student_file_id", "passport_number", "given_name", "surname", "email", "phone_whatsapp"]
     ordering_fields = ["created_at", "updated_at", "given_name", "current_status"]
+
+    def get_queryset(self):
+        """
+        Student portal: same row scope as the inventory dashboard (linked file only).
+
+        List for staff: same ``agency`` / ``start_date`` / ``end_date`` rules as
+        ``InventoryDashboardAPIView`` (including default rolling 12-month window).
+        Non-list actions are not restricted by the dashboard date range so detail
+        and writes still resolve historical rows.
+        """
+        queryset = super().get_queryset()
+        user = getattr(self.request, "user", None)
+        if not user or not user.is_authenticated:
+            return queryset
+
+        if is_student_portal_user(user):
+            student_portal_linked_id = getattr(user, "linked_student_file_id", None)
+            if student_portal_linked_id:
+                return queryset.filter(pk=student_portal_linked_id)
+            return queryset.none()
+
+        if self.action != "list":
+            return queryset
+
+        query_serializer = InventoryDashboardQuerySerializer(data=self.request.query_params)
+        query_serializer.is_valid(raise_exception=True)
+        validated_filters = query_serializer.validated_data
+
+        agency = validated_filters.get("agency")
+        scoped_business_id = None
+        if not user_is_master_admin(user):
+            scoped_business_id = tenant_business_id(user)
+            if not scoped_business_id or (agency and getattr(agency, "business_id", None) != scoped_business_id):
+                agency = None
+
+        if agency:
+            queryset = queryset.filter(agency=agency)
+
+        start_date, end_date = inventory_resolve_dashboard_date_range(validated_filters)
+        return queryset.filter(created_at__date__range=(start_date, end_date))
 
     def perform_create(self, serializer):
         created_student_file = serializer.save(**self.get_tenant_save_kwargs(serializer))

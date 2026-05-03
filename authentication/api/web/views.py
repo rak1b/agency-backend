@@ -577,8 +577,9 @@ class UserPermissionsView(APIView):
 class SectionWiseUserPermissionAPI(viewsets.GenericViewSet,mixins.ListModelMixin):
     serializer_class = SectionWiseUserPermissionSerializer
     queryset = Section.objects.all()
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
     CUSTOM_PERMISSION_CODE = 'view_all_permissions_section_wise'
+    pagination_class = None
     def get_queryset(self):
         user = self.request.user
         roles = user.role.all()
@@ -607,13 +608,13 @@ class AllSectionWisePermissionAPI(viewsets.GenericViewSet,mixins.ListModelMixin)
     queryset = Section.objects.all()
     serializer_class = AllSectionWisePermissionSerializer
     pagination_class = None
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
     CUSTOM_PERMISSION_CODE = 'view_all_permissions_section_wise'
     
 class AssignPermissionToRoleAPI(viewsets.ModelViewSet):
     serializer_class = AssignPermissionToRoleSerializer
     queryset = RolePermission.objects.all().order_by('-created_at')
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
     DYNAMIC_PERMISSION_CODE = 'role'
     filter_backends = [DjangoFilterBackend,SearchFilter]
     search_fields = ['role__name']
@@ -641,7 +642,7 @@ def get_model_examples():
     return model_examples
 
 class HistoryViewSet(viewsets.ViewSet):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
     serializer_class = HistorySerializer
     pagination_class = PageNumberPagination
     CUSTOM_PERMISSION_CODE = 'view_history'
