@@ -13,6 +13,12 @@ from django.apps import apps
 
 from agency_inventory.constants import ApplicationProgressStepState, ReviewStatusChoice
 
+# Plain strings match ``ApplicationProgressStepState`` DB values. Django stubs type
+# ``TextChoices`` members as tuple literals, so use explicit strings for ``list[str]``.
+ST_UPCOMING: str = "upcoming"
+ST_IN_PROGRESS: str = "in_progress"
+ST_COMPLETED: str = "completed"
+
 # (api_key, human label, model state field name, model manual lock field name)
 STEP_DEFINITIONS: tuple[tuple[str, str, str, str], ...] = (
     ("application_received", "Application Received", "application_received", "application_received_manual"),
@@ -36,10 +42,10 @@ def _payment_step_state(student_file) -> str:
     Invoice = _invoice_model()
     rows = list(Invoice.all_objects.filter(student_id=student_file.pk).values("status"))
     if not rows:
-        return ApplicationProgressStepState.UPCOMING
+        return ST_UPCOMING
     if any((r.get("status") or "").lower() == "paid" for r in rows):
-        return ApplicationProgressStepState.COMPLETED
-    return ApplicationProgressStepState.IN_PROGRESS
+        return ST_COMPLETED
+    return ST_IN_PROGRESS
 
 
 def _documents_under_review_state(student_file) -> str:
@@ -49,15 +55,15 @@ def _documents_under_review_state(student_file) -> str:
         .values("verification_status")
     )
     if not rows:
-        return ApplicationProgressStepState.UPCOMING
+        return ST_UPCOMING
     pending = sum(
         1
         for r in rows
         if (r.get("verification_status") or ReviewStatusChoice.PENDING) == ReviewStatusChoice.PENDING
     )
     if pending > 0:
-        return ApplicationProgressStepState.IN_PROGRESS
-    return ApplicationProgressStepState.COMPLETED
+        return ST_IN_PROGRESS
+    return ST_COMPLETED
 
 
 def _documents_verified_state(student_file) -> str:
@@ -67,48 +73,44 @@ def _documents_verified_state(student_file) -> str:
         .values("verification_status")
     )
     if not rows:
-        return ApplicationProgressStepState.UPCOMING
+        return ST_UPCOMING
     pending = sum(
         1
         for r in rows
         if (r.get("verification_status") or ReviewStatusChoice.PENDING) == ReviewStatusChoice.PENDING
     )
     if pending > 0:
-        return ApplicationProgressStepState.UPCOMING
+        return ST_UPCOMING
     approved = sum(1 for r in rows if r.get("verification_status") == ReviewStatusChoice.APPROVED)
     if approved == len(rows):
-        return ApplicationProgressStepState.COMPLETED
-    return ApplicationProgressStepState.IN_PROGRESS
+        return ST_COMPLETED
+    return ST_IN_PROGRESS
 
 
 def _university_applied_state(student_file) -> str:
     rows = list(student_file.applied_universities.values("application_status"))
     if not rows:
-        return ApplicationProgressStepState.UPCOMING
+        return ST_UPCOMING
     pending = sum(
         1
         for r in rows
         if (r.get("application_status") or ReviewStatusChoice.PENDING) == ReviewStatusChoice.PENDING
     )
     if pending > 0:
-        return ApplicationProgressStepState.IN_PROGRESS
+        return ST_IN_PROGRESS
     approved = sum(1 for r in rows if r.get("application_status") == ReviewStatusChoice.APPROVED)
     if approved > 0:
-        return ApplicationProgressStepState.COMPLETED
-    return ApplicationProgressStepState.IN_PROGRESS
+        return ST_COMPLETED
+    return ST_IN_PROGRESS
 
 
 def _visa_and_admitted_states(_student_file) -> tuple[str, str, str]:
-    return (
-        ApplicationProgressStepState.UPCOMING,
-        ApplicationProgressStepState.UPCOMING,
-        ApplicationProgressStepState.UPCOMING,
-    )
+    return (ST_UPCOMING, ST_UPCOMING, ST_UPCOMING)
 
 
 def compute_raw_progress_states(student_file) -> list[str]:
     raw_states = [
-        ApplicationProgressStepState.COMPLETED,
+        ST_COMPLETED,
         _payment_step_state(student_file),
         _documents_under_review_state(student_file),
         _documents_verified_state(student_file),
@@ -123,10 +125,10 @@ def apply_gating(raw_states: list[str]) -> list[str]:
     gated_states: list[str] = []
     for index, raw in enumerate(raw_states):
         if index == 0:
-            gated_states.append(ApplicationProgressStepState.COMPLETED)
+            gated_states.append(ST_COMPLETED)
             continue
-        prior_all_completed = all(raw_states[j] == ApplicationProgressStepState.COMPLETED for j in range(0, index))
-        gated_states.append(raw if prior_all_completed else ApplicationProgressStepState.UPCOMING)
+        prior_all_completed = all(raw_states[j] == ST_COMPLETED for j in range(0, index))
+        gated_states.append(raw if prior_all_completed else ST_UPCOMING)
     return gated_states
 
 
