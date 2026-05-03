@@ -8,6 +8,7 @@ from .constants import (
     CustomerStatusChoice,
     FileFromChoice,
     GenderChoice,
+    ReviewStatusChoice,
 )
 
 
@@ -255,6 +256,20 @@ class AppliedUniversity(BaseModel):
         null=True,
         blank=True,
     )
+    application_status = models.CharField(
+        max_length=20,
+        choices=ReviewStatusChoice.choices,
+        default=ReviewStatusChoice.PENDING,
+    )
+    reviewed_by = models.ForeignKey(
+        "authentication.User",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="reviewed_applied_universities",
+    )
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+    review_note = models.TextField(blank=True, null=True)
     slug = models.SlugField(max_length=255, unique=True, null=True, blank=True, editable=False)
 
     class Meta:
@@ -319,6 +334,20 @@ class StudentFileAttachment(BaseModel):
     )
     title = models.CharField(max_length=255, blank=True, null=True)
     file_url = models.URLField(max_length=1000, blank=True, null=True)
+    verification_status = models.CharField(
+        max_length=20,
+        choices=ReviewStatusChoice.choices,
+        default=ReviewStatusChoice.PENDING,
+    )
+    verified_by = models.ForeignKey(
+        "authentication.User",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="verified_student_file_attachments",
+    )
+    verified_at = models.DateTimeField(null=True, blank=True)
+    verification_note = models.TextField(blank=True, null=True)
     slug = models.SlugField(max_length=255, unique=True, null=True, blank=True, editable=False)
 
     class Meta:

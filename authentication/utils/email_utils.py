@@ -3,6 +3,7 @@ import threading
 from decouple import config
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
+from django.utils.html import escape
 from django.utils.html import strip_tags
 from django.utils.translation import gettext_lazy as _
 from ..ms_email_utils import send_email as mail_send
@@ -53,3 +54,42 @@ def send_pending_approval_email(email, data):
 
 def send_university_approved_email(email, data):
     send_email(_("Your Account is approved"), email, data, "email/auth/university_approved.html")
+
+
+def send_student_portal_credentials_email(
+    recipient_email,
+    student_login_id,
+    temporary_password,
+    student_name=None,
+):
+    """
+    Send initial student portal credentials using Microsoft Graph helper.
+
+    Returns:
+        tuple[bool, str]: (email_sent_successfully, provider_response_message)
+    """
+    normalized_recipient_email = (recipient_email or "").strip()
+    if not normalized_recipient_email:
+        return False, "Student email is missing."
+
+    safe_student_name = escape(student_name or "Student")
+    safe_student_login_id = escape(student_login_id or "")
+    safe_temporary_password = escape(temporary_password or "")
+    email_subject = "Student Portal Login Credentials"
+    email_body = f"""
+    <p>Hello {safe_student_name},</p>
+    <p>Your student portal account has been created.</p>
+    <p><strong>Student ID:</strong> {safe_student_login_id}</p>
+    <p><strong>Temporary Password:</strong> {safe_temporary_password}</p>
+    <p>Please keep these credentials secure.</p>
+    """
+    try:
+        status_code, provider_response = mail_send(
+            email_subject,
+            email_body,
+            normalized_recipient_email,
+        )
+    except Exception as error:
+        return False, str(error)
+
+    return 200 <= status_code < 300, provider_response

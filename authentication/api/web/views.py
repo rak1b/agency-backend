@@ -37,7 +37,7 @@ from rest_framework.parsers import MultiPartParser, FormParser
 
 from django.utils.decorators import method_decorator
 from security.decorators import login_attempt_limit
-from authentication.api.mobile.utils.auth_utils import validated_user_account, updateLastLoginInfo
+from authentication.api.mobile.utils.auth_utils import updateLastLoginInfo
 from authentication.api.utils.auth_utils import verify_confirmation, validated_merchant_user
 from django.apps import apps
 from drf_spectacular.types import OpenApiTypes
@@ -95,6 +95,20 @@ def login_agency_and_student_payload(user):
             "student_file_id": linked_sf.student_file_id,
         }
     return agency_details, business_details, linked_details
+
+
+def resolve_login_user(identifier):
+    """
+    Resolve login identity by email first, then by generated student id (``user_id``).
+    """
+    normalized_identifier = (identifier or "").strip()
+    if not normalized_identifier:
+        return None
+    active_user_queryset = User.objects.filter(is_active=True)
+    resolved_user = active_user_queryset.filter(email__iexact=normalized_identifier).first()
+    if resolved_user:
+        return resolved_user
+    return active_user_queryset.filter(user_id__iexact=normalized_identifier).first()
 
 
 class StandardUserListPagination(DRFPageNumberPagination):
@@ -325,13 +339,13 @@ class WebUserLoginView(APIView):
     def post(self, request):
         context = {}
         mid_info = request.data.get('mid')
-        email = request.data.get('email')
+        raw_identifier = request.data.get('identifier') or request.data.get('email')
         password = request.data.get('password')
-        account = validated_user_account(email)
+        account = resolve_login_user(raw_identifier)
         if not account:
             context['detail'] = 'No Valid Account Found'
             return Response(context,status = status.HTTP_400_BAD_REQUEST)
-        user_info = authenticate(email=email, password=password)
+        user_info = account if account.check_password(password) else None
 
         if user_info:
             if not user_info.is_active:
@@ -389,16 +403,16 @@ class WebLoginView(APIView):
     def post(self, request):
         context = {}
         mid_info = request.data.get('mid')
-        email = request.data.get('email')
+        raw_identifier = request.data.get('identifier') or request.data.get('email')
         password = request.data.get('password')
-        account = validated_user_account(email)
+        account = resolve_login_user(raw_identifier)
         if not account:
             context['detail'] = 'No Valid Account Found'
             return Response(context,status = status.HTTP_400_BAD_REQUEST)
         # verified = validate_mid_account(mid_info,account.merchant_identifier)
         # if not verified:
         #     return Response({"detail":"Invalid MID! Please contact your service provider."},status = status.HTTP_400_BAD_REQUEST)
-        user_info = authenticate(email=email, password=password)
+        user_info = account if account.check_password(password) else None
         if user_info:
             updateLastLoginInfo(request,user_info)
             # context['id'] = account.pk

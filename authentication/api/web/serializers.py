@@ -308,7 +308,8 @@ class UserSerializer(serializers.ModelSerializer):
         return instance
 
 class LoginRequestSerializer(serializers.Serializer):
-    email = serializers.CharField()
+    email = serializers.CharField(required=False, allow_blank=True)
+    identifier = serializers.CharField(required=False, allow_blank=True)
     password = serializers.CharField()
 
 class RefreshTokenReqeustSerializer(serializers.Serializer):

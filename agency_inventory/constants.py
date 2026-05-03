@@ -43,6 +43,12 @@ class UniversityProgramChoice(models.TextChoices):
     PHD = "PHD", _("PhD")
 
 
+class ReviewStatusChoice(models.TextChoices):
+    PENDING = "PENDING", _("Pending")
+    APPROVED = "APPROVED", _("Approved")
+    REJECTED = "REJECTED", _("Rejected")
+
+
 _UNIVERSITY_PROGRAM_VALID_VALUES = frozenset(
     (
         UniversityProgramChoice.EAP,

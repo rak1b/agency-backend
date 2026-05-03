@@ -1,8 +1,14 @@
 from rest_framework import serializers
 
 from django.db import transaction
+from django.utils import timezone
+from django.utils.crypto import get_random_string
 
+from authentication import constants as auth_constants
+from authentication.models import User
+from authentication.utils import email_utils
 from authentication.tenant_utils import (
+    is_student_portal_user,
     tenant_business_id,
     user_is_master_admin,
 )
@@ -23,6 +29,7 @@ from ...models import (
     UniversityProgramSubject,
     _agency_business_pk,
 )
+from ...constants import ReviewStatusChoice
 
 
 def _ensure_agency_in_tenant_business(serializer, agency):
@@ -140,6 +147,12 @@ class StudentFileAttachmentPayloadSerializer(serializers.Serializer):
     id = serializers.IntegerField(required=False)
     title = serializers.CharField(required=False, allow_blank=True, allow_null=True)
     file_url = serializers.URLField(required=False, allow_blank=True, allow_null=True)
+    verification_status = serializers.ChoiceField(
+        choices=ReviewStatusChoice.choices,
+        required=False,
+        allow_null=True,
+    )
+    verification_note = serializers.CharField(required=False, allow_blank=True, allow_null=True)
 
 
 class AppliedUniversityPayloadSerializer(serializers.Serializer):
@@ -152,6 +165,12 @@ class AppliedUniversityPayloadSerializer(serializers.Serializer):
     country = serializers.IntegerField(required=False, allow_null=True)
     intake = serializers.CharField(required=False, allow_blank=True, allow_null=True)
     subject = serializers.IntegerField(required=False, allow_null=True)
+    application_status = serializers.ChoiceField(
+        choices=ReviewStatusChoice.choices,
+        required=False,
+        allow_null=True,
+    )
+    review_note = serializers.CharField(required=False, allow_blank=True, allow_null=True)
 
 
 class StudentFileSerializer(serializers.ModelSerializer):
@@ -167,6 +186,8 @@ class StudentFileSerializer(serializers.ModelSerializer):
     attachment_details = serializers.SerializerMethodField(read_only=True)
     applied_universities = AppliedUniversityPayloadSerializer(many=True, required=False, write_only=True)
     applied_university_details = serializers.SerializerMethodField(read_only=True)
+    workflow_steps = serializers.SerializerMethodField(read_only=True)
+    generated_student_credentials = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = StudentFile
@@ -183,6 +204,8 @@ class StudentFileSerializer(serializers.ModelSerializer):
             "created_by_details",
             "attachment_details",
             "applied_university_details",
+            "workflow_steps",
+            "generated_student_credentials",
         ]
 
     def get_agency_details(self, obj):
@@ -210,6 +233,10 @@ class StudentFileSerializer(serializers.ModelSerializer):
                 "id": attachment.id,
                 "title": attachment.title,
                 "file_url": attachment.file_url,
+                "verification_status": attachment.verification_status,
+                "verification_note": attachment.verification_note,
+                "verified_at": attachment.verified_at,
+                "verified_by_name": getattr(attachment.verified_by, "name", None),
                 "slug": attachment.slug,
             }
             for attachment in obj.attachments.all()
@@ -230,6 +257,9 @@ class StudentFileSerializer(serializers.ModelSerializer):
             "subject__program__program__name",
             "subject__program__university_id",
             "subject__program__university__university_name",
+            "application_status",
+            "review_note",
+            "reviewed_at",
             "slug",
         )
         return [
@@ -247,10 +277,161 @@ class StudentFileSerializer(serializers.ModelSerializer):
                 "program_name": row["subject__program__program__name"],
                 "program_university": row["subject__program__university_id"],
                 "program_university_name": row["subject__program__university__university_name"],
+                "application_status": row["application_status"],
+                "review_note": row["review_note"],
+                "reviewed_at": row["reviewed_at"],
                 "slug": row["slug"],
             }
             for row in raw_rows
         ]
+
+    def get_workflow_steps(self, obj):
+        attachment_rows = list(obj.attachments.values("verification_status"))
+        applied_rows = list(obj.applied_universities.values("application_status"))
+        student_account = getattr(obj, "portal_user", None)
+
+        def _status_counter(rows, field_name):
+            counts = {
+                ReviewStatusChoice.PENDING: 0,
+                ReviewStatusChoice.APPROVED: 0,
+                ReviewStatusChoice.REJECTED: 0,
+            }
+            for row in rows:
+                raw_status = row.get(field_name) or ReviewStatusChoice.PENDING
+                if raw_status not in counts:
+                    counts[ReviewStatusChoice.PENDING] += 1
+                else:
+                    counts[raw_status] += 1
+            return counts
+
+        document_counts = _status_counter(attachment_rows, "verification_status")
+        application_counts = _status_counter(applied_rows, "application_status")
+        return {
+            "student_account": {
+                "is_created": bool(student_account),
+                "login_student_id": getattr(student_account, "user_id", None) if student_account else None,
+                "is_verified": bool(getattr(student_account, "is_verified", False)) if student_account else False,
+            },
+            "profile": {
+                "status": obj.current_status,
+            },
+            "documents": {
+                "total": len(attachment_rows),
+                "pending": document_counts[ReviewStatusChoice.PENDING],
+                "approved": document_counts[ReviewStatusChoice.APPROVED],
+                "rejected": document_counts[ReviewStatusChoice.REJECTED],
+            },
+            "university_applications": {
+                "total": len(applied_rows),
+                "pending": application_counts[ReviewStatusChoice.PENDING],
+                "approved": application_counts[ReviewStatusChoice.APPROVED],
+                "rejected": application_counts[ReviewStatusChoice.REJECTED],
+            },
+        }
+
+    def get_generated_student_credentials(self, obj):
+        request = self.context.get("request")
+        if request and is_student_portal_user(getattr(request, "user", None)):
+            return None
+        student_login_id = getattr(obj, "_generated_student_login_id", None)
+        delivery_channel = getattr(obj, "_generated_student_credentials_channel", None)
+        email_sent_successfully = getattr(obj, "_generated_student_credentials_email_sent", None)
+        email_delivery_message = getattr(obj, "_generated_student_credentials_email_message", None)
+        recipient_email = getattr(obj, "_generated_student_credentials_recipient", None)
+        if not student_login_id:
+            return None
+        return {
+            "student_id": student_login_id,
+            "delivery_channel": delivery_channel,
+            "email_sent": email_sent_successfully,
+            "email_delivery_message": email_delivery_message,
+            "recipient_email": recipient_email,
+        }
+
+    def validate(self, attrs):
+        request = self.context.get("request")
+        request_user = getattr(request, "user", None) if request else None
+        if request_user and is_student_portal_user(request_user) and self.instance is not None:
+            allowed_fields = {"attachments", "applied_universities"}
+            incoming_fields = set(self.initial_data.keys())
+            disallowed_fields = sorted(incoming_fields - allowed_fields)
+            if disallowed_fields:
+                raise serializers.ValidationError(
+                    {
+                        "detail": (
+                            "Students may only update document uploads and university-application requests. "
+                            f"Unsupported fields: {', '.join(disallowed_fields)}"
+                        )
+                    }
+                )
+        return attrs
+
+    def _build_student_portal_identity(self, student_file):
+        student_login_id = (student_file.student_file_id or "").strip()
+        if not student_login_id:
+            raise serializers.ValidationError({"student_file_id": "Student file id is required to build student login."})
+        preferred_student_email = (student_file.email or "").strip().lower()
+        synthetic_student_email = f"{student_login_id.lower()}@student.portal.local"
+        selected_login_email = synthetic_student_email
+        if preferred_student_email:
+            email_already_used = User.objects.filter(email__iexact=preferred_student_email).exists()
+            if not email_already_used:
+                selected_login_email = preferred_student_email
+        return student_login_id, selected_login_email
+
+    def _create_or_sync_student_portal_user(self, student_file):
+        student_login_id, selected_login_email = self._build_student_portal_identity(student_file)
+        existing_portal_user = User.objects.filter(linked_student_file=student_file).first()
+        if existing_portal_user:
+            fields_to_update = []
+            if existing_portal_user.user_id != student_login_id:
+                existing_portal_user.user_id = student_login_id
+                fields_to_update.append("user_id")
+            if existing_portal_user.email != selected_login_email:
+                existing_portal_user.email = selected_login_email
+                fields_to_update.append("email")
+            if existing_portal_user.parent_business_id != student_file.business_id:
+                existing_portal_user.parent_business_id = student_file.business_id
+                fields_to_update.append("parent_business")
+            if existing_portal_user.parent_agency_id != student_file.agency_id:
+                existing_portal_user.parent_agency_id = student_file.agency_id
+                fields_to_update.append("parent_agency")
+            if existing_portal_user.user_type != auth_constants.UserTypeChoice.STUDENT:
+                existing_portal_user.user_type = auth_constants.UserTypeChoice.STUDENT
+                fields_to_update.append("user_type")
+            if not existing_portal_user.is_active:
+                existing_portal_user.is_active = True
+                fields_to_update.append("is_active")
+            if fields_to_update:
+                existing_portal_user.save(update_fields=fields_to_update + ["updated_at"])
+            return existing_portal_user
+
+        temporary_password = get_random_string(10)
+        student_user = User(
+            name=f"{student_file.given_name} {student_file.surname}".strip(),
+            user_id=student_login_id,
+            email=selected_login_email,
+            phone=student_file.phone_whatsapp,
+            user_type=auth_constants.UserTypeChoice.STUDENT,
+            parent_agency=student_file.agency,
+            parent_business=student_file.business,
+            linked_student_file=student_file,
+            is_active=True,
+        )
+        student_user.set_password(temporary_password)
+        student_user.save()
+        student_file._generated_student_login_id = student_login_id
+        student_file._generated_student_credentials_channel = "EMAIL"
+        student_file._generated_student_credentials_recipient = student_file.email
+        email_sent_successfully, provider_response_message = email_utils.send_student_portal_credentials_email(
+            recipient_email=student_file.email,
+            student_login_id=student_login_id,
+            temporary_password=temporary_password,
+            student_name=student_user.name,
+        )
+        student_file._generated_student_credentials_email_sent = email_sent_successfully
+        student_file._generated_student_credentials_email_message = provider_response_message
+        return student_user
 
     def _tenant_scoped_queryset(self, queryset):
         """
@@ -306,12 +487,18 @@ class StudentFileSerializer(serializers.ModelSerializer):
 
         return university_obj, country_obj
 
-    def _upsert_attachments(self, student_file, attachments_data):
+    def _upsert_attachments(self, student_file, attachments_data, *, replace_links=True):
+        request = self.context.get("request")
+        request_user = getattr(request, "user", None) if request else None
+        is_student_user = bool(request_user and is_student_portal_user(request_user))
+        student_attachment_ids = set(student_file.attachments.values_list("id", flat=True))
         attachment_ids = []
         for row in attachments_data:
             attachment_id = row.get("id")
             title = row.get("title")
             file_url = row.get("file_url")
+            requested_status = row.get("verification_status")
+            requested_note = row.get("verification_note")
             if attachment_id:
                 try:
                     attachment_obj = self._tenant_scoped_queryset(StudentFileAttachment.objects.all()).get(
@@ -319,20 +506,55 @@ class StudentFileSerializer(serializers.ModelSerializer):
                     )
                 except StudentFileAttachment.DoesNotExist:
                     raise serializers.ValidationError({"attachments": f"Attachment id {attachment_id} does not exist."})
+                if is_student_user and attachment_obj.id not in student_attachment_ids:
+                    raise serializers.ValidationError(
+                        {"attachments": f"Attachment id {attachment_id} is not linked to this student file."}
+                    )
                 attachment_obj.title = title if title is not None else attachment_obj.title
                 attachment_obj.file_url = file_url if file_url is not None else attachment_obj.file_url
+                if is_student_user:
+                    attachment_obj.verification_status = ReviewStatusChoice.PENDING
+                    attachment_obj.verification_note = requested_note or attachment_obj.verification_note
+                    attachment_obj.verified_by = None
+                    attachment_obj.verified_at = None
+                elif requested_status is not None:
+                    attachment_obj.verification_status = requested_status
+                    attachment_obj.verification_note = requested_note
+                    attachment_obj.verified_by = request_user if requested_status != ReviewStatusChoice.PENDING else None
+                    attachment_obj.verified_at = timezone.now() if requested_status != ReviewStatusChoice.PENDING else None
                 attachment_obj.save()
             else:
+                if is_student_user:
+                    requested_status = ReviewStatusChoice.PENDING
                 attachment_obj = StudentFileAttachment.objects.create(
                     title=title,
                     file_url=file_url,
                     agency=student_file.agency,
                     business=getattr(student_file, "business", None),
+                    verification_status=requested_status or ReviewStatusChoice.PENDING,
+                    verification_note=requested_note,
+                    verified_by=(
+                        request_user
+                        if requested_status in (ReviewStatusChoice.APPROVED, ReviewStatusChoice.REJECTED)
+                        else None
+                    ),
+                    verified_at=(
+                        timezone.now()
+                        if requested_status in (ReviewStatusChoice.APPROVED, ReviewStatusChoice.REJECTED)
+                        else None
+                    ),
                 )
             attachment_ids.append(attachment_obj.id)
-        student_file.attachments.set(attachment_ids)
+        if replace_links:
+            student_file.attachments.set(attachment_ids)
+        else:
+            student_file.attachments.add(*attachment_ids)
 
-    def _upsert_applied_universities(self, student_file, applied_universities_data):
+    def _upsert_applied_universities(self, student_file, applied_universities_data, *, replace_links=True):
+        request = self.context.get("request")
+        request_user = getattr(request, "user", None) if request else None
+        is_student_user = bool(request_user and is_student_portal_user(request_user))
+        student_applied_university_ids = set(student_file.applied_universities.values_list("id", flat=True))
         applied_university_ids = []
         for row in applied_universities_data:
             applied_university_id = row.get("id")
@@ -344,6 +566,8 @@ class StudentFileSerializer(serializers.ModelSerializer):
                 subject_id=row.get("subject"),
             )
             intake = row.get("intake")
+            requested_status = row.get("application_status")
+            requested_note = row.get("review_note")
             if applied_university_id:
                 try:
                     applied_university_obj = self._tenant_scoped_queryset(AppliedUniversity.objects.all()).get(
@@ -353,6 +577,10 @@ class StudentFileSerializer(serializers.ModelSerializer):
                     raise serializers.ValidationError(
                         {"applied_universities": f"Applied university id {applied_university_id} does not exist."}
                     )
+                if is_student_user and applied_university_obj.id not in student_applied_university_ids:
+                    raise serializers.ValidationError(
+                        {"applied_universities": f"Application id {applied_university_id} is not linked to this student file."}
+                    )
                 if row.get("university", None) is not None:
                     applied_university_obj.university = university_obj
                 if row.get("country", None) is not None:
@@ -360,8 +588,20 @@ class StudentFileSerializer(serializers.ModelSerializer):
                 if intake is not None:
                     applied_university_obj.intake = intake
                 applied_university_obj.subject = subject_obj
+                if is_student_user:
+                    applied_university_obj.application_status = ReviewStatusChoice.PENDING
+                    applied_university_obj.review_note = requested_note or applied_university_obj.review_note
+                    applied_university_obj.reviewed_by = None
+                    applied_university_obj.reviewed_at = None
+                elif requested_status is not None:
+                    applied_university_obj.application_status = requested_status
+                    applied_university_obj.review_note = requested_note
+                    applied_university_obj.reviewed_by = request_user if requested_status != ReviewStatusChoice.PENDING else None
+                    applied_university_obj.reviewed_at = timezone.now() if requested_status != ReviewStatusChoice.PENDING else None
                 applied_university_obj.save()
             else:
+                if is_student_user:
+                    requested_status = ReviewStatusChoice.PENDING
                 applied_university_obj = AppliedUniversity.objects.create(
                     agency=student_file.agency,
                     business=getattr(student_file, "business", None),
@@ -369,9 +609,24 @@ class StudentFileSerializer(serializers.ModelSerializer):
                     country=country_obj,
                     intake=intake,
                     subject=subject_obj,
+                    application_status=requested_status or ReviewStatusChoice.PENDING,
+                    review_note=requested_note,
+                    reviewed_by=(
+                        request_user
+                        if requested_status in (ReviewStatusChoice.APPROVED, ReviewStatusChoice.REJECTED)
+                        else None
+                    ),
+                    reviewed_at=(
+                        timezone.now()
+                        if requested_status in (ReviewStatusChoice.APPROVED, ReviewStatusChoice.REJECTED)
+                        else None
+                    ),
                 )
             applied_university_ids.append(applied_university_obj.id)
-        student_file.applied_universities.set(applied_university_ids)
+        if replace_links:
+            student_file.applied_universities.set(applied_university_ids)
+        else:
+            student_file.applied_universities.add(*applied_university_ids)
 
     @transaction.atomic
     def create(self, validated_data):
@@ -385,17 +640,22 @@ class StudentFileSerializer(serializers.ModelSerializer):
             self._upsert_attachments(student_file, attachments_data)
         if applied_universities_data:
             self._upsert_applied_universities(student_file, applied_universities_data)
+        self._create_or_sync_student_portal_user(student_file)
         return student_file
 
     @transaction.atomic
     def update(self, instance, validated_data):
         attachments_data = validated_data.pop("attachments", None)
         applied_universities_data = validated_data.pop("applied_universities", None)
+        request = self.context.get("request")
+        request_user = getattr(request, "user", None) if request else None
+        is_student_user = bool(request_user and is_student_portal_user(request_user))
         student_file = super().update(instance, validated_data)
         if attachments_data is not None:
-            self._upsert_attachments(student_file, attachments_data)
+            self._upsert_attachments(student_file, attachments_data, replace_links=not is_student_user)
         if applied_universities_data is not None:
-            self._upsert_applied_universities(student_file, applied_universities_data)
+            self._upsert_applied_universities(student_file, applied_universities_data, replace_links=not is_student_user)
+        self._create_or_sync_student_portal_user(student_file)
         return student_file
 
 

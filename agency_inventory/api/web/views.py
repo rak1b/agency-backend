@@ -18,6 +18,7 @@ from django.db.models.functions import TruncMonth
 from django.utils import timezone
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.exceptions import PermissionDenied
 
 from ...models import (
     Agency,
@@ -469,6 +470,7 @@ class StudentFileViewSet(StudentPortalReadOnlyMixin, TenantHomeAgencyRowMixin, B
     filterset_fields = ["business", "current_status", "file_from", "created_by", "is_active"]
     search_fields = ["student_file_id", "passport_number", "given_name", "surname", "email", "phone_whatsapp"]
     ordering_fields = ["created_at", "updated_at", "given_name", "current_status"]
+    student_portal_allowed_write_methods = {"PATCH", "PUT"}
 
     def get_queryset(self):
         """
@@ -511,6 +513,8 @@ class StudentFileViewSet(StudentPortalReadOnlyMixin, TenantHomeAgencyRowMixin, B
         return queryset.filter(created_at__date__range=(start_date, end_date))
 
     def perform_create(self, serializer):
+        if is_student_portal_user(self.request.user):
+            raise PermissionDenied("Students cannot create student files directly.")
         created_student_file = serializer.save(**self.get_tenant_save_kwargs(serializer))
         create_notifications_for_event(
             entity_type=constants.NotificationEntityTypeChoice.STUDENT_FILE,
@@ -527,6 +531,11 @@ class StudentFileViewSet(StudentPortalReadOnlyMixin, TenantHomeAgencyRowMixin, B
             instance=updated_student_file,
             actor=self.request.user,
         )
+
+    def destroy(self, request, *args, **kwargs):
+        if is_student_portal_user(request.user):
+            raise PermissionDenied("Students cannot delete student files.")
+        return super().destroy(request, *args, **kwargs)
 
 
 class UniversityViewSet(StudentPortalReadOnlyMixin, TenantHomeAgencyRowMixin, BaseModelViewSet):

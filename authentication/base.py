@@ -126,16 +126,19 @@ class BaseModel(models.Model):
 
 class StudentPortalReadOnlyMixin:
     """
-    Student accounts may only use safe HTTP methods on this viewset (read-only).
+    Student accounts are read-only by default. Viewsets may opt in to specific
+    non-safe methods by defining ``student_portal_allowed_write_methods``.
     """
 
     def dispatch(self, request, *args, **kwargs):
         user = getattr(request, "user", None)
+        allowed_write_methods = set(getattr(self, "student_portal_allowed_write_methods", []))
         if (
             user
             and user.is_authenticated
             and is_student_portal_user(user)
             and request.method not in SAFE_METHODS
+            and request.method not in allowed_write_methods
         ):
             raise PermissionDenied("Students may only read this resource.")
         return super().dispatch(request, *args, **kwargs)
