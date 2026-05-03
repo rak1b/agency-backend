@@ -5,6 +5,7 @@ from authentication.base import BaseModel
 from utils.slug_utils import generate_unique_code, generate_unique_slug
 from .constants import (
     AgencyStatusChoice,
+    ApplicationProgressStepState,
     CustomerStatusChoice,
     FileFromChoice,
     GenderChoice,
@@ -213,6 +214,100 @@ class StudentFile(BaseModel):
         if self.business_id is None and self.agency_id:
             self.business_id = _agency_business_pk(self.agency_id)
         super().save(*args, **kwargs)
+
+
+class StudentApplicationProgress(BaseModel):
+    """
+    Persisted 8-step application tracker for a student file.
+
+    System sync updates each step unless its matching ``*_manual`` flag is set
+    (admin lock). Students read these values via the application-progress API.
+    """
+
+    student_file = models.OneToOneField(
+        "StudentFile",
+        on_delete=models.CASCADE,
+        related_name="application_tracker",
+    )
+    agency = models.ForeignKey(
+        "Agency",
+        on_delete=models.SET_NULL,
+        related_name="student_application_progress_rows",
+        null=True,
+        blank=True,
+    )
+    business = models.ForeignKey(
+        "Business",
+        on_delete=models.SET_NULL,
+        related_name="student_application_progress_rows",
+        null=True,
+        blank=True,
+    )
+
+    application_received = models.CharField(
+        max_length=20,
+        choices=ApplicationProgressStepState.choices,
+        default=ApplicationProgressStepState.COMPLETED,
+    )
+    application_received_manual = models.BooleanField(default=False)
+
+    payment_verified = models.CharField(
+        max_length=20,
+        choices=ApplicationProgressStepState.choices,
+        default=ApplicationProgressStepState.UPCOMING,
+    )
+    payment_verified_manual = models.BooleanField(default=False)
+
+    documents_under_review = models.CharField(
+        max_length=20,
+        choices=ApplicationProgressStepState.choices,
+        default=ApplicationProgressStepState.UPCOMING,
+    )
+    documents_under_review_manual = models.BooleanField(default=False)
+
+    documents_verified = models.CharField(
+        max_length=20,
+        choices=ApplicationProgressStepState.choices,
+        default=ApplicationProgressStepState.UPCOMING,
+    )
+    documents_verified_manual = models.BooleanField(default=False)
+
+    university_applied = models.CharField(
+        max_length=20,
+        choices=ApplicationProgressStepState.choices,
+        default=ApplicationProgressStepState.UPCOMING,
+    )
+    university_applied_manual = models.BooleanField(default=False)
+
+    visa_applied = models.CharField(
+        max_length=20,
+        choices=ApplicationProgressStepState.choices,
+        default=ApplicationProgressStepState.UPCOMING,
+    )
+    visa_applied_manual = models.BooleanField(default=False)
+
+    visa_approved = models.CharField(
+        max_length=20,
+        choices=ApplicationProgressStepState.choices,
+        default=ApplicationProgressStepState.UPCOMING,
+    )
+    visa_approved_manual = models.BooleanField(default=False)
+
+    admitted = models.CharField(
+        max_length=20,
+        choices=ApplicationProgressStepState.choices,
+        default=ApplicationProgressStepState.UPCOMING,
+    )
+    admitted_manual = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        student_file = getattr(self, "student_file", None)
+        if student_file and getattr(student_file, "student_file_id", None):
+            return f"Progress {student_file.student_file_id}"
+        return f"Progress id={self.pk}"
 
 
 class AppliedUniversity(BaseModel):

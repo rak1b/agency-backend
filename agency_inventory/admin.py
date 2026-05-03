@@ -11,6 +11,7 @@ from .models import (
     Customer,
     OfficeCost,
     Program,
+    StudentApplicationProgress,
     StudentCost,
     StudentFile,
     StudentFileAttachment,
@@ -61,6 +62,22 @@ class CustomerAdmin(admin.ModelAdmin):
     list_filter = ("business", "current_status", "gender", "agency", "file_from", "is_active", "is_deleted")
     search_fields = ("customer_id", "passport_number", "given_name", "surname", "email", "phone_whatsapp")
     readonly_fields = ("slug", "created_at", "updated_at")
+
+
+@register(StudentApplicationProgress, site=master_admin_site)
+class StudentApplicationProgressAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "student_file",
+        "payment_verified",
+        "documents_verified",
+        "university_applied",
+        "visa_applied",
+        "updated_at",
+    )
+    list_filter = ("business", "agency", "is_active", "is_deleted")
+    search_fields = ("student_file__student_file_id", "student_file__given_name", "student_file__surname")
+    readonly_fields = ("created_at", "updated_at")
 
 
 @register(StudentFile, site=master_admin_site)

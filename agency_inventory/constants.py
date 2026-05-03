@@ -49,6 +49,17 @@ class ReviewStatusChoice(models.TextChoices):
     REJECTED = "REJECTED", _("Rejected")
 
 
+class ApplicationProgressStepState(models.TextChoices):
+    """
+    Stored on ``StudentApplicationProgress`` and returned by the application-progress API.
+    Values are lowercase for stable JSON contracts with the student portal UI.
+    """
+
+    UPCOMING = "upcoming", _("Upcoming")
+    IN_PROGRESS = "in_progress", _("In progress")
+    COMPLETED = "completed", _("Completed")
+
+
 _UNIVERSITY_PROGRAM_VALID_VALUES = frozenset(
     (
         UniversityProgramChoice.EAP,

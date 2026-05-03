@@ -10,15 +10,22 @@ from authentication.tenant_utils import (
 )
 from authentication.notification_utils import create_notifications_for_event
 from datetime import date, timedelta
-from rest_framework import filters
+from rest_framework import filters, status
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.permissions import IsAuthenticated
 from django.db.models import Count, Prefetch, Sum
 from django.db.models.functions import TruncMonth
 from django.utils import timezone
+from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.exceptions import PermissionDenied
+
+from ...services.application_progress import (
+    apply_admin_progress_patch,
+    parse_admin_progress_payload,
+    serialize_application_progress,
+)
 
 from ...models import (
     Agency,
@@ -536,6 +543,30 @@ class StudentFileViewSet(StudentPortalReadOnlyMixin, TenantHomeAgencyRowMixin, B
         if is_student_portal_user(request.user):
             raise PermissionDenied("Students cannot delete student files.")
         return super().destroy(request, *args, **kwargs)
+
+    @action(detail=True, methods=["get", "patch"], url_path="application-progress")
+    def application_progress(self, request, *args, **kwargs):
+        """
+        Application tracker aligned with the student portal (8 steps).
+
+        Each step has ``state``: ``completed`` | ``in_progress`` | ``upcoming``.
+        Persisted on ``StudentApplicationProgress``; staff may ``PATCH`` to set
+        a step (optionally locking it from auto sync with ``manual``).
+        """
+        student_file = self.get_object()
+        if request.method == "GET":
+            return Response(serialize_application_progress(student_file))
+        if is_student_portal_user(request.user):
+            raise PermissionDenied("Students cannot update application progress.")
+        try:
+            normalized = parse_admin_progress_payload(request.data)
+        except ValueError as error:
+            return Response({"detail": str(error)}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            apply_admin_progress_patch(student_file, normalized)
+        except ValueError as error:
+            return Response({"detail": str(error)}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serialize_application_progress(student_file))
 
 
 class UniversityViewSet(StudentPortalReadOnlyMixin, TenantHomeAgencyRowMixin, BaseModelViewSet):
