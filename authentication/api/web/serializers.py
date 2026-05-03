@@ -391,7 +391,7 @@ class PermissionMinimizedSerializer(serializers.ModelSerializer):
     # section = SectionMinimizedSerializer()
     class Meta:
         model = Permission
-        exclude = ['section']        
+        exclude = ['section','created_at','updated_at','deleted_at','deleted_by','is_deleted']        
 class SectionWiseUserPermissionSerializer(serializers.ModelSerializer):
     permissions = serializers.SerializerMethodField()
     class Meta:
