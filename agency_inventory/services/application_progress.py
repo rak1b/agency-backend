@@ -250,10 +250,42 @@ def parse_admin_progress_payload(raw: Any) -> dict[str, Any]:
     return normalized
 
 
+def _expand_patch_with_completed_prior_steps(
+    validated_steps: dict[str, Any],
+) -> dict[str, Any]:
+    """
+    If a step is moved to ``completed`` or ``in_progress``, all earlier steps in
+    the ordered pipeline should be ``completed`` for a coherent timeline.
+
+    Keys already present in ``validated_steps`` keep their explicit payload (so
+    staff can intentionally diverge). Steps implied only by this rule inherit
+    ``manual`` from the step that triggered the cascade.
+    """
+    merged: dict[str, Any] = dict(validated_steps)
+    for payload_key, payload_value in validated_steps.items():
+        state_value = payload_value["state"]
+        if state_value not in (ST_COMPLETED, ST_IN_PROGRESS):
+            continue
+        step_index = STEP_KEYS.index(payload_key)
+        manual_value = payload_value.get("manual", True)
+        for prior_index in range(step_index):
+            prior_key = STEP_KEYS[prior_index]
+            if prior_key not in validated_steps:
+                merged[prior_key] = {
+                    "state": ST_COMPLETED,
+                    "manual": bool(manual_value),
+                }
+    return merged
+
+
 def apply_admin_progress_patch(student_file, validated_steps: dict[str, Any]):
     """
     Apply admin-provided step updates. Each provided step sets ``*_manual`` True
     unless ``manual`` is explicitly False (unlocks the step for auto sync again).
+
+    When a step is set to ``completed`` or ``in_progress``, every earlier step in
+    the pipeline is also set to ``completed`` (unless that step was included in
+    the same request); implied steps share the triggering step's ``manual`` flag.
     """
     from agency_inventory.models import StudentApplicationProgress
 
@@ -264,7 +296,9 @@ def apply_admin_progress_patch(student_file, validated_steps: dict[str, Any]):
     update_fields: list[str] = []
     key_to_spec = {row[0]: row for row in STEP_DEFINITIONS}
 
-    for payload_key, payload_value in validated_steps.items():
+    merged_steps = _expand_patch_with_completed_prior_steps(validated_steps)
+
+    for payload_key, payload_value in merged_steps.items():
         if payload_key not in key_to_spec:
             continue
         _api_key, _label, state_field, manual_field = key_to_spec[payload_key]
