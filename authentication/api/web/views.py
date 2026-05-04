@@ -315,7 +315,7 @@ def get_section_wise_permissions_for_user(user):
 
 # Codes returned on web login for student portal users (menu / client-side gating).
 # Actual API access is still enforced by viewsets (e.g. ``StudentPortalReadOnlyMixin`` + queryset scope).
-STUDENT_PORTAL_LOGIN_PERMISSION_CODES = ("view_student_files", "update_student_files",'view_ticket','reply_ticket','open_ticket')
+STUDENT_PORTAL_LOGIN_PERMISSION_CODES = ("view_student_files", "update_student_files",'view_ticket','reply_ticket','open_ticket','view_dashboard')
 
 
 def get_student_portal_section_wise_permissions():
