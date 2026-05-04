@@ -16,6 +16,7 @@ from rest_framework.permissions import IsAuthenticated
 from django.db.models import Count, Prefetch, Sum
 from django.db.models.functions import TruncMonth
 from django.utils import timezone
+from drf_spectacular.utils import OpenApiExample, extend_schema
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -55,6 +56,8 @@ class TenantHomeAgencyRowMixin:
 
 from .serializers import (
     AgencySerializer,
+    ApplicationProgressGetSchemaSerializer,
+    ApplicationProgressPatchSchemaSerializer,
     CountrySerializer,
     CustomerSerializer,
     InventoryDashboardQuerySerializer,
@@ -544,6 +547,124 @@ class StudentFileViewSet(StudentPortalReadOnlyMixin, TenantHomeAgencyRowMixin, B
             raise PermissionDenied("Students cannot delete student files.")
         return super().destroy(request, *args, **kwargs)
 
+    @extend_schema(
+        methods=["GET"],
+        operation_id="student_files_application_progress_retrieve",
+        summary="Get persisted application progress (8 steps)",
+        description=(
+            "Returns the **Application Progress** timeline for one student file: eight ordered steps "
+            "with ``state`` (`upcoming` | `in_progress` | `completed`) and ``manual`` (admin lock). "
+            "Runs a **sync** from domain data (invoices, document verification, university applications) "
+            "into ``StudentApplicationProgress`` before responding; steps with ``manual: true`` are not "
+            "overwritten by that sync.\n\n"
+            "**Auth:** student (own file only) or staff within tenant scope.\n\n"
+            "**Related writes:** staff update underlying data via `PATCH /student-files/{slug}/` "
+            "(attachments / applied_universities) and invoices; or override the timeline via PATCH on this URL."
+        ),
+        responses={200: ApplicationProgressGetSchemaSerializer},
+        examples=[
+            OpenApiExample(
+                "200 — example",
+                value={
+                    "student_file_id": "STF00012345",
+                    "slug": "jane-doe-passport-slug",
+                    "current_status": "FILE_RECEIVED",
+                    "current_status_label": "File Received",
+                    "steps": [
+                        {
+                            "key": "application_received",
+                            "label": "Application Received",
+                            "order": 1,
+                            "state": "completed",
+                            "manual": False,
+                        },
+                        {
+                            "key": "payment_verified",
+                            "label": "Payment Verified",
+                            "order": 2,
+                            "state": "upcoming",
+                            "manual": False,
+                        },
+                        {
+                            "key": "documents_under_review",
+                            "label": "Documents Under Review",
+                            "order": 3,
+                            "state": "upcoming",
+                            "manual": False,
+                        },
+                        {
+                            "key": "documents_verified",
+                            "label": "Documents Verified",
+                            "order": 4,
+                            "state": "upcoming",
+                            "manual": False,
+                        },
+                        {
+                            "key": "university_applied",
+                            "label": "University Applied",
+                            "order": 5,
+                            "state": "upcoming",
+                            "manual": False,
+                        },
+                        {
+                            "key": "visa_applied",
+                            "label": "Visa Applied",
+                            "order": 6,
+                            "state": "upcoming",
+                            "manual": False,
+                        },
+                        {
+                            "key": "visa_approved",
+                            "label": "Visa Approved",
+                            "order": 7,
+                            "state": "upcoming",
+                            "manual": False,
+                        },
+                        {
+                            "key": "admitted",
+                            "label": "Admitted",
+                            "order": 8,
+                            "state": "upcoming",
+                            "manual": False,
+                        },
+                    ],
+                },
+                response_only=True,
+            ),
+        ],
+        tags=["Agency Management — Student files"],
+    )
+    @extend_schema(
+        methods=["PATCH"],
+        operation_id="student_files_application_progress_partial_update",
+        summary="Update application progress steps (staff)",
+        description=(
+            "**Staff only** (student portal users receive 403). Body is a JSON object keyed by "
+            "step ``key`` (same as ``GET …/steps[].key``). Each value is either a **state string** "
+            "(`upcoming` | `in_progress` | `completed`) — which **locks** the step for auto-sync — or "
+            "an object ``{ \"state\": \"…\", \"manual\": true|false }``. Use ``manual: false`` to **unlock** "
+            "a step so the next sync can overwrite it from invoices/documents/applications again.\n\n"
+            "After a successful PATCH, the server **re-runs sync** for non-locked steps."
+        ),
+        request=ApplicationProgressPatchSchemaSerializer,
+        responses={200: ApplicationProgressGetSchemaSerializer},
+        examples=[
+            OpenApiExample(
+                "PATCH — shorthand (locks step)",
+                value={"payment_verified": "completed"},
+                request_only=True,
+            ),
+            OpenApiExample(
+                "PATCH — explicit + unlock",
+                value={
+                    "visa_applied": {"state": "in_progress", "manual": True},
+                    "documents_verified": {"state": "completed", "manual": False},
+                },
+                request_only=True,
+            ),
+        ],
+        tags=["Agency Management — Student files"],
+    )
     @action(detail=True, methods=["get", "patch"], url_path="application-progress")
     def application_progress(self, request, *args, **kwargs):
         """

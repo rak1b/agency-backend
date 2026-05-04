@@ -4,6 +4,7 @@ from authentication.permissions import HasCustomPermission
 from authentication.notification_utils import create_notifications_for_event, user_is_admin
 from authentication.tenant_utils import (
     invoice_issuer_agency_stamp_id,
+    is_student_portal_user,
     tenant_business_id,
     user_is_b2b_agent_or_employee,
     user_is_master_admin,
@@ -312,6 +313,64 @@ def get_section_wise_permissions_for_user(user):
     return section_wise_permissions
 
 
+# Codes returned on web login for student portal users (menu / client-side gating).
+# Actual API access is still enforced by viewsets (e.g. ``StudentPortalReadOnlyMixin`` + queryset scope).
+STUDENT_PORTAL_LOGIN_PERMISSION_CODES = ("view_student_files", "update_student_files")
+
+
+def get_student_portal_section_wise_permissions():
+    """
+    Build the same structure as ``get_section_wise_permissions_for_user``, but only
+    student-file **view** and **update** permissions, loaded from ``Permission`` rows.
+    """
+    permission_rows = list(
+        Permission.objects.filter(code__in=STUDENT_PORTAL_LOGIN_PERMISSION_CODES).select_related("section")
+    )
+    if not permission_rows:
+        return []
+
+    section_permission_map = {}
+    for permission in permission_rows:
+        section = permission.section
+        if not section:
+            continue
+        if section.id not in section_permission_map:
+            section_permission_map[section.id] = {
+                "section_id": section.id,
+                "section_slug": section.slug,
+                "section_name": section.name,
+                "permissions": [],
+                "_permission_codes": set(),
+            }
+        bucket = section_permission_map[section.id]
+        if permission.code in bucket["_permission_codes"]:
+            continue
+        bucket["_permission_codes"].add(permission.code)
+        bucket["permissions"].append(
+            {
+                "id": permission.id,
+                "code": permission.code,
+                "name": permission.name,
+                "slug": permission.slug,
+            }
+        )
+
+    section_wise_permissions = []
+    for section_bucket in section_permission_map.values():
+        section_bucket.pop("_permission_codes", None)
+        section_bucket["permissions"].sort(key=lambda item: (item["name"] or "", item["code"] or ""))
+        section_wise_permissions.append(section_bucket)
+    section_wise_permissions.sort(key=lambda item: (item["section_name"] or "", item["section_slug"] or ""))
+    return section_wise_permissions
+
+
+def login_section_wise_permissions_for_user(user):
+    """Login / refresh companion: staff get role-based permissions; students get a fixed portal subset."""
+    if is_student_portal_user(user):
+        return get_student_portal_section_wise_permissions()
+    return get_section_wise_permissions_for_user(user)
+
+
 class WebUserLoginView(APIView):
     authentication_classes = []
     permission_classes = []
@@ -403,7 +462,7 @@ class WebUserLoginView(APIView):
             context['access_token'] = access_token
             context['refresh_token'] = refresh_token
             context['user_slug'] = user_info.slug
-            context['section_wise_permissions'] = get_section_wise_permissions_for_user(user_info)
+            context['section_wise_permissions'] = login_section_wise_permissions_for_user(user_info)
             context['user_type'] = user_info.user_type
             context['user_type_label'] = user_info.get_user_type_display() if user_info.user_type else None
             context['role_details'] = [
@@ -487,7 +546,7 @@ class WebLoginView(APIView):
             access_token, refresh_token = generate_tokens({'user_id':account.user.id,'user_name':user_info.name,'role':'3','role_title':'merchant'})
             context['access_token'] = access_token
             context['refresh_token'] = refresh_token
-            context['section_wise_permissions'] = get_section_wise_permissions_for_user(user_info)
+            context['section_wise_permissions'] = login_section_wise_permissions_for_user(user_info)
             context['user_type'] = user_info.user_type
             context['user_type_label'] = user_info.get_user_type_display() if user_info.user_type else None
             context['role_details'] = [

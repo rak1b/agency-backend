@@ -524,25 +524,33 @@ class StudentFileSerializer(serializers.ModelSerializer):
                     attachment_obj.verified_at = timezone.now() if requested_status != ReviewStatusChoice.PENDING else None
                 attachment_obj.save()
             else:
+                # New attachment: students always start pending; staff uploads default to approved
+                # unless they send an explicit ``verification_status`` in the row.
                 if is_student_user:
-                    requested_status = ReviewStatusChoice.PENDING
+                    create_status = ReviewStatusChoice.PENDING
+                elif requested_status is not None:
+                    create_status = requested_status
+                else:
+                    create_status = ReviewStatusChoice.APPROVED
+                verified_by_user = (
+                    request_user
+                    if create_status in (ReviewStatusChoice.APPROVED, ReviewStatusChoice.REJECTED)
+                    else None
+                )
+                verified_at_value = (
+                    timezone.now()
+                    if create_status in (ReviewStatusChoice.APPROVED, ReviewStatusChoice.REJECTED)
+                    else None
+                )
                 attachment_obj = StudentFileAttachment.objects.create(
                     title=title,
                     file_url=file_url,
                     agency=student_file.agency,
                     business=getattr(student_file, "business", None),
-                    verification_status=requested_status or ReviewStatusChoice.PENDING,
+                    verification_status=create_status,
                     verification_note=requested_note,
-                    verified_by=(
-                        request_user
-                        if requested_status in (ReviewStatusChoice.APPROVED, ReviewStatusChoice.REJECTED)
-                        else None
-                    ),
-                    verified_at=(
-                        timezone.now()
-                        if requested_status in (ReviewStatusChoice.APPROVED, ReviewStatusChoice.REJECTED)
-                        else None
-                    ),
+                    verified_by=verified_by_user,
+                    verified_at=verified_at_value,
                 )
             attachment_ids.append(attachment_obj.id)
         if replace_links:
