@@ -1,12 +1,16 @@
+import logging
 import threading
 
 from decouple import config
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
-from django.utils.html import escape
 from django.utils.html import strip_tags
 from django.utils.translation import gettext_lazy as _
+from utils.email_send_utils import send_agencio_mail
+
 from ..ms_email_utils import send_email as mail_send
+
+logger = logging.getLogger(__name__)
 
 
 class EmailThread(threading.Thread):
@@ -61,9 +65,14 @@ def send_student_portal_credentials_email(
     student_login_id,
     temporary_password,
     student_name=None,
+    *,
+    student_file_id=None,
+    agency_name=None,
+    include_credentials=True,
 ):
     """
-    Send initial student portal credentials using Microsoft Graph helper.
+    Send student file registration / portal credentials using Django SMTP (``send_agencio_mail``)
+    and HTML templates under ``templates/email/agencio/``.
 
     Returns:
         tuple[bool, str]: (email_sent_successfully, provider_response_message)
@@ -72,24 +81,30 @@ def send_student_portal_credentials_email(
     if not normalized_recipient_email:
         return False, "Student email is missing."
 
-    safe_student_name = escape(student_name or "Student")
-    safe_student_login_id = escape(student_login_id or "")
-    safe_temporary_password = escape(temporary_password or "")
-    email_subject = "Student Portal Login Credentials"
-    email_body = f"""
-    <p>Hello {safe_student_name},</p>
-    <p>Your student portal account has been created.</p>
-    <p><strong>Student ID:</strong> {safe_student_login_id}</p>
-    <p><strong>Temporary Password:</strong> {safe_temporary_password}</p>
-    <p>Please keep these credentials secure.</p>
-    """
+    display_name = (student_name or "Student").strip() or "Student"
+    display_file_id = (student_file_id or student_login_id or "").strip() or "—"
+    email_subject = "Your student file has been created — Agencio"
+
+    context = {
+        "student_name": display_name,
+        "student_file_id": display_file_id,
+        "agency_name": (agency_name or "").strip() or None,
+        "include_credentials": bool(include_credentials and temporary_password),
+        "student_login_id": (student_login_id or "").strip(),
+        "temporary_password": (temporary_password or "").strip(),
+    }
+
     try:
-        status_code, provider_response = mail_send(
-            email_subject,
-            email_body,
-            normalized_recipient_email,
+        html_message = render_to_string("email/agencio/student_file_created.html", context)
+        send_agencio_mail(
+            subject=email_subject,
+            message="",
+            recipient_list=[normalized_recipient_email],
+            html_message=html_message,
+            fail_silently=False,
         )
     except Exception as error:
+        logger.exception("send_student_portal_credentials_email failed for %s", normalized_recipient_email)
         return False, str(error)
 
-    return 200 <= status_code < 300, provider_response
+    return True, "sent_via_smtp"

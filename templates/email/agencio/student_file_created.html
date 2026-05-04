@@ -1,0 +1,42 @@
+{% extends "email/agencio/index.html" %}
+
+{% block email_title %}Your student file — Agencio{% endblock %}
+
+{% block header_title %}Welcome{% endblock %}
+
+{% block header_subtitle %}
+<p style="margin:12px 0 0;font-size:14px;opacity:.92;font-weight:400;">Your file has been registered</p>
+{% endblock %}
+
+{% block content %}
+<p>Hello {{ student_name }},</p>
+
+<p>
+  Your student file has been created{% if agency_name %} under <strong>{{ agency_name }}</strong>{% endif %}.
+  We will use this record for your application progress and communications.
+</p>
+
+<div class="box">
+  <p style="margin:0 0 8px;"><strong>File reference</strong></p>
+  <p style="margin:0;"><strong>Student file ID:</strong> {{ student_file_id }}</p>
+  {% if student_name %}
+  <p style="margin:8px 0 0;"><strong>Name:</strong> {{ student_name }}</p>
+  {% endif %}
+</div>
+
+{% if include_credentials %}
+<p><strong>Student portal access</strong></p>
+<p class="muted">Use the credentials below to sign in to your student portal. Please change your password after first login if prompted.</p>
+<div class="box">
+  <p style="margin:0 0 8px;"><strong>Login ID</strong> (use as username / identifier)</p>
+  <p style="margin:0;font-family:ui-monospace,monospace;">{{ student_login_id }}</p>
+  <p style="margin:16px 0 8px;"><strong>Temporary password</strong></p>
+  <p style="margin:0;font-family:ui-monospace,monospace;">{{ temporary_password }}</p>
+</div>
+<p class="muted">Keep these details private and do not share them with anyone.</p>
+{% else %}
+<p class="muted">If you already have portal access, continue using your existing login. Contact your agency if you need help.</p>
+{% endif %}
+
+<p style="margin-bottom:0;">Thank you,<br><strong>The Agencio team</strong></p>
+{% endblock %}

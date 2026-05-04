@@ -429,6 +429,9 @@ class StudentFileSerializer(serializers.ModelSerializer):
             student_login_id=student_login_id,
             temporary_password=temporary_password,
             student_name=student_user.name,
+            student_file_id=student_file.student_file_id,
+            agency_name=student_file.agency.name if student_file.agency else None,
+            include_credentials=True,
         )
         student_file._generated_student_credentials_email_sent = email_sent_successfully
         student_file._generated_student_credentials_email_message = provider_response_message

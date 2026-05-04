@@ -7,7 +7,7 @@ Example::
     python manage.py testmail other@example.com
 """
 
-from smtplib import SMTPAuthenticationError
+from smtplib import SMTPAuthenticationError, SMTPDataError
 
 from django.core.management.base import BaseCommand, CommandError
 
@@ -76,6 +76,15 @@ class Command(BaseCommand):
                 "account login password. Port 587 + TLS must match Zoho SMTP docs."
             )
             raise CommandError("SMTP authentication failed; see messages above.") from exc
+        except SMTPDataError as exc:
+            self.stderr.write(self.style.ERROR(f"SMTPDataError: {exc}"))
+            self.stderr.write(
+                "553 often means: the From address is not allowed for this SMTP login — "
+                "set DEFAULT_FROM_EMAIL to the same mailbox as EMAIL_HOST_USER (or a verified "
+                "Zoho alias), e.g. \"Agencio <info@yourdomain.com>\". Confirm SMTP host matches "
+                "your Zoho product (personal vs org: smtp.zoho.com vs smtppro.zoho.com)."
+            )
+            raise CommandError("SMTP rejected the message (relay / sender policy); see messages above.") from exc
         except Exception as exc:
             self.stderr.write(self.style.ERROR(f"Send failed: {exc!r}"))
             raise
