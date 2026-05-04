@@ -38,5 +38,12 @@
 <p class="muted">If you already have portal access, continue using your existing login. Contact your agency if you need help.</p>
 {% endif %}
 
+{% if portal_login_url %}
+<p style="margin:24px 0 16px;">
+  <a href="{{ portal_login_url }}" target="_blank" rel="noopener noreferrer" style="display:inline-block;background:#2c5282;color:#ffffff !important;padding:12px 24px;text-decoration:none;border-radius:6px;font-weight:600;">Log in to portal</a>
+</p>
+<p class="muted" style="margin:0 0 8px;">Sign-in page: <a href="{{ portal_login_url }}" style="color:#3182ce;">{{ portal_login_url }}</a></p>
+{% endif %}
+
 <p style="margin-bottom:0;">Thank you,<br><strong>The Agencio team</strong></p>
 {% endblock %}

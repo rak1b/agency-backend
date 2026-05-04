@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 import logging
 import threading
 
-from decouple import config
+from django.conf import settings as django_settings
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
@@ -11,6 +13,28 @@ from utils.email_send_utils import send_agencio_mail
 from ..ms_email_utils import send_email as mail_send
 
 logger = logging.getLogger(__name__)
+
+
+class StudentPortalCredentialsEmailThread(threading.Thread):
+    """
+    Sends student welcome/credentials email off the request thread so student-file
+    API saves return quickly; SMTP runs in a daemon thread.
+    """
+
+    def __init__(self, **send_kwargs: object) -> None:
+        super().__init__(daemon=True)
+        self._send_kwargs = send_kwargs
+
+    def run(self) -> None:
+        from django.db import close_old_connections
+
+        close_old_connections()
+        try:
+            _send_student_portal_credentials_sync(**self._send_kwargs)
+        except Exception:
+            logger.exception("Background student portal email failed")
+        finally:
+            close_old_connections()
 
 
 class EmailThread(threading.Thread):
@@ -60,6 +84,40 @@ def send_university_approved_email(email, data):
     send_email(_("Your Account is approved"), email, data, "email/auth/university_approved.html")
 
 
+def _send_student_portal_credentials_sync(
+    *,
+    normalized_recipient_email: str,
+    display_name: str,
+    display_file_id: str,
+    email_subject: str,
+    portal_login_url: str | None,
+    agency_name: str | None,
+    include_credentials: bool,
+    student_login_id: str,
+    temporary_password: str,
+    branding_logo_url: str | None,
+) -> None:
+    """Render template and send via SMTP (runs on main or worker thread)."""
+    context = {
+        "student_name": display_name,
+        "student_file_id": display_file_id,
+        "agency_name": agency_name,
+        "include_credentials": include_credentials,
+        "student_login_id": student_login_id,
+        "temporary_password": temporary_password,
+        "portal_login_url": portal_login_url,
+        "branding_logo_url": branding_logo_url,
+    }
+    html_message = render_to_string("email/agencio/student_file_created.html", context)
+    send_agencio_mail(
+        subject=email_subject,
+        message="",
+        recipient_list=[normalized_recipient_email],
+        html_message=html_message,
+        fail_silently=False,
+    )
+
+
 def send_student_portal_credentials_email(
     recipient_email,
     student_login_id,
@@ -71,11 +129,12 @@ def send_student_portal_credentials_email(
     include_credentials=True,
 ):
     """
-    Send student file registration / portal credentials using Django SMTP (``send_agencio_mail``)
-    and HTML templates under ``templates/email/agencio/``.
+    Queue student file registration / portal credentials email on a background thread
+    (Django SMTP + templates under ``templates/email/agencio/``). The HTTP handler returns
+    immediately; delivery status is not reflected in the API (check logs on failure).
 
     Returns:
-        tuple[bool, str]: (email_sent_successfully, provider_response_message)
+        tuple[bool, str]: (queued_ok, message) — ``True, "queued"`` when the worker thread was started.
     """
     normalized_recipient_email = (recipient_email or "").strip()
     if not normalized_recipient_email:
@@ -85,26 +144,23 @@ def send_student_portal_credentials_email(
     display_file_id = (student_file_id or student_login_id or "").strip() or "—"
     email_subject = "Your student file has been created — Agencio"
 
-    context = {
-        "student_name": display_name,
-        "student_file_id": display_file_id,
-        "agency_name": (agency_name or "").strip() or None,
-        "include_credentials": bool(include_credentials and temporary_password),
-        "student_login_id": (student_login_id or "").strip(),
-        "temporary_password": (temporary_password or "").strip(),
-    }
+    portal_login_raw = (getattr(django_settings, "AGENCIO_PORTAL_LOGIN_URL", "") or "").strip()
+    logo_raw = (getattr(django_settings, "AGENCIO_EMAIL_LOGO_URL", "") or "").strip()
 
-    try:
-        html_message = render_to_string("email/agencio/student_file_created.html", context)
-        send_agencio_mail(
-            subject=email_subject,
-            message="",
-            recipient_list=[normalized_recipient_email],
-            html_message=html_message,
-            fail_silently=False,
-        )
-    except Exception as error:
-        logger.exception("send_student_portal_credentials_email failed for %s", normalized_recipient_email)
-        return False, str(error)
+    agency_clean = (agency_name or "").strip() or None
+    inc_cred = bool(include_credentials and temporary_password)
 
-    return True, "sent_via_smtp"
+    StudentPortalCredentialsEmailThread(
+        normalized_recipient_email=normalized_recipient_email,
+        display_name=display_name,
+        display_file_id=display_file_id,
+        email_subject=email_subject,
+        portal_login_url=portal_login_raw or None,
+        agency_name=agency_clean,
+        include_credentials=inc_cred,
+        student_login_id=(student_login_id or "").strip(),
+        temporary_password=(temporary_password or "").strip(),
+        branding_logo_url=logo_raw or None,
+    ).start()
+
+    return True, "queued"

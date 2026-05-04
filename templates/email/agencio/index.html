@@ -29,6 +29,18 @@
       <td align="center">
         <div class="wrap">
           <table role="presentation" class="card" width="100%" cellspacing="0" cellpadding="0" border="0">
+            {% if branding_logo_url %}
+            <tr>
+              <td style="background:#ffffff;padding:24px 28px 16px;text-align:center;border-bottom:1px solid #e2e8f0;">
+                <img
+                  src="{{ branding_logo_url }}"
+                  alt="Agencio — Agency Management Platform"
+                  width="320"
+                  style="max-width:100%;height:auto;display:block;margin:0 auto;border:0;outline:none;text-decoration:none;"
+                />
+              </td>
+            </tr>
+            {% endif %}
             <tr>
               <td class="header">
                 <h1>{% block header_title %}Agencio{% endblock %}</h1>

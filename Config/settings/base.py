@@ -262,6 +262,18 @@ _SERVER_EMAIL = config("SERVER_EMAIL", default="").strip()
 SERVER_EMAIL = _SERVER_EMAIL or DEFAULT_FROM_EMAIL
 EMAIL_TIMEOUT = config("EMAIL_TIMEOUT", default=30, cast=int)
 
+# Public URL for the admin/student web app (used in transactional emails, e.g. login link).
+AGENCIO_PORTAL_LOGIN_URL = config(
+    "AGENCIO_PORTAL_LOGIN_URL",
+    default="https://admin.agencio.xyz/",
+).strip()
+
+# Header image for transactional HTML emails (absolute URL so clients can load it).
+AGENCIO_EMAIL_LOGO_URL = config(
+    "AGENCIO_EMAIL_LOGO_URL",
+    default="https://media.bablumia.site/agencio_with_name_20260504115311_86c19.png",
+).strip()
+
 LOGIN_URL = '/swagger/login'
 LOGIN_REDIRECT_URL = '/api/docs/' 
 
