@@ -99,7 +99,12 @@ def login_agency_and_student_payload(user):
 
 def resolve_login_user(identifier):
     """
-    Resolve login identity by email first, then by generated student id (``user_id``).
+    Resolve login identity by:
+
+    1. Email (case-insensitive)
+    2. ``User.user_id`` (case-insensitive), which auto-created student accounts set to ``student_file_id``
+    3. **Student file id** for portal users: ``linked_student_file.student_file_id`` when ``user_type`` is
+       STUDENT — needed when staff linked a file in admin but ``user_id`` was never set to the STF code.
     """
     normalized_identifier = (identifier or "").strip()
     if not normalized_identifier:
@@ -108,7 +113,17 @@ def resolve_login_user(identifier):
     resolved_user = active_user_queryset.filter(email__iexact=normalized_identifier).first()
     if resolved_user:
         return resolved_user
-    return active_user_queryset.filter(user_id__iexact=normalized_identifier).first()
+    resolved_user = active_user_queryset.filter(user_id__iexact=normalized_identifier).first()
+    if resolved_user:
+        return resolved_user
+    return (
+        active_user_queryset.filter(
+            user_type=constants.UserTypeChoice.STUDENT,
+            linked_student_file__student_file_id__iexact=normalized_identifier,
+        )
+        .select_related("linked_student_file")
+        .first()
+    )
 
 
 class StandardUserListPagination(DRFPageNumberPagination):
