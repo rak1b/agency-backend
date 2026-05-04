@@ -11,41 +11,14 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 import os
 from datetime import timedelta
-from typing import Optional
 
-from decouple import RepositoryEnv, config
+from decouple import config
 from cryptography.hazmat.primitives import serialization
 
 DEBUG = config('DEBUG', cast=bool)
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-_DOTENV_PATH = os.path.join(BASE_DIR, ".env")
-# Parsed key/value dict from ``.env`` only (last duplicate key in file wins).
-# We must NOT use ``decouple.Config`` here: it reads ``os.environ`` *before* the file,
-# so stale exports (e.g. old Office365 ``EMAIL_HOST_PASSWORD``) override Zoho values.
-_DOTENV_REPO: Optional[RepositoryEnv] = (
-    RepositoryEnv(_DOTENV_PATH, encoding="utf-8") if os.path.isfile(_DOTENV_PATH) else None
-)
-
-
-def _env_prefer_dotenv(key: str, default: str = "") -> str:
-    """
-    Prefer values from the project ``.env`` file over process environment.
-
-    Uses ``RepositoryEnv.data`` so file wins over ``os.environ`` for keys present in ``.env``.
-    """
-    if _DOTENV_REPO is not None and key in _DOTENV_REPO.data:
-        return _DOTENV_REPO.data[key]
-    return config(key, default=default)
-
-
-def _bool_from_env(value: str, default: bool) -> bool:
-    raw = (value or "").strip().lower()
-    if raw == "":
-        return default
-    return raw in ("1", "true", "yes", "on")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
@@ -274,21 +247,20 @@ AUTH_USER_MODEL = 'authentication.User'
 LOGIN_URL = '/auth/secure/super-admin/'
 LOGOUT_REDIRECT_URL = '/auth/secure/super-admin/'
 
-# Email — Zoho SMTP (or any SMTP). Set credentials in .env; never commit app passwords.
+# Email — Zoho SMTP (or any SMTP). Load via ``python-decouple`` only (``.env`` / environment).
 # See: https://www.zoho.com/mail/help/zoho-smtp.html
-# Use ``_env_prefer_dotenv`` so ``.env`` wins over stale shell ``EMAIL_*`` exports.
-EMAIL_BACKEND = _env_prefer_dotenv("EMAIL_BACKEND", "django.core.mail.backends.smtp.EmailBackend").strip()
-EMAIL_HOST = _env_prefer_dotenv("EMAIL_HOST", "smtp.zoho.com").strip()
-EMAIL_PORT = int(_env_prefer_dotenv("EMAIL_PORT", "587") or "587")
-EMAIL_USE_TLS = _bool_from_env(_env_prefer_dotenv("EMAIL_USE_TLS", ""), True)
-EMAIL_USE_SSL = _bool_from_env(_env_prefer_dotenv("EMAIL_USE_SSL", ""), False)
-EMAIL_HOST_USER = _env_prefer_dotenv("EMAIL_HOST_USER", "").strip()
-EMAIL_HOST_PASSWORD = _env_prefer_dotenv("EMAIL_HOST_PASSWORD", "").strip()
-_DEFAULT_FROM = _env_prefer_dotenv("DEFAULT_FROM_EMAIL", "").strip()
+EMAIL_BACKEND = config("EMAIL_BACKEND", default="django.core.mail.backends.smtp.EmailBackend").strip()
+EMAIL_HOST = config("EMAIL_HOST", default="smtp.zoho.com").strip()
+EMAIL_PORT = config("EMAIL_PORT", default=587, cast=int)
+EMAIL_USE_TLS = config("EMAIL_USE_TLS", default=True, cast=bool)
+EMAIL_USE_SSL = config("EMAIL_USE_SSL", default=False, cast=bool)
+EMAIL_HOST_USER = config("EMAIL_HOST_USER", default="").strip()
+EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default="").strip()
+_DEFAULT_FROM = config("DEFAULT_FROM_EMAIL", default="").strip()
 DEFAULT_FROM_EMAIL = _DEFAULT_FROM or EMAIL_HOST_USER
-_SERVER_EMAIL = _env_prefer_dotenv("SERVER_EMAIL", "").strip()
+_SERVER_EMAIL = config("SERVER_EMAIL", default="").strip()
 SERVER_EMAIL = _SERVER_EMAIL or DEFAULT_FROM_EMAIL
-EMAIL_TIMEOUT = int(_env_prefer_dotenv("EMAIL_TIMEOUT", "30") or "30")
+EMAIL_TIMEOUT = config("EMAIL_TIMEOUT", default=30, cast=int)
 
 LOGIN_URL = '/swagger/login'
 LOGIN_REDIRECT_URL = '/api/docs/' 
