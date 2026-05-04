@@ -16,7 +16,7 @@ from rest_framework.permissions import IsAuthenticated
 from django.db.models import Count, Prefetch, Sum
 from django.db.models.functions import TruncMonth
 from django.utils import timezone
-from drf_spectacular.utils import OpenApiExample, extend_schema
+from drf_spectacular.utils import OpenApiExample, OpenApiResponse, extend_schema
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -612,7 +612,12 @@ class StudentFileViewSet(StudentPortalReadOnlyMixin, TenantHomeAgencyRowMixin, B
             "After a successful PATCH, the server **re-runs sync** for non-locked steps."
         ),
         request=ApplicationProgressPatchSchemaSerializer,
-        responses={200: ApplicationProgressGetSchemaSerializer},
+        responses={
+            200: ApplicationProgressGetSchemaSerializer,
+            403: OpenApiResponse(
+                description="Student portal user (PATCH is staff-only for this sub-resource)."
+            ),
+        },
         examples=[
             OpenApiExample(
                 "PATCH — shorthand (locks step)",
