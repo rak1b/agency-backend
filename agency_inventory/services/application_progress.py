@@ -278,6 +278,47 @@ def _expand_patch_with_completed_prior_steps(
     return merged
 
 
+def _expand_patch_with_upcoming_later_steps(
+    validated_steps: dict[str, Any],
+    merged: dict[str, Any],
+) -> dict[str, Any]:
+    """
+    For the **furthest** step in the request that is ``completed`` or ``in_progress``,
+    every **later** step in the pipeline becomes ``upcoming`` (unless the client set that
+    step explicitly in the same PATCH).
+
+    Together with :func:`_expand_patch_with_completed_prior_steps`, the timeline stays
+    coherent: before = completed, anchor = as requested, after = upcoming.
+    """
+    anchor_indices: list[int] = []
+    for payload_key, payload_value in validated_steps.items():
+        if payload_value["state"] not in (ST_COMPLETED, ST_IN_PROGRESS):
+            continue
+        anchor_indices.append(STEP_KEYS.index(payload_key))
+    if not anchor_indices:
+        return merged
+
+    frontier = max(anchor_indices)
+    frontier_keys = [
+        k
+        for k, v in validated_steps.items()
+        if STEP_KEYS.index(k) == frontier and v["state"] in (ST_COMPLETED, ST_IN_PROGRESS)
+    ]
+    manual_ref = (
+        validated_steps[frontier_keys[0]].get("manual", True) if frontier_keys else True
+    )
+
+    out: dict[str, Any] = dict(merged)
+    for later_index in range(frontier + 1, len(STEP_KEYS)):
+        later_key = STEP_KEYS[later_index]
+        if later_key not in validated_steps:
+            out[later_key] = {
+                "state": ST_UPCOMING,
+                "manual": bool(manual_ref),
+            }
+    return out
+
+
 def apply_admin_progress_patch(student_file, validated_steps: dict[str, Any]):
     """
     Apply admin-provided step updates. Each provided step sets ``*_manual`` True
@@ -286,6 +327,10 @@ def apply_admin_progress_patch(student_file, validated_steps: dict[str, Any]):
     When a step is set to ``completed`` or ``in_progress``, every earlier step in
     the pipeline is also set to ``completed`` (unless that step was included in
     the same request); implied steps share the triggering step's ``manual`` flag.
+
+    The furthest such step in the request also forces every **later** step to
+    ``upcoming`` (unless explicitly present in the same PATCH), so the pipeline
+    does not leave stale ``completed`` values beyond the current focus.
     """
     from agency_inventory.models import StudentApplicationProgress
 
@@ -297,6 +342,7 @@ def apply_admin_progress_patch(student_file, validated_steps: dict[str, Any]):
     key_to_spec = {row[0]: row for row in STEP_DEFINITIONS}
 
     merged_steps = _expand_patch_with_completed_prior_steps(validated_steps)
+    merged_steps = _expand_patch_with_upcoming_later_steps(validated_steps, merged_steps)
 
     for payload_key, payload_value in merged_steps.items():
         if payload_key not in key_to_spec:

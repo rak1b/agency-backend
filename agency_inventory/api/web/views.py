@@ -609,6 +609,9 @@ class StudentFileViewSet(StudentPortalReadOnlyMixin, TenantHomeAgencyRowMixin, B
             "(`upcoming` | `in_progress` | `completed`) — which **locks** the step for auto-sync — or "
             "an object ``{ \"state\": \"…\", \"manual\": true|false }``. Use ``manual: false`` to **unlock** "
             "a step so the next sync can overwrite it from invoices/documents/applications again.\n\n"
+            "When you set a step to ``completed`` or ``in_progress``, earlier steps become "
+            "``completed`` and steps **after** the furthest such step become ``upcoming`` (unless you "
+            "include those keys in the same body).\n\n"
             "After a successful PATCH, the server **re-runs sync** for non-locked steps."
         ),
         request=ApplicationProgressPatchSchemaSerializer,
