@@ -1,77 +1,139 @@
 from django.contrib import admin
-from django.contrib.auth.hashers import make_password
+from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
+from django.contrib.auth.forms import UserChangeForm
+from django.utils.translation import gettext_lazy as _
 
 from Config.master_admin_site import master_admin_site
 
 from .models import User, Role, Permission, RolePermission, Merchant, Confirmation, Notification, OauthToken, Section
 
-# Register your models here.
-class RoleAdmin(admin.ModelAdmin):
-    """Admin for Role model to enable autocomplete."""
-    search_fields = ('name', 'description')
-    list_display = ('id', 'name', 'description', 'created_at')
-    list_filter = ('created_at',)
+
+class AgencyUserChangeForm(UserChangeForm):
+    """Django admin change form for the custom ``User`` model (``USERNAME_FIELD`` = email)."""
+
+    class Meta(UserChangeForm.Meta):
+        model = User
 
 
-class CustomUserAdmin(admin.ModelAdmin):
+class CustomUserAdmin(DjangoUserAdmin):
+    """
+    User admin with password change (hashed) via Django's built-in user admin flow.
+
+    ``UserAdmin`` provides the password reset link and ``AdminPasswordChangeForm`` on the change page.
+    """
+
+    model = User
+    form = AgencyUserChangeForm
+
+    ordering = ("-created_at",)
     list_display = (
-        'id', 'name', 'email', 'phone', 'get_roles_display', 
-        'user_type', 'is_active', 'is_superuser', 'is_staff', 'gender', 'created_at'
+        "email",
+        "name",
+        "phone",
+        "user_type",
+        "is_active",
+        "is_staff",
+        "is_superuser",
+        "created_at",
     )
     search_fields = (
-        'name', 'email', 'phone', 'employee_id', 'designation', 'role__name',
-        'slug', 'user_id'
+        "email",
+        "name",
+        "phone",
+        "slug",
+        "user_id",
+        "employee_id",
+        "designation",
+        "role__name",
     )
     list_filter = (
-        'role', 'is_active', 'is_superuser', 'is_staff',
-        'user_type', 'gender', 'is_verified', 'is_approved', 'created_at', 'updated_at'
+        "is_staff",
+        "is_superuser",
+        "is_active",
+        "user_type",
+        "is_verified",
+        "is_approved",
+        "created_at",
     )
-    # Use filter_horizontal for better UX with ManyToMany fields
-    filter_horizontal = ('groups', 'role')
-    exclude = ('user_permissions',)
-    readonly_fields = ('slug', 'user_id', 'created_at', 'updated_at', 'last_login')
-    date_hierarchy = 'created_at'
-    list_per_page = 25
-    list_max_show_all = 100
-    
+    filter_horizontal = ("groups", "role")
+    readonly_fields = ("slug", "user_id", "created_at", "updated_at", "last_login")
+
     fieldsets = (
-        ('User Information', {
-            'fields': (
-                'name', 'email', 'phone', 'slug', 'user_id', 'role', 'user_type',
-                'parent_business', 'parent_agency', 'parent_b2b_agent', 'linked_student_file', 'employee_id', 'designation',
-                'trade_license_no', 'commission_rate', 'contract_start_date',
-                'contract_end_date', 'joining_date', 'gender', 'address', 'dob', 'image_url'
-            )
-        }),
-        ('Permissions', {
-            'fields': ('is_active', 'is_staff', 'is_superuser', 'groups')
-        }),
-        ('Verification', {
-            'fields': ('is_verified', 'is_approved')
-        }),
-        ('System Information', {
-            'fields': ('last_login', 'last_login_ip', 'created_at', 'updated_at'),
-            'classes': ('collapse',)
-        }),
+        (None, {"fields": ("email", "password")}),
+        (
+            _("Personal info"),
+            {
+                "fields": (
+                    "name",
+                    "phone",
+                    "image_url",
+                    "dob",
+                    "gender",
+                    "address",
+                )
+            },
+        ),
+        (
+            _("Organization"),
+            {
+                "fields": (
+                    "slug",
+                    "user_id",
+                    "role",
+                    "user_type",
+                    "parent_agency",
+                    "parent_business",
+                    "parent_b2b_agent",
+                    "linked_student_file",
+                    "employee_id",
+                    "designation",
+                    "trade_license_no",
+                    "commission_rate",
+                    "contract_start_date",
+                    "contract_end_date",
+                    "joining_date",
+                )
+            },
+        ),
+        (
+            _("Permissions"),
+            {
+                "fields": (
+                    "is_active",
+                    "is_staff",
+                    "is_superuser",
+                    "groups",
+                    "is_verified",
+                    "is_approved",
+                )
+            },
+        ),
+        (
+            _("Activity"),
+            {
+                "fields": ("last_login", "last_login_ip", "created_at", "updated_at"),
+                "classes": ("collapse",),
+            },
+        ),
     )
-    
-    def get_queryset(self, request):
-        """Optimize queries with prefetch_related for ManyToMany."""
-        qs = User.objects.all()
-        return qs.prefetch_related('role', 'groups')
-    
-    def get_roles_display(self, obj):
-        """Display roles as comma-separated string."""
-        roles = obj.role.all()
-        if roles:
-            return ', '.join([role.name for role in roles])
-        return '-'
-    get_roles_display.short_description = 'Roles'
-    
-    def save_model(self, request, obj, form, change):
-        if form.cleaned_data.get('password') and not form.cleaned_data['password'].startswith("pbkdf2"):
-            obj.password = make_password(form.cleaned_data['password'])
-        super().save_model(request, obj, form, change)
+    add_fieldsets = (
+        (
+            None,
+            {
+                "classes": ("wide",),
+                "fields": ("email", "password1", "password2", "name"),
+            },
+        ),
+    )
+
+
+class RoleAdmin(admin.ModelAdmin):
+    """Admin for Role model to enable autocomplete."""
+
+    search_fields = ("name", "description")
+    list_display = ("id", "name", "description", "created_at")
+    list_filter = ("created_at",)
+
 
 master_admin_site.register(User, CustomUserAdmin)
 master_admin_site.register(Role, RoleAdmin)

@@ -26,9 +26,18 @@ STEP_DEFINITIONS: tuple[tuple[str, str, str, str], ...] = (
     ("documents_under_review", "Documents Under Review", "documents_under_review", "documents_under_review_manual"),
     ("documents_verified", "Documents Verified", "documents_verified", "documents_verified_manual"),
     ("university_applied", "University Applied", "university_applied", "university_applied_manual"),
+    ("dhl_sent_to_university", "DHL Sent to University", "dhl_sent_to_university", "dhl_sent_to_university_manual"),
+    ("dhl_received_from_university", "DHL Received from University", "dhl_received_from_university", "dhl_received_from_university_manual"),
+    ("interview_scheduled", "Interview Scheduled", "interview_scheduled", "interview_scheduled_manual"),
+    ("interview_completed", "Interview Completed", "interview_completed", "interview_completed_manual"),
+    ("admission_letter_received", "Admission Letter Received", "admission_letter_received", "admission_letter_received_manual"),
+    ("tuition_fee_paid", "Tuition Fee Paid", "tuition_fee_paid", "tuition_fee_paid_manual"),
     ("visa_applied", "Visa Applied", "visa_applied", "visa_applied_manual"),
     ("visa_approved", "Visa Approved", "visa_approved", "visa_approved_manual"),
+    ("visa_rejected", "Visa Rejected", "visa_rejected", "visa_rejected_manual"),
+    ("visa_received", "Visa Received", "visa_received", "visa_received_manual"),
     ("admitted", "Admitted", "admitted", "admitted_manual"),
+    ("enrolled", "Enrolled", "enrolled", "enrolled_manual"),
 )
 
 STEP_KEYS: tuple[str, ...] = tuple(row[0] for row in STEP_DEFINITIONS)
@@ -104,20 +113,39 @@ def _university_applied_state(student_file) -> str:
     return ST_IN_PROGRESS
 
 
-def _visa_and_admitted_states(_student_file) -> tuple[str, str, str]:
+def _visa_applied_approved_and_admitted_states(_student_file) -> tuple[str, str, str]:
+    """Placeholder until visa / admission signals are wired to domain models."""
     return (ST_UPCOMING, ST_UPCOMING, ST_UPCOMING)
 
 
 def compute_raw_progress_states(student_file) -> list[str]:
-    raw_states = [
+    """
+    One raw state per ``STEP_DEFINITIONS`` row (before linear gating).
+
+    Steps without dedicated domain rules stay ``upcoming`` until you add
+    helpers (invoices, logistics, interviews, etc.) and plug them in here.
+    """
+    head: list[str] = [
         ST_COMPLETED,
         _payment_step_state(student_file),
         _documents_under_review_state(student_file),
         _documents_verified_state(student_file),
         _university_applied_state(student_file),
     ]
-    visa_applied, visa_approved, admitted = _visa_and_admitted_states(student_file)
-    raw_states.extend([visa_applied, visa_approved, admitted])
+    middle: list[str] = [ST_UPCOMING] * 6
+    visa_applied_s, visa_approved_s, admitted_s = _visa_applied_approved_and_admitted_states(student_file)
+    tail: list[str] = [
+        visa_applied_s,
+        visa_approved_s,
+        ST_UPCOMING,
+        ST_UPCOMING,
+        admitted_s,
+        ST_UPCOMING,
+    ]
+    raw_states = head + middle + tail
+    expected = len(STEP_DEFINITIONS)
+    if len(raw_states) != expected:
+        raise RuntimeError(f"raw state count {len(raw_states)} must match STEP_DEFINITIONS ({expected}).")
     return raw_states
 
 

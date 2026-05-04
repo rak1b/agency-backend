@@ -550,9 +550,9 @@ class StudentFileViewSet(StudentPortalReadOnlyMixin, TenantHomeAgencyRowMixin, B
     @extend_schema(
         methods=["GET"],
         operation_id="student_files_application_progress_retrieve",
-        summary="Get persisted application progress (8 steps)",
+        summary="Get persisted application progress (ordered steps)",
         description=(
-            "Returns the **Application Progress** timeline for one student file: eight ordered steps "
+            "Returns the **Application Progress** timeline for one student file: ordered steps "
             "with ``state`` (`upcoming` | `in_progress` | `completed`) and ``manual`` (admin lock). "
             "Runs a **sync** from domain data (invoices, document verification, university applications) "
             "into ``StudentApplicationProgress`` before responding; steps with ``manual: true`` are not "
@@ -586,44 +586,9 @@ class StudentFileViewSet(StudentPortalReadOnlyMixin, TenantHomeAgencyRowMixin, B
                             "manual": False,
                         },
                         {
-                            "key": "documents_under_review",
-                            "label": "Documents Under Review",
-                            "order": 3,
-                            "state": "upcoming",
-                            "manual": False,
-                        },
-                        {
-                            "key": "documents_verified",
-                            "label": "Documents Verified",
-                            "order": 4,
-                            "state": "upcoming",
-                            "manual": False,
-                        },
-                        {
-                            "key": "university_applied",
-                            "label": "University Applied",
-                            "order": 5,
-                            "state": "upcoming",
-                            "manual": False,
-                        },
-                        {
-                            "key": "visa_applied",
-                            "label": "Visa Applied",
-                            "order": 6,
-                            "state": "upcoming",
-                            "manual": False,
-                        },
-                        {
-                            "key": "visa_approved",
-                            "label": "Visa Approved",
-                            "order": 7,
-                            "state": "upcoming",
-                            "manual": False,
-                        },
-                        {
-                            "key": "admitted",
-                            "label": "Admitted",
-                            "order": 8,
+                            "key": "enrolled",
+                            "label": "Enrolled",
+                            "order": 17,
                             "state": "upcoming",
                             "manual": False,
                         },
@@ -668,7 +633,7 @@ class StudentFileViewSet(StudentPortalReadOnlyMixin, TenantHomeAgencyRowMixin, B
     @action(detail=True, methods=["get", "patch"], url_path="application-progress")
     def application_progress(self, request, *args, **kwargs):
         """
-        Application tracker aligned with the student portal (8 steps).
+        Application tracker aligned with the student portal (full step list in GET).
 
         Each step has ``state``: ``completed`` | ``in_progress`` | ``upcoming``.
         Persisted on ``StudentApplicationProgress``; staff may ``PATCH`` to set

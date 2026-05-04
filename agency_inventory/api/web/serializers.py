@@ -30,6 +30,7 @@ from ...models import (
     _agency_business_pk,
 )
 from ...constants import ReviewStatusChoice
+from ...services.application_progress import STEP_KEYS
 
 
 def _ensure_agency_in_tenant_business(serializer, agency):
@@ -869,8 +870,7 @@ class ApplicationProgressStepSchemaSerializer(serializers.Serializer):
     """One row in ``GET …/application-progress/`` → ``steps``."""
 
     key = serializers.CharField(
-        help_text="Stable id: application_received, payment_verified, documents_under_review, "
-        "documents_verified, university_applied, visa_applied, visa_approved, admitted."
+        help_text="Stable step id (same keys as PATCH). Valid keys: " + ", ".join(STEP_KEYS) + "."
     )
     label = serializers.CharField(help_text="Human-readable label for UI.")
     order = serializers.IntegerField(help_text="1-based order in the pipeline.")
@@ -908,11 +908,7 @@ class ApplicationProgressPatchSchemaSerializer(serializers.Serializer):
     Include only keys you want to change. Each key must be one of the ``steps[].key`` values from GET.
     """
 
-    application_received = serializers.JSONField(required=False, help_text=_PATCH_STEP_HELP)
-    payment_verified = serializers.JSONField(required=False, help_text=_PATCH_STEP_HELP)
-    documents_under_review = serializers.JSONField(required=False, help_text=_PATCH_STEP_HELP)
-    documents_verified = serializers.JSONField(required=False, help_text=_PATCH_STEP_HELP)
-    university_applied = serializers.JSONField(required=False, help_text=_PATCH_STEP_HELP)
-    visa_applied = serializers.JSONField(required=False, help_text=_PATCH_STEP_HELP)
-    visa_approved = serializers.JSONField(required=False, help_text=_PATCH_STEP_HELP)
-    admitted = serializers.JSONField(required=False, help_text=_PATCH_STEP_HELP)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for step_key in STEP_KEYS:
+            self.fields[step_key] = serializers.JSONField(required=False, help_text=_PATCH_STEP_HELP)

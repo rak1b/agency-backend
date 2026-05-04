@@ -218,7 +218,7 @@ class StudentFile(BaseModel):
 
 class StudentApplicationProgress(BaseModel):
     """
-    Persisted 8-step application tracker for a student file.
+    Persisted multi-step application tracker for a student file (see ``STEP_DEFINITIONS``).
 
     System sync updates each step unless its matching ``*_manual`` flag is set
     (admin lock). Students read these values via the application-progress API.
@@ -279,6 +279,48 @@ class StudentApplicationProgress(BaseModel):
     )
     university_applied_manual = models.BooleanField(default=False)
 
+    dhl_sent_to_university = models.CharField(
+        max_length=20,
+        choices=ApplicationProgressStepState.choices,
+        default=ApplicationProgressStepState.UPCOMING,
+    )
+    dhl_sent_to_university_manual = models.BooleanField(default=False)
+
+    dhl_received_from_university = models.CharField(
+        max_length=20,
+        choices=ApplicationProgressStepState.choices,
+        default=ApplicationProgressStepState.UPCOMING,
+    )
+    dhl_received_from_university_manual = models.BooleanField(default=False)
+
+    interview_scheduled = models.CharField(
+        max_length=20,
+        choices=ApplicationProgressStepState.choices,
+        default=ApplicationProgressStepState.UPCOMING,
+    )
+    interview_scheduled_manual = models.BooleanField(default=False)
+
+    interview_completed = models.CharField(
+        max_length=20,
+        choices=ApplicationProgressStepState.choices,
+        default=ApplicationProgressStepState.UPCOMING,
+    )
+    interview_completed_manual = models.BooleanField(default=False)
+
+    admission_letter_received = models.CharField(
+        max_length=20,
+        choices=ApplicationProgressStepState.choices,
+        default=ApplicationProgressStepState.UPCOMING,
+    )
+    admission_letter_received_manual = models.BooleanField(default=False)
+
+    tuition_fee_paid = models.CharField(
+        max_length=20,
+        choices=ApplicationProgressStepState.choices,
+        default=ApplicationProgressStepState.UPCOMING,
+    )
+    tuition_fee_paid_manual = models.BooleanField(default=False)
+
     visa_applied = models.CharField(
         max_length=20,
         choices=ApplicationProgressStepState.choices,
@@ -293,12 +335,33 @@ class StudentApplicationProgress(BaseModel):
     )
     visa_approved_manual = models.BooleanField(default=False)
 
+    visa_rejected = models.CharField(
+        max_length=20,
+        choices=ApplicationProgressStepState.choices,
+        default=ApplicationProgressStepState.UPCOMING,
+    )
+    visa_rejected_manual = models.BooleanField(default=False)
+
+    visa_received = models.CharField(
+        max_length=20,
+        choices=ApplicationProgressStepState.choices,
+        default=ApplicationProgressStepState.UPCOMING,
+    )
+    visa_received_manual = models.BooleanField(default=False)
+
     admitted = models.CharField(
         max_length=20,
         choices=ApplicationProgressStepState.choices,
         default=ApplicationProgressStepState.UPCOMING,
     )
     admitted_manual = models.BooleanField(default=False)
+
+    enrolled = models.CharField(
+        max_length=20,
+        choices=ApplicationProgressStepState.choices,
+        default=ApplicationProgressStepState.UPCOMING,
+    )
+    enrolled_manual = models.BooleanField(default=False)
 
     class Meta:
         ordering = ["-created_at"]
