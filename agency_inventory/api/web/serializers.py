@@ -852,3 +852,59 @@ class StudentCostSerializer(serializers.ModelSerializer):
         if request and hasattr(request, "user"):
             validated_data["created_by"] = request.user
         return super().create(validated_data)
+
+
+# --- OpenAPI / drf-spectacular only (document ``application-progress`` custom action) ---
+
+
+class ApplicationProgressStepSchemaSerializer(serializers.Serializer):
+    """One row in ``GET …/application-progress/`` → ``steps``."""
+
+    key = serializers.CharField(
+        help_text="Stable id: application_received, payment_verified, documents_under_review, "
+        "documents_verified, university_applied, visa_applied, visa_approved, admitted."
+    )
+    label = serializers.CharField(help_text="Human-readable label for UI.")
+    order = serializers.IntegerField(help_text="1-based order in the pipeline.")
+    state = serializers.ChoiceField(
+        choices=["upcoming", "in_progress", "completed"],
+        help_text="Gated timeline state for this step.",
+    )
+    manual = serializers.BooleanField(
+        help_text="If true, this step was **locked** by staff; auto-sync will not overwrite it."
+    )
+
+
+class ApplicationProgressGetSchemaSerializer(serializers.Serializer):
+    """Response shape for ``GET /student-files/{slug}/application-progress/``."""
+
+    student_file_id = serializers.CharField(allow_null=True, required=False)
+    slug = serializers.CharField(help_text="Student file slug (same as detail URL).")
+    current_status = serializers.CharField(
+        help_text="Coarse ``StudentFile.current_status`` (e.g. FILE_RECEIVED, IN_PROGRESS, FILE_OPENED)."
+    )
+    current_status_label = serializers.CharField()
+    steps = ApplicationProgressStepSchemaSerializer(many=True)
+
+
+_PATCH_STEP_HELP = (
+    "Either a **state string** (`upcoming` | `in_progress` | `completed`) — locks the step for auto-sync — "
+    'or an object `{"state": "completed", "manual": true}` (`manual` defaults to true for string form).'
+)
+
+
+class ApplicationProgressPatchSchemaSerializer(serializers.Serializer):
+    """
+    **PATCH** body for ``/student-files/{slug}/application-progress/`` (staff only).
+
+    Include only keys you want to change. Each key must be one of the ``steps[].key`` values from GET.
+    """
+
+    application_received = serializers.JSONField(required=False, help_text=_PATCH_STEP_HELP)
+    payment_verified = serializers.JSONField(required=False, help_text=_PATCH_STEP_HELP)
+    documents_under_review = serializers.JSONField(required=False, help_text=_PATCH_STEP_HELP)
+    documents_verified = serializers.JSONField(required=False, help_text=_PATCH_STEP_HELP)
+    university_applied = serializers.JSONField(required=False, help_text=_PATCH_STEP_HELP)
+    visa_applied = serializers.JSONField(required=False, help_text=_PATCH_STEP_HELP)
+    visa_approved = serializers.JSONField(required=False, help_text=_PATCH_STEP_HELP)
+    admitted = serializers.JSONField(required=False, help_text=_PATCH_STEP_HELP)

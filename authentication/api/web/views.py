@@ -17,6 +17,7 @@ from authentication.models import Notification, User, Merchant, Role, Permission
 from django.utils import timezone
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.contrib.auth import authenticate
+from rest_framework import serializers
 from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.views import APIView
@@ -32,7 +33,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from Config.utils.pagination import PageNumberPagination
 
 from django.db.models import Q
-from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
+from drf_spectacular.utils import extend_schema, inline_serializer, OpenApiParameter, OpenApiExample
 from rest_framework.parsers import MultiPartParser, FormParser
 
 from django.utils.decorators import method_decorator
@@ -316,6 +317,15 @@ class WebUserLoginView(APIView):
     permission_classes = []
 
     @extend_schema(
+        summary="Web login (JWT)",
+        description=(
+            "Authenticate with **``identifier``** or **``email``** plus **``password``**. "
+            "The server resolves the account in this order: email (case-insensitive), then "
+            "``User.user_id``, then (for **STUDENT** users) ``linked_student_file.student_file_id`` "
+            "(so students can sign in with their **STF…** file id even if ``user_id`` was not synced).\n\n"
+            "Successful responses include JWT tokens, ``user_type``, ``linked_student_file`` "
+            "(when applicable), and tenant hints (`agency_details`, `business_details`)."
+        ),
         request=LoginRequestSerializer,
         responses={
             200: OpenApiTypes.OBJECT,
@@ -323,12 +333,17 @@ class WebUserLoginView(APIView):
         },
         examples=[
             OpenApiExample(
-                'Request',
+                "Request — staff email",
                 value={"email": "user@example.com", "password": "123456"},
-                request_only=True
+                request_only=True,
             ),
             OpenApiExample(
-                'Success',
+                "Request — student file id",
+                value={"identifier": "STF00012345", "password": "temporary-password"},
+                request_only=True,
+            ),
+            OpenApiExample(
+                "Success",
                 value={
                     "id": 1,
                     "profile_image": "https://cdn.example.com/u.png",
@@ -338,18 +353,30 @@ class WebUserLoginView(APIView):
                     "access_token": "<jwt>",
                     "refresh_token": "<jwt>",
                     "user_slug": "user-slug",
+                    "user_type": "STUDENT",
+                    "linked_student_file": {
+                        "id": 42,
+                        "slug": "student-file-slug",
+                        "student_file_id": "STF00012345",
+                    },
                 },
-                status_codes=['200'],
-                response_only=True
+                status_codes=["200"],
+                response_only=True,
             ),
             OpenApiExample(
-                'Invalid credentials',
+                "400 — unknown account",
+                value={"detail": "No Valid Account Found"},
+                status_codes=["400"],
+                response_only=True,
+            ),
+            OpenApiExample(
+                "400 — wrong password",
                 value={"detail": "Invalid Email or Password"},
-                status_codes=['400'],
-                response_only=True
-            )
+                status_codes=["400"],
+                response_only=True,
+            ),
         ],
-        tags=['Authentication & Authorization']
+        tags=["Authentication & Authorization"],
     )
     def post(self, request):
         context = {}
@@ -403,17 +430,37 @@ class WebLoginView(APIView):
     permission_classes = []
 
     @extend_schema(
+        summary="Web login (alternate / rate-limited)",
+        description=(
+            "Same credential rules as **``/auth/web/token/``**: send **``identifier``** or **``email``** "
+            "plus **``password``** (see ``LoginRequestSerializer`` help texts). This view is wrapped "
+            "with login attempt throttling."
+        ),
         request=LoginRequestSerializer,
         responses={
             200: OpenApiTypes.OBJECT,
             400: OpenApiTypes.OBJECT,
         },
         examples=[
-            OpenApiExample('Request', value={"email": "rakib@admin.com", "password": "Rakibrk1"}, request_only=True),
-            OpenApiExample('Success', value={"access_token": "<jwt>", "refresh_token": "<jwt>"}, status_codes=['200'], response_only=True),
-            OpenApiExample('Invalid credentials', value={"detail": "Invalid Email or Password"}, status_codes=['400'], response_only=True)
+            OpenApiExample(
+                "Request",
+                value={"identifier": "rakib@admin.com", "password": "Rakibrk1"},
+                request_only=True,
+            ),
+            OpenApiExample(
+                "Success",
+                value={"access_token": "<jwt>", "refresh_token": "<jwt>"},
+                status_codes=["200"],
+                response_only=True,
+            ),
+            OpenApiExample(
+                "Invalid credentials",
+                value={"detail": "Invalid Email or Password"},
+                status_codes=["400"],
+                response_only=True,
+            ),
         ],
-        tags=['Authentication & Authorization']
+        tags=["Authentication & Authorization"],
     )
     def post(self, request):
         context = {}
@@ -714,9 +761,23 @@ class HistoryViewSet(viewsets.ViewSet):
         ],
         responses={
             200: HistorySerializer(many=True),
-            400: {'detail': 'Model name and object ID are required.'},
-            404: {'detail': 'Object not found.'}
-        }
+            400: inline_serializer(
+                name="HistoryListBadRequest",
+                fields={
+                    "detail": serializers.CharField(
+                        help_text="e.g. missing query params or unknown model."
+                    )
+                },
+            ),
+            404: inline_serializer(
+                name="HistoryListNotFound",
+                fields={
+                    "detail": serializers.CharField(
+                        help_text="Returned when the model exists but the object id does not."
+                    )
+                },
+            ),
+        },
     )
     def list(self, request, *args, **kwargs):
         model_name = request.query_params.get('model')

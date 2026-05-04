@@ -308,9 +308,26 @@ class UserSerializer(serializers.ModelSerializer):
         return instance
 
 class LoginRequestSerializer(serializers.Serializer):
-    email = serializers.CharField(required=False, allow_blank=True)
-    identifier = serializers.CharField(required=False, allow_blank=True)
-    password = serializers.CharField()
+    """
+    Web login payload. Send **either** ``identifier`` or ``email`` (both are accepted;
+    the server uses ``identifier or email`` as the lookup string).
+    """
+
+    email = serializers.CharField(
+        required=False,
+        allow_blank=True,
+        help_text="Legacy field: same as ``identifier`` when you only send email.",
+    )
+    identifier = serializers.CharField(
+        required=False,
+        allow_blank=True,
+        help_text=(
+            "Login handle: **email** (case-insensitive), **User.user_id** (e.g. auto-set to "
+            "``student_file_id`` for portal accounts), or for **STUDENT** users the "
+            "``linked_student_file.student_file_id`` (e.g. ``STF…``) when ``user_id`` was not synced."
+        ),
+    )
+    password = serializers.CharField(help_text="Account password.")
 
 class RefreshTokenReqeustSerializer(serializers.Serializer):
     refresh_token = serializers.CharField(required=True)
