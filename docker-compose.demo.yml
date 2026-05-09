@@ -18,7 +18,6 @@
 #   DEMO_WEB_PORT=38200    (host port if 38180 is already taken)
 #   CELERY_TASK_ALWAYS_EAGER=true   (if you skip Redis for a minimal demo)
 #
-# API docs: ENABLE_API_DOCS is forced true below so /api/docs/ works even if DEBUG=false.
 # =============================================================================
 
 name: agency-backend-demo
@@ -32,9 +31,6 @@ services:
     restart: always
     env_file:
       - .env
-    environment:
-      # Without this, Config/api/base.py never mounts /api/schema/ or /api/docs/ when DEBUG=false.
-      ENABLE_API_DOCS: "true"
     # Startup: use image ENTRYPOINT only (migrate, collectstatic, gunicorn). A duplicate
     # ``command`` is ignored by entrypoint.sh but confuses operators; omit it.
     volumes:

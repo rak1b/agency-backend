@@ -1,13 +1,8 @@
-from decouple import config
-from django.conf import settings
 from django.urls import path, include
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic import RedirectView
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from django.contrib.auth.decorators import login_required
-
-# Use Django's resolved DEBUG (e.g. development.py forces True), not raw .env alone — otherwise
-# ``DEBUG=false`` in .env while running development settings still hides /api/docs/.
-ENABLE_API_DOCS = config("ENABLE_API_DOCS", default=False, cast=bool)
 
 # Secure Spectacular API view
 class ProtectedSpectacularAPIView(LoginRequiredMixin, SpectacularAPIView):
@@ -23,7 +18,14 @@ urlpatterns = [
     path('v1', include('Config.api.v1.urls'))  # Removed `namespace`, ensure it is defined in `api.v1.urls.py`
 ]
 
-if settings.DEBUG or ENABLE_API_DOCS:
-    urlpatterns.append(path('schema/', ProtectedSpectacularAPIView.as_view(), name='schema'))
-    # urlpatterns.append(path('docs/', ProtectedSpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'))
-    urlpatterns.append(path('docs/', login_required(SpectacularSwaggerView.as_view(url_name='schema')), name='swagger-ui'))
+# Always mount schema + Swagger. Both require login, so this does not expose anonymous API docs on prod.
+# (Previously gated on DEBUG / ENABLE_API_DOCS, which broke demo when env did not match runtime settings.)
+urlpatterns.append(path('schema/', ProtectedSpectacularAPIView.as_view(), name='schema'))
+urlpatterns.append(path('docs/', login_required(SpectacularSwaggerView.as_view(url_name='schema')), name='swagger-ui'))
+urlpatterns.append(
+    path(
+        'docs',
+        RedirectView.as_view(url='/api/docs/', permanent=True),
+        name='swagger-ui-no-slash',
+    ),
+)
