@@ -55,11 +55,11 @@ class CustomUserAdmin(DjangoUserAdmin):
         "is_approved",
         "created_at",
     )
-    filter_horizontal = ("groups", "role")
-    readonly_fields = ("slug", "user_id", "created_at", "updated_at", "last_login")
+    filter_horizontal = ("groups", "role", "user_permissions")
+    readonly_fields = ("id", "slug", "user_id", "created_at", "updated_at", "last_login")
 
     fieldsets = (
-        (None, {"fields": ("email", "password")}),
+        (None, {"fields": ("id", "email", "password")}),
         (
             _("Personal info"),
             {
@@ -103,6 +103,7 @@ class CustomUserAdmin(DjangoUserAdmin):
                     "is_staff",
                     "is_superuser",
                     "groups",
+                    "user_permissions",
                     "is_verified",
                     "is_approved",
                 )
