@@ -14,14 +14,19 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from Config.master_admin_site import master_admin_site
-from django.urls import path,include,re_path
+from django.urls import path, include, re_path
 from django.conf import settings
 from django.conf.urls.static import static
 from django.views.static import serve
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login, logout
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
 from django.http import HttpResponse
+from django.views.generic import RedirectView
+from drf_spectacular.views import SpectacularSwaggerView
+
+from Config.api.base import ProtectedSpectacularAPIView
 # Error Response Handlers
 from authentication import handlers
 from django.utils.translation import gettext_lazy as _
@@ -53,6 +58,25 @@ def health_check(request):
 urlpatterns = [
     path('swagger/login/', custom_login_view, name='login'),
     path('auth/secure/super-admin/', master_admin_site.urls),
+    # Register schema + Swagger *before* ``api/`` include so ``/api/docs/`` always resolves (Dokploy / Traefik).
+    path('api/schema/', ProtectedSpectacularAPIView.as_view(), name='schema'),
+    path(
+        'api/docs/',
+        login_required(SpectacularSwaggerView.as_view(url_name='schema')),
+        name='swagger-ui',
+    ),
+    path(
+        'api/docs',
+        RedirectView.as_view(url='/api/docs/', permanent=True),
+        name='swagger-ui-no-slash',
+    ),
+    # If a proxy strips the ``/api`` prefix, these paths still reach Django.
+    path(
+        'docs/',
+        login_required(SpectacularSwaggerView.as_view(url='/api/schema/')),
+        name='swagger-ui-stripped-api-prefix',
+    ),
+    path('schema/', ProtectedSpectacularAPIView.as_view()),
     path('api/', include('Config.api.base')),
     path('accounts/', include('allauth.urls')),
     path('health/', health_check),
