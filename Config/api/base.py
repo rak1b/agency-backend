@@ -1,12 +1,13 @@
 from decouple import config
+from django.conf import settings
 from django.urls import path, include
 from django.contrib.auth.mixins import LoginRequiredMixin
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from django.contrib.auth.decorators import login_required
 
-# Ensure DEBUG is correctly fetched
-DEBUG = config('DEBUG', default=False, cast=bool)
-ENABLE_API_DOCS = config('ENABLE_API_DOCS', default=False, cast=bool)
+# Use Django's resolved DEBUG (e.g. development.py forces True), not raw .env alone — otherwise
+# ``DEBUG=false`` in .env while running development settings still hides /api/docs/.
+ENABLE_API_DOCS = config("ENABLE_API_DOCS", default=False, cast=bool)
 
 # Secure Spectacular API view
 class ProtectedSpectacularAPIView(LoginRequiredMixin, SpectacularAPIView):
@@ -22,7 +23,7 @@ urlpatterns = [
     path('v1', include('Config.api.v1.urls'))  # Removed `namespace`, ensure it is defined in `api.v1.urls.py`
 ]
 
-if DEBUG or ENABLE_API_DOCS:
+if settings.DEBUG or ENABLE_API_DOCS:
     urlpatterns.append(path('schema/', ProtectedSpectacularAPIView.as_view(), name='schema'))
     # urlpatterns.append(path('docs/', ProtectedSpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'))
     urlpatterns.append(path('docs/', login_required(SpectacularSwaggerView.as_view(url_name='schema')), name='swagger-ui'))

@@ -15,6 +15,16 @@ from .db_utils import redis_url_local_fallback, resolved_tcp_host
 DEBUG = True
 ALLOWED_HOSTS = ["*", "inventory.payinpos.com"]
 
+# Demo backend hostname (Dokploy); base.py CSRF list does not include every subdomain.
+CSRF_TRUSTED_ORIGINS = list(
+    dict.fromkeys(
+        [
+            *CSRF_TRUSTED_ORIGINS,
+            "https://agency-demo-backend.devsstream.com",
+        ]
+    )
+)
+
 _db_host = config("DB_HOST", default="").strip()
 
 if _db_host:

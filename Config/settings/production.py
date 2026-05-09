@@ -4,6 +4,7 @@ from .db_utils import redis_url_local_fallback, resolved_tcp_host
 DEBUG = config('DEBUG', cast=bool)
 ALLOWED_HOSTS = [
     "agency-backend.devsstream.com",
+    "agency-demo-backend.devsstream.com",
     "agency.devsstream.com",
     ".traefik.me",
 ]
@@ -19,6 +20,7 @@ CSRF_TRUSTED_ORIGINS = [
     "https://inventory-demo-backend.devsstream.com",
     "https://ps-inventory-demo-backend.devsstream.com",
     "https://agency-backend.devsstream.com",
+    "https://agency-demo-backend.devsstream.com",
     "https://agency.devsstream.com",
 
     # Add specific Traefik origin (wildcards not supported in older Django)
