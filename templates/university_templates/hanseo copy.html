@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>2026-02-19 Application of Admission</title>
+
+  <style>
+    @page {
+      size: A4;
+      margin: 12mm 10mm 8mm 10mm;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      background: #fff;
+      color: #000;
+      font-family: "Times New Roman", Times, serif;
+    }
+
+    body {
+      width: 210mm;
+      min-height: 297mm;
+    }
+
+    .page {
+      width: 190mm;
+      min-height: 277mm;
+      margin: 0 auto;
+      padding: 0;
+      position: relative;
+      background: #fff;
+    }
+
+    .title {
+      text-align: center;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      margin: 2mm 0 13mm 0;
+    }
+
+    .form-box {
+      width: 164mm;
+      margin: 0 auto;
+      border: 2px solid #111;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+
+    td,
+    th {
+      border: 1px solid #111;
+      padding: 0;
+      vertical-align: middle;
+      overflow: hidden;
+    }
+
+    .label {
+      font-weight: 700;
+      text-align: center;
+      font-size: 10.2px;
+      line-height: 1.15;
+      padding: 1px 2px;
+    }
+
+    .sub-label {
+      font-weight: 700;
+      text-align: center;
+      font-size: 9.4px;
+      line-height: 1.1;
+      padding: 1px 2px;
+    }
+
+    .value {
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 10.5px;
+      line-height: 1.12;
+      padding: 1px 3px;
+      overflow-wrap: anywhere;
+      word-break: normal;
+    }
+
+    .center {
+      text-align: center;
+    }
+
+    .bold {
+      font-weight: 700;
+    }
+
+    .big {
+      font-size: 13.5px;
+    }
+
+    .small {
+      font-size: 8.5px;
+      line-height: 1.08;
+    }
+
+    .tiny {
+      font-size: 7.4px;
+      line-height: 1.04;
+    }
+
+    .nowrap {
+      white-space: nowrap;
+    }
+
+    .personal-table td {
+      height: 7.8mm;
+    }
+
+    .photo-cell {
+      height: 38mm;
+      padding: 0;
+      text-align: center;
+      vertical-align: top;
+    }
+
+    .photo-empty {
+      width: 100%;
+      height: 100%;
+    }
+
+    .nested {
+      width: 100%;
+      height: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+
+    .nested td {
+      border-top: 0;
+      border-bottom: 0;
+      height: 100%;
+    }
+
+    .nested td:first-child {
+      border-left: 0;
+    }
+
+    .nested td:last-child {
+      border-right: 0;
+    }
+
+    .stack-table td {
+      height: 7.8mm;
+    }
+
+    .section-title {
+      height: 8.6mm;
+      line-height: 8.6mm;
+      text-align: center;
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: 5px;
+      border-top: 1px solid #111;
+      border-bottom: 1px solid #111;
+    }
+
+    .academic th,
+    .academic td,
+    .family th,
+    .family td {
+      text-align: center;
+      padding: 1px 2px;
+      font-size: 9.4px;
+      line-height: 1.08;
+      overflow-wrap: anywhere;
+    }
+
+    .academic th {
+      height: 10mm;
+      font-weight: 700;
+    }
+
+    .academic td {
+      height: 7.6mm;
+    }
+
+    .family th {
+      height: 10mm;
+      font-weight: 700;
+    }
+
+    .family td {
+      height: 7.3mm;
+    }
+
+    .family .empty-row td {
+      height: 12mm;
+    }
+
+    .statement {
+      position: relative;
+      height: 69mm;
+      border-top: 1px solid #111;
+      border-bottom: 1px solid #111;
+    }
+
+    .statement-text {
+      position: absolute;
+      top: 12mm;
+      left: 0;
+      right: 0;
+      text-align: center;
+      font-size: 13.5px;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    .seal-empty {
+      position: absolute;
+      left: 13mm;
+      top: 31mm;
+      width: 25mm;
+      height: 25mm;
+    }
+
+    .date {
+      position: absolute;
+      top: 42mm;
+      left: 0;
+      right: 0;
+      text-align: center;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .signature-wrap {
+      position: absolute;
+      top: 54mm;
+      left: 72mm;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .signature-label {
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .signature-empty {
+      width: 32mm;
+      height: 9mm;
+    }
+
+    .footer {
+      height: 31mm;
+      text-align: center;
+      font-family: Arial, Helvetica, sans-serif;
+      padding-top: 10mm;
+    }
+
+    .footer .line-one {
+      font-size: 13.5px;
+      font-weight: 700;
+      margin-bottom: 7mm;
+    }
+
+    .footer .line-two {
+      font-size: 17px;
+      font-weight: 700;
+    }
+
+    .page-no {
+      text-align: center;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 10px;
+      margin-top: 3mm;
+    }
+
+    .no-left {
+      border-left: 0 !important;
+    }
+
+    .no-right {
+      border-right: 0 !important;
+    }
+
+    .no-top {
+      border-top: 0 !important;
+    }
+
+    .no-bottom {
+      border-bottom: 0 !important;
+    }
+
+    .no-pad {
+      padding: 0 !important;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <div class="title">2026-02-19 Application of Admission</div>
+
+    <div class="form-box">
+
+      <table class="personal-table">
+        <colgroup>
+          <col style="width: 17%;">
+          <col style="width: 14%;">
+          <col style="width: 44%;">
+          <col style="width: 13%;">
+          <col style="width: 12%;">
+        </colgroup>
+
+        <tr>
+          <td rowspan="2" class="label">Full Name</td>
+          <td class="sub-label">Surname</td>
+          <td class="value center bold big">SHAHRIAR</td>
+          <td rowspan="4" colspan="2" class="photo-cell">
+            <div class="photo-empty"></div>
+          </td>
+        </tr>
+
+        <tr>
+          <td class="sub-label">Given name</td>
+          <td class="value center bold big">MAHIR</td>
+        </tr>
+
+        <tr>
+          <td class="label">Date of Birth</td>
+          <td class="value center bold big">2004 DEC<br>15</td>
+          <td class="no-pad">
+            <table class="nested">
+              <tr>
+                <td class="label" style="width: 26%;">Sex</td>
+                <td class="value center bold big">MALE</td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <tr>
+          <td class="label">Nationality</td>
+          <td class="value center bold big">BANGLADESHI</td>
+          <td class="no-pad">
+            <table class="nested">
+              <tr>
+                <td class="label nowrap" style="width: 38%;">Place of Birth</td>
+                <td class="value center bold big">TANGAIL</td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <tr>
+          <td class="label">Present Address</td>
+          <td colspan="2" class="value small">
+            Kamar Nowga , Gurguriata, Delduar , Armoista -1910 , Tangail
+          </td>
+          <td class="label">Mobile</td>
+          <td class="value center tiny nowrap">+880&nbsp;&nbsp;1810402349</td>
+        </tr>
+
+        <tr>
+          <td class="label">Permanent<br>Address</td>
+          <td colspan="2" class="value small">
+            Kamar Nowga , Gurguriata, Delduar , Armoista -1910 , Tangail
+          </td>
+
+          <td class="no-pad">
+            <table class="stack-table">
+              <tr>
+                <td class="label no-left no-right no-top">Phone</td>
+              </tr>
+              <tr>
+                <td class="label no-left no-right no-bottom">E-mail</td>
+              </tr>
+            </table>
+          </td>
+
+          <td class="no-pad">
+            <table class="stack-table">
+              <tr>
+                <td class="value center tiny no-left no-right no-top nowrap">
+                  +880&nbsp;&nbsp;1810402349
+                </td>
+              </tr>
+              <tr>
+                <td class="value center tiny no-left no-right no-bottom">
+                  sharifahamed7739@gmail.com
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+
+      <div class="section-title">Academic Background</div>
+
+      <table class="academic">
+        <colgroup>
+          <col style="width: 17%;">
+          <col style="width: 18%;">
+          <col style="width: 14%;">
+          <col style="width: 19%;">
+          <col style="width: 14%;">
+          <col style="width: 18%;">
+        </colgroup>
+
+        <tr>
+          <th>Degree</th>
+          <th>Name of<br>Institution</th>
+          <th>Study Period</th>
+          <th>Result</th>
+          <th>Date of<br>Graduation</th>
+          <th>Phone(Institution)</th>
+        </tr>
+
+        <tr>
+          <td class="label">Elementary School</td>
+          <td class="value small">Bathuli High School</td>
+          <td class="value">2019-2021</td>
+          <td class="value">GPA: 3.39</td>
+          <td class="value">2021-12-30</td>
+          <td class="value small nowrap">+88 01961163336</td>
+        </tr>
+
+        <tr>
+          <td class="label">College</td>
+          <td class="value small">Vibekananda High<br>School and college</td>
+          <td class="value">2021-2023</td>
+          <td class="value">GPA: 4.08</td>
+          <td class="value">2023-11-26</td>
+          <td class="value small nowrap">+88 01309114679</td>
+        </tr>
+
+        <tr>
+          <td class="label">University</td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+        </tr>
+      </table>
+
+      <div class="section-title">Family Particulars</div>
+
+      <table class="family">
+        <colgroup>
+          <col style="width: 15%;">
+          <col style="width: 23%;">
+          <col style="width: 11%;">
+          <col style="width: 13%;">
+          <col style="width: 16%;">
+          <col style="width: 11%;">
+          <col style="width: 11%;">
+        </colgroup>
+
+        <tr>
+          <th>Relation</th>
+          <th>Name</th>
+          <th>Date of<br>birth</th>
+          <th>Occupation</th>
+          <th>Monthly Income</th>
+          <th>Name of<br>Work Place</th>
+          <th>Phone<br>(workplace)</th>
+        </tr>
+
+        <tr>
+          <td class="value center bold">FATHER</td>
+          <td class="value center bold">AZHARUL ISLAM</td>
+          <td class="value center small nowrap">1975-02-01</td>
+          <td class="value center small">HOME-MAKER</td>
+          <td class="value center">00.00</td>
+          <td class="value center tiny">&nbsp;</td>
+          <td class="value center tiny">&nbsp;</td>
+        </tr>
+
+        <tr>
+          <td class="value center bold">MOTHER</td>
+          <td class="value center bold">MITHE AKTER</td>
+          <td class="value center small nowrap">1983-11-11</td>
+          <td class="value center small">BUSINESS</td>
+          <td class="value center">19500$</td>
+          <td class="value center tiny">Kaji Fashion<br>&amp; Boutique</td>
+          <td class="value center tiny">+880<br>1810402349</td>
+        </tr>
+
+        <tr class="empty-row">
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+        </tr>
+
+        <tr class="empty-row">
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+          <td>&nbsp;</td>
+        </tr>
+      </table>
+
+      <div class="statement">
+        <div class="statement-text">
+          I am applying for admission at the institute of Language and Culture Education.
+        </div>
+
+        <div class="seal-empty"></div>
+
+        <div class="date">2026/02/19</div>
+
+        <div class="signature-wrap">
+          <span class="signature-label">Signature</span>
+          <span class="signature-empty"></span>
+        </div>
+      </div>
+
+      <div class="footer">
+        <div class="line-one">
+          To the Director of Institute of Language and Culture Education
+        </div>
+        <div class="line-two">
+          Hanseo University
+        </div>
+      </div>
+    </div>
+
+    <div class="page-no">- 1 -</div>
+  </div>
+</body>
+</html>

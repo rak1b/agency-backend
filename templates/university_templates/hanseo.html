@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Hanseo University Documents</title>
+  <style>
+    /* One inner width for every sheet so PDF pages look aligned (WeasyPrint / print). */
+    :root {
+      --doc-inner-width: 170mm;
+    }
+
+    @page {
+      size: A4;
+      /* Wider side margins so tables do not hug the physical page edge in PDF */
+      margin: 10mm 14mm 9mm 14mm;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #fff;
+      color: #000;
+      font-family: "Times New Roman", Times, serif;
+    }
+
+    body {
+      width: 100%;
+      max-width: 182mm;
+      margin: 0 auto;
+    }
+
+    .page {
+      width: 100%;
+      max-width: 182mm;
+      min-height: 0;
+      margin: 0 auto;
+      position: relative;
+      overflow: visible;
+      /* Reserve a stable strip for the page number on every sheet */
+      padding-bottom: 9mm;
+      page-break-after: auto;
+      break-after: auto;
+      box-sizing: border-box;
+    }
+
+    /*
+      Put breaks *between* sheets only. ``page-break-after: always`` on the last block
+      often creates an extra empty PDF page at the end (WeasyPrint / paged CSS).
+    */
+    .page + .page {
+      break-before: page;
+      page-break-before: always;
+    }
+
+    .page-no {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      text-align: center;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 10px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+
+    td, th {
+      border: 1px solid #111;
+      padding: 3px 6px;
+      vertical-align: middle;
+      overflow-wrap: break-word;
+      word-break: normal;
+    }
+
+    .center { text-align: center; }
+    .right { text-align: right; }
+    .bold { font-weight: 700; }
+    .small { font-size: 9px; line-height: 1.12; }
+    .tiny { font-size: 8px; line-height: 1.08; }
+    .xs { font-size: 7px; line-height: 1.06; }
+    .no-border { border: 0 !important; }
+    .no-pad { padding: 0 !important; }
+    .nowrap { white-space: nowrap; }
+
+    .line-field {
+      display: inline-block;
+      border-bottom: 1px solid #000;
+      min-height: 14px;
+      line-height: 14px;
+      vertical-align: bottom;
+    }
+
+    .blank-box {
+      border: 0;
+      background: transparent;
+    }
+
+    /* ---------------- PAGE 1 ---------------- */
+    .p1-title {
+      text-align: center;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      margin: 2mm 0 6mm;
+    }
+
+    .p1-box {
+      width: 100%;
+      max-width: var(--doc-inner-width);
+      margin: 0 auto;
+      border: 2px solid #111;
+    }
+
+    /* Row height chosen so 5 rows = 45mm, matching Korean visa photo height beside the image cell */
+    .p1-personal td {
+      height: 9mm;
+      padding: 2px 6px;
+    }
+
+    /* Narrow contact columns: allow long phones / emails to wrap instead of clipping */
+    .p1-contact-value {
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 8.5px;
+      line-height: 1.15;
+      text-align: center;
+      white-space: normal;
+      word-break: break-all;
+      hyphens: none;
+    }
+
+    .p1-label {
+      text-align: center;
+      font-weight: 700;
+      font-size: 10px;
+      line-height: 1.12;
+    }
+
+    .p1-sub-label {
+      text-align: center;
+      font-weight: 700;
+      font-size: 9px;
+      line-height: 1.08;
+    }
+
+    .p1-value {
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 10px;
+      line-height: 1.1;
+    }
+
+    .p1-big {
+      font-size: 13px;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    /* One line in the narrow DOB cell (PDF engines may still wrap plain spaces) */
+    .p1-value.p1-dob {
+      font-size: 10px;
+      white-space: nowrap;
+      letter-spacing: 0;
+    }
+
+    /* Korean visa height 45mm; photo cell narrowed so image can span full width (less side gap) */
+    .p1-photo {
+      height: 45mm;
+      min-height: 45mm;
+      padding: 0 !important;
+      vertical-align: middle;
+      text-align: center;
+    }
+
+    .p1-photo img {
+      display: block;
+      width: 100%;
+      height: 45mm;
+      margin: 0;
+      object-fit: cover;
+      object-position: center 22%;
+    }
+
+    .p1-section-title {
+      height: 8.5mm;
+      line-height: 8.5mm;
+      text-align: center;
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 4px;
+      border-top: 1px solid #111;
+      border-bottom: 1px solid #111;
+    }
+
+    .p1-academic th,
+    .p1-family th {
+      font-size: 9px;
+      font-weight: 700;
+      text-align: center;
+      line-height: 1.08;
+      padding: 2px;
+    }
+
+    .p1-academic td,
+    .p1-family td {
+      font-size: 9px;
+      text-align: center;
+      line-height: 1.12;
+      padding: 2px 4px;
+      font-family: Arial, Helvetica, sans-serif;
+      white-space: normal;
+      word-break: break-word;
+    }
+
+    .p1-academic th { height: 10mm; }
+    .p1-academic td { height: 7.5mm; }
+    .p1-family th { height: 10mm; }
+    .p1-family td { height: 7.3mm; }
+    .p1-family .empty-row td { height: 8mm; }
+
+    .p1-statement {
+      position: relative;
+      height: 56mm;
+      border-top: 1px solid #111;
+      border-bottom: 1px solid #111;
+    }
+
+    .p1-statement-text {
+      position: absolute;
+      top: 7mm;
+      left: 0;
+      right: 0;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .p1-seal-space {
+      position: absolute;
+      left: 10mm;
+      top: 23mm;
+      width: 28mm;
+      height: 24mm;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .p1-seal-space img {
+      width: 22mm;
+      height: 22mm;
+      object-fit: contain;
+    }
+
+    .p1-date {
+      position: absolute;
+      top: 33mm;
+      left: 0;
+      right: 0;
+      text-align: center;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .p1-sign-row {
+      position: absolute;
+      top: 40mm;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+    }
+
+    /* Label above rule; image centered on the rule (avoids sideways drift) */
+    .p1-sign-cluster {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .p1-sign-label {
+      font-size: 11px;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .p1-sign-wrap {
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      width: 52mm;
+      min-height: 11mm;
+      border-bottom: 1px solid #000;
+      padding: 0 3mm 1px;
+      box-sizing: border-box;
+    }
+
+    .p1-sign-wrap img {
+      display: block;
+      margin: 0 auto;
+      max-height: 10mm;
+      width: auto;
+      max-width: 48mm;
+      object-fit: contain;
+      object-position: center bottom;
+    }
+
+    .p1-footer {
+      min-height: 20mm;
+      text-align: center;
+      font-family: Arial, Helvetica, sans-serif;
+      padding: 4mm 2mm 2mm;
+    }
+
+    .p1-footer-1 {
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 3mm;
+    }
+
+    .p1-footer-2 {
+      font-size: 17px;
+      font-weight: 700;
+    }
+
+    /* ---------------- PAGE 2 ---------------- */
+    .p2-title {
+      text-align: center;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      margin-top: 6mm;
+      margin-bottom: 5mm;
+    }
+
+    .p2-wrap {
+      width: 100%;
+      max-width: var(--doc-inner-width);
+      margin: 0 auto;
+      border: 2px solid #111;
+      padding: 3mm 3mm 4mm;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    .p2-intro {
+      font-size: 8.2px;
+      line-height: 1.25;
+      margin-bottom: 3mm;
+    }
+
+    .p2-table th,
+    .p2-table td {
+      font-size: 8px;
+      line-height: 1.15;
+      text-align: center;
+      padding: 2px 3px;
+    }
+
+    .p2-agree {
+      font-size: 8px;
+      font-weight: 700;
+      text-align: center;
+      border-left: 1px solid #111;
+      border-right: 1px solid #111;
+      border-bottom: 1px solid #111;
+      padding: 2px 4px;
+    }
+
+    .p2-note {
+      font-size: 7.7px;
+      line-height: 1.18;
+      border-left: 1px solid #111;
+      border-right: 1px solid #111;
+      border-bottom: 1px solid #111;
+      padding: 2px 4px;
+      margin-bottom: 1.5mm;
+    }
+
+    .p2-label-line {
+      font-size: 8px;
+      line-height: 1.2;
+      margin: 1mm 0 1mm;
+    }
+
+    .p2-bottom {
+      font-size: 8px;
+      line-height: 1.18;
+      margin-top: 2mm;
+    }
+
+    .p2-bullets {
+      font-size: 8px;
+      line-height: 1.18;
+      margin-top: 1mm;
+    }
+
+    .p2-bullets div {
+      margin-bottom: 0.8mm;
+      text-indent: -1.5mm;
+      padding-left: 1.5mm;
+    }
+
+    .p2-date-row {
+      text-align: right;
+      font-size: 8px;
+      margin-top: 2.5mm;
+      padding-right: 6mm;
+    }
+
+    .p2-applicant {
+      text-align: right;
+      font-size: 8px;
+      margin-top: 2mm;
+      padding-right: 6mm;
+      line-height: 1.7;
+    }
+
+    .p2-sign-inline {
+      display: inline-block;
+      vertical-align: middle;
+      margin-left: 2mm;
+      border-bottom: 1px solid #111;
+      padding: 0 1mm 1px;
+    }
+
+    .p2-sign-inline img {
+      display: block;
+      max-height: 9mm;
+      width: auto;
+      max-width: 38mm;
+      object-fit: contain;
+    }
+
+    .p2-president {
+      text-align: center;
+      font-size: 13px;
+      font-weight: 700;
+      margin-top: 14mm;
+      margin-bottom: 2mm;
+    }
+
+    /* ---------------- PAGE 3 ---------------- */
+    .p3-top-right {
+      width: 90mm;
+      margin-left: auto;
+      margin-top: 3mm;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 7.5px;
+      line-height: 1.18;
+      text-align: right;
+      font-weight: 700;
+    }
+
+    .p3-main-title {
+      text-align: center;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      margin-top: 5mm;
+    }
+
+    .p3-sub-title {
+      text-align: center;
+      font-size: 10px;
+      font-weight: 700;
+      margin-top: 1mm;
+      margin-bottom: 10mm;
+    }
+
+    .p3-body {
+      width: 100%;
+      max-width: var(--doc-inner-width);
+      margin: 0 auto;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 8px;
+      line-height: 1.22;
+      font-weight: 700;
+    }
+
+    .p3-to {
+      font-size: 9px;
+      margin-bottom: 1mm;
+    }
+
+    .p3-line {
+      font-size: 8px;
+      margin-bottom: 7mm;
+    }
+
+    .p3-paragraph {
+      font-size: 8px;
+      line-height: 1.22;
+      margin-bottom: 6mm;
+    }
+
+    .p3-box {
+      border: 1px solid #111;
+      margin-bottom: 4mm;
+    }
+
+    .p3-box table td {
+      font-size: 7.6px;
+      line-height: 1.2;
+      padding: 3px 5px;
+      border-left: 0;
+      border-right: 0;
+    }
+
+    .p3-spacer-row {
+      height: 10mm;
+    }
+
+    .p3-field-block {
+      display: flex;
+      align-items: flex-end;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .p3-label2 {
+      font-size: 7.8px;
+      margin-bottom: 1px;
+    }
+
+    .p3-u {
+      display: inline-block;
+      border-bottom: 1px solid #000;
+      min-width: 28mm;
+      height: 11px;
+      line-height: 11px;
+      text-align: center;
+      font-size: 7.8px;
+    }
+
+    .p3-u-sm { min-width: 16mm; }
+    .p3-u-md { min-width: 26mm; }
+    .p3-u-lg { min-width: 44mm; }
+
+    .p3-sign-slot {
+      display: inline-block;
+      vertical-align: bottom;
+      min-width: 34mm;
+      min-height: 12mm;
+      margin-left: 3mm;
+      border-bottom: 1px solid #000;
+      text-align: center;
+      padding: 0 2mm 1px;
+    }
+
+    .p3-sign-slot img {
+      max-height: 10mm;
+      width: auto;
+      max-width: 40mm;
+      object-fit: contain;
+      vertical-align: bottom;
+    }
+
+    .p3-bottom-info {
+      width: 100%;
+      max-width: var(--doc-inner-width);
+      margin: 0 auto;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 8px;
+      font-weight: 700;
+      line-height: 2.1;
+    }
+
+    /* ---------------- PAGE 4 ---------------- */
+    .p4-title-ko {
+      text-align: center;
+      font-size: 12px;
+      font-weight: 700;
+      margin-top: 4mm;
+    }
+
+    .p4-title-en {
+      text-align: center;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      margin-top: 1mm;
+      margin-bottom: 10mm;
+    }
+
+    .p4-body {
+      width: 100%;
+      max-width: var(--doc-inner-width);
+      margin: 0 auto;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 8px;
+      line-height: 1.2;
+    }
+
+    .p4-section-label {
+      font-size: 8px;
+      font-weight: 700;
+      margin: 3mm 0 1.5mm;
+    }
+
+    .p4-table th,
+    .p4-table td {
+      font-size: 7.6px;
+      line-height: 1.16;
+      text-align: center;
+      padding: 3px 3px;
+    }
+
+    .p4-head {
+      background: #f6fbff;
+      font-weight: 700;
+    }
+
+    .p4-doc-box {
+      border: 1px solid #111;
+      height: 30mm;
+      padding: 4px;
+      font-size: 8px;
+      margin-top: 1mm;
+    }
+
+    .p4-cert {
+      text-align: center;
+      margin-top: 9mm;
+      font-size: 8px;
+      line-height: 1.3;
+      font-weight: 700;
+    }
+
+    .p4-date {
+      text-align: center;
+      margin-top: 4mm;
+      font-size: 8px;
+      font-weight: 700;
+    }
+
+    .p4-sign {
+      text-align: center;
+      margin-top: 2mm;
+      font-size: 8px;
+      font-weight: 700;
+    }
+
+    .p4-sign-img-wrap {
+      display: inline-flex;
+      align-items: flex-end;
+      justify-content: center;
+      min-width: 36mm;
+      min-height: 11mm;
+      border-bottom: 1px solid #000;
+      padding: 0 2mm 1px;
+      vertical-align: bottom;
+    }
+
+    .p4-sign-img-wrap img {
+      max-height: 10mm;
+      width: auto;
+      max-width: 42mm;
+      object-fit: contain;
+    }
+
+    .p4-minister-ko {
+      text-align: center;
+      margin-top: 11mm;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .p4-minister-en {
+      text-align: center;
+      margin-top: 1mm;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 9px;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ================= PAGE 1 ================= -->
+  <div class="page">
+    <div class="p1-title">2026-02-19 Application of Admission</div>
+
+    <div class="p1-box">
+      <table class="p1-personal">
+        <colgroup>
+          <col style="width:16%;">
+          <col style="width:14%;">
+          <col style="width:49%;">
+          <col style="width:9%;">
+          <col style="width:12%;">
+        </colgroup>
+
+        <tr>
+          <td rowspan="2" class="p1-label">Full Name</td>
+          <td class="p1-sub-label">Surname</td>
+          <td class="p1-value p1-big">SHAHRIAR</td>
+          <td rowspan="5" colspan="2" class="p1-photo">
+            {% if hanseo_passport_uri %}<img src="{{ hanseo_passport_uri }}" alt="" />{% endif %}
+          </td>
+        </tr>
+        <tr>
+          <td class="p1-sub-label">Given name</td>
+          <td class="p1-value p1-big">MAHIR</td>
+        </tr>
+        <tr>
+          <td class="p1-label">Date of Birth</td>
+          <td class="p1-value p1-big p1-dob">2004&nbsp;DEC&nbsp;15</td>
+          <td class="no-pad">
+            <table>
+              <tr>
+                <td style="width:26%; border-left:0; border-top:0; border-bottom:0;" class="p1-label">Sex</td>
+                <td style="border-right:0; border-top:0; border-bottom:0;" class="p1-value p1-big">MALE</td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td class="p1-label">Nationality</td>
+          <td colspan="2" class="p1-value p1-big center">BANGLADESHI</td>
+        </tr>
+        <tr>
+          <td class="p1-label">Place of Birth</td>
+          <td colspan="2" class="p1-value p1-big center">TANGAIL</td>
+        </tr>
+        <tr>
+          <td class="p1-label">Present Address</td>
+          <td colspan="2" class="p1-value small">Kamar Nowga , Gurguriata, Delduar , Armoista -1910 , Tangail</td>
+          <td class="p1-label">Mobile</td>
+          <td class="p1-contact-value">+880 1810402349</td>
+        </tr>
+        <tr>
+          <td class="p1-label">Permanent<br>Address</td>
+          <td colspan="2" class="p1-value small">Kamar Nowga , Gurguriata, Delduar , Armoista -1910 , Tangail</td>
+          <td class="no-pad">
+            <table>
+              <tr><td class="p1-label" style="border-left:0;border-right:0;border-top:0;">Phone</td></tr>
+              <tr><td class="p1-label" style="border-left:0;border-right:0;border-bottom:0;">E-mail</td></tr>
+            </table>
+          </td>
+          <td class="no-pad">
+            <table>
+              <tr><td class="p1-contact-value" style="border-left:0;border-right:0;border-top:0;">+880 1810402349</td></tr>
+              <tr><td class="p1-contact-value" style="border-left:0;border-right:0;border-bottom:0;">sharifahamed7739@gmail.com</td></tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+
+      <div class="p1-section-title">Academic Background</div>
+
+      <table class="p1-academic">
+        <colgroup>
+          <col style="width:17%;">
+          <col style="width:18%;">
+          <col style="width:14%;">
+          <col style="width:19%;">
+          <col style="width:14%;">
+          <col style="width:18%;">
+        </colgroup>
+        <tr>
+          <th>Degree</th>
+          <th>Name of<br>Institution</th>
+          <th>Study Period</th>
+          <th>Result</th>
+          <th>Date of<br>Graduation</th>
+          <th>Phone(Institution)</th>
+        </tr>
+        <tr>
+          <td class="bold">Elementary School</td>
+          <td>Bathuli High School</td>
+          <td>2019-2021</td>
+          <td>GPA: 3.39</td>
+          <td>2021-12-30</td>
+          <td>+88 01961163336</td>
+        </tr>
+        <tr>
+          <td class="bold">College</td>
+          <td>Vibekananda High<br>School and college</td>
+          <td>2021-2023</td>
+          <td>GPA: 4.08</td>
+          <td>2023-11-26</td>
+          <td>+88 01309114679</td>
+        </tr>
+        <tr>
+          <td class="bold">University</td>
+          <td></td><td></td><td></td><td></td><td></td>
+        </tr>
+      </table>
+
+      <div class="p1-section-title">Family Particulars</div>
+
+      <table class="p1-family">
+        <colgroup>
+          <col style="width:14%;">
+          <col style="width:20%;">
+          <col style="width:11%;">
+          <col style="width:13%;">
+          <col style="width:15%;">
+          <col style="width:14%;">
+          <col style="width:13%;">
+        </colgroup>
+        <tr>
+          <th>Relation</th>
+          <th>Name</th>
+          <th>Date of<br>birth</th>
+          <th>Occupation</th>
+          <th>Monthly Income</th>
+          <th>Name of<br>Work Place</th>
+          <th>Phone<br>(workplace)</th>
+        </tr>
+        <tr>
+          <td class="bold">FATHER</td>
+          <td class="bold">AZHARUL ISLAM</td>
+          <td class="nowrap">1975-02-01</td>
+          <td>HOME-MAKER</td>
+          <td>00.00</td>
+          <td></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td class="bold">MOTHER</td>
+          <td class="bold">MITHE AKTER</td>
+          <td class="nowrap">1983-11-11</td>
+          <td>BUSINESS</td>
+          <td>19500$</td>
+          <td>Kaji Fashion &amp; Boutique</td>
+          <td class="p1-contact-value">+880 1810402349</td>
+        </tr>
+        <tr class="empty-row"><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+        <tr class="empty-row"><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      </table>
+
+      <div class="p1-statement">
+        <div class="p1-statement-text">
+          I am applying for admission at the institute of Language and Culture Education.
+        </div>
+        <div class="p1-seal-space">
+          {% if hanseo_logo_uri %}<img src="{{ hanseo_logo_uri }}" alt="Hanseo University" />{% endif %}
+        </div>
+        <div class="p1-date">2026/02/19</div>
+        <div class="p1-sign-row">
+          <div class="p1-sign-cluster">
+            <span class="p1-sign-label">Signature</span>
+            <span class="p1-sign-wrap">
+              {% if hanseo_sign_uri %}<img src="{{ hanseo_sign_uri }}" alt="" />{% endif %}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="p1-footer">
+        <div class="p1-footer-1">To the Director of Institute of Language and Culture Education</div>
+        <div class="p1-footer-2">Hanseo University</div>
+      </div>
+    </div>
+
+    <div class="page-no">- 1 -</div>
+  </div>
+
+  <!-- ================= PAGE 2 (Official Agreement) ================= -->
+  <div class="page">
+    <div class="p3-top-right">
+      External Affairs, Hanseo University<br>
+      46, Hanseo 1-ro, Haemi-myeon, Seosan-si, Chungcheongnam-do, Republic of Korea 31962<br>
+      Tel: 82-41-660-1154 / Fax: 82-41-660-1159<br>
+      Web: www.graduate.hanseo.ac.kr
+    </div>
+
+    <div class="p3-main-title">Official Agreement for Enrollment and Academic Credits</div>
+    <div class="p3-sub-title">(학력조회 동의서)</div>
+
+    <div class="p3-body">
+      <div class="p3-to">To whom it may concern:</div>
+      <div class="p3-line">
+        I attended (&nbsp;&nbsp; Vibekananda High School and college &nbsp;&nbsp;) from (&nbsp;&nbsp; 2021 &nbsp;&nbsp;) to (&nbsp;&nbsp; 2023 &nbsp;&nbsp;).
+      </div>
+
+      <div class="p3-paragraph">
+        I have applied to Hanseo University, I agreed to allow Hanseo University to officially request my academic records
+        from previously attended schools. In this regard, I would like to request your full assistance to Hanseo University
+        when they contact you regarding verification of transcripts.
+      </div>
+
+      <div class="p3-box">
+        <table>
+          <tr><td class="p3-spacer-row"></td></tr>
+          <tr>
+            <td>
+              <div class="p3-label2">Date of birth:</div>
+              *<span class="p3-u p3-u-md">2004</span>
+              &nbsp;-&nbsp;<span class="p3-u p3-u-sm">12</span>
+              &nbsp;-&nbsp;<span class="p3-u p3-u-sm">15</span>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="p3-label2">Date of admission (transfer from another school):</div>
+              *<span class="p3-u p3-u-md">2021</span>
+              &nbsp;-&nbsp;<span class="p3-u p3-u-sm">11</span>
+              &nbsp;-&nbsp;<span class="p3-u p3-u-sm">12</span>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="p3-label2">Date of graduation (transfer to another school):</div>
+              *<span class="p3-u p3-u-md">2023</span>
+              &nbsp;-&nbsp;<span class="p3-u p3-u-sm">10</span>
+              &nbsp;-&nbsp;<span class="p3-u p3-u-sm">18</span>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="p3-label2">Name and Signature</div>
+              *<span class="p3-u p3-u-lg">SHAHRIAR MAHIR</span>
+              <span class="p3-sign-slot">{% if hanseo_sign_uri %}<img src="{{ hanseo_sign_uri }}" alt="" />{% endif %}</span>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="p3-label2">Date</div>
+              *<span class="p3-u p3-u-md">2026</span>
+              &nbsp;-&nbsp;<span class="p3-u p3-u-sm">02</span>
+              &nbsp;-&nbsp;<span class="p3-u p3-u-sm">19</span>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="p3-bottom-info">
+      The highest level of education ZIP/postal code: 1910<br>
+      The highest level of education Address: TANGAIL, BANGLADESH<br>
+      The highest level of education Fax Number:<br>
+      The highest level of education Website URL:
+    </div>
+
+    <div class="page-no">- 2 -</div>
+  </div>
+
+  <!-- ================= PAGE 3 (Verification of Translation) ================= -->
+  <div class="page">
+    <div class="p4-title-ko">번역자 확인서</div>
+    <div class="p4-title-en">Verification of Translation</div>
+
+    <div class="p4-body">
+      <div class="p4-section-label">번역자 인적 사항 (Information of the Translator)</div>
+      <table class="p4-table">
+        <colgroup>
+          <col style="width:18%;">
+          <col style="width:31%;">
+          <col style="width:20%;">
+          <col style="width:31%;">
+        </colgroup>
+        <tr class="p4-head">
+          <th>국 적<br>(Nationality)</th>
+          <th>성 명<br>(Name)</th>
+          <th>생년월일<br>(Date of Birth)</th>
+          <th>성별<br>(Gender)</th>
+        </tr>
+        <tr>
+          <td>BANGLADESHI</td>
+          <td>MD. HASIBUR RAHMAN BHUIYAN</td>
+          <td>년&nbsp;&nbsp;월&nbsp;&nbsp;일<br>(1999 08-05)</td>
+          <td>남(✓) / 여( )<br>(Male)&nbsp;&nbsp;&nbsp;&nbsp;(Female)</td>
+        </tr>
+        <tr class="p4-head">
+          <th>주 소<br>(Address)</th>
+          <td colspan="1" rowspan="2" style="text-align:left;padding-left:6px;">
+            Room 4A, Level-4, Kazi Tower, A-57/1, Kuril,<br>
+            Pragati Swarani, Bhatara, Dhaka-1229
+          </td>
+          <th colspan="2">연락처<br>(Contact Information)</th>
+        </tr>
+        <tr>
+          <td class="p4-head"></td>
+          <td>(Home phone)</td>
+          <td>(Mobile)</td>
+        </tr>
+      </table>
+
+      <div class="p4-section-label">번역문 원본의 명의인 인적 사항 (Information of the Owner of Original Documents)</div>
+      <table class="p4-table">
+        <colgroup>
+          <col style="width:20%;">
+          <col style="width:30%;">
+          <col style="width:21%;">
+          <col style="width:29%;">
+        </colgroup>
+        <tr class="p4-head">
+          <th>국 적<br>(Nationality)</th>
+          <th>성 명<br>(Name)</th>
+          <th>생년월일<br>(Date of Birth)</th>
+          <th>성별<br>(Gender)</th>
+        </tr>
+        <tr>
+          <td>BANGLADESHI</td>
+          <td>SHAHRIAR MAHIR</td>
+          <td>년&nbsp;&nbsp;월&nbsp;&nbsp;일<br>(2004-12-15)</td>
+          <td>남(✓) / 여( )<br>(Male)&nbsp;&nbsp;&nbsp;&nbsp;(Female)</td>
+        </tr>
+      </table>
+
+      <div class="p4-section-label">번역대상물 (Translated Documents)</div>
+      <div class="p4-doc-box">APPLICANT NID, PARENTS NID</div>
+
+      <div class="p4-cert">
+        사실대로 번역하였으며,<br>
+        번역 내용이 사실과 다른 경우에는 이에 따른 모든 법적 책임을 감수하겠습니다.<br>
+        (This is to certify that the attached documents are translated exactly according to the original contents.<br>
+        Otherwise, I will take all legal responsibilities.)
+      </div>
+
+      <div class="p4-date">2026 .02 .19</div>
+      <div class="p4-sign">
+        <span>번역자(Translator):</span>
+        <span class="p4-sign-img-wrap">{% if hanseo_sign_uri %}<img src="{{ hanseo_sign_uri }}" alt="" />{% endif %}</span>
+        <span>(Signature)</span>
+      </div>
+
+      <div class="p4-minister-ko">법무부장관 귀하</div>
+      <div class="p4-minister-en">To the Minister of Justice</div>
+    </div>
+
+    <div class="page-no">- 3 -</div>
+  </div>
+
+  <!-- ================= PAGE 4 (Consent for Personal Information) ================= -->
+  <div class="page">
+    <div class="p2-title">Consent for the Use of Personal Information</div>
+
+    <div class="p2-wrap">
+      <div class="p2-intro">
+        In relation to your graduate school entrance examination, if your graduate school intends to collect and use personal
+        information or provide it to a third party, Article 15 (1) 1 of the 『Personal Information Protection Act』, Article 17 (1) 1
+        You must obtain your consent according to the issue.<br>
+        &lt;Notice of collection and use of resident registration number&gt;<br>
+        Personal information is collected and used without the consent of the information subject in accordance with Article
+        24-2 (1) 1 of the Personal Information Protection Act.
+      </div>
+
+      <table class="p2-table">
+        <colgroup>
+          <col style="width:26%;">
+          <col style="width:22%;">
+          <col style="width:52%;">
+        </colgroup>
+        <tr>
+          <th>Personal information items</th>
+          <th>Purpose of collection</th>
+          <th>Grounds for collection</th>
+        </tr>
+        <tr>
+          <td>Resident registration number</td>
+          <td>Admissions processing</td>
+          <td>Article 73 of the Enforcement Decree of the Higher Education Act<br>(Processing of unique identification information) Paragraph 1, Item 2</td>
+        </tr>
+      </table>
+
+      <div class="p2-label-line">&lt;Consent to collection and use of personal information&gt;<br>
+        The collected personal information is never used for purposes other than admission screening.
+      </div>
+
+      <table class="p2-table">
+        <colgroup>
+          <col style="width:62%;">
+          <col style="width:20%;">
+          <col style="width:18%;">
+        </colgroup>
+        <tr>
+          <th>Personal information items</th>
+          <th>Purpose of collection</th>
+          <th>Retention period</th>
+        </tr>
+        <tr>
+          <td>
+            Application information(selection classification, department and major), Refund account information,
+            Military service relations, academic background, workplace information, Applicant information(name, passport name,
+            nationality, photo, address, phone number, additional contact information, email)
+          </td>
+          <td>Admissions processing</td>
+          <td style="font-size:10px;font-weight:700;">10 years</td>
+        </tr>
+      </table>
+      <div class="p2-agree">Do you agree to the collection and use of personal information? &nbsp;&nbsp;&nbsp;&nbsp; ✓ Yes &nbsp;&nbsp;&nbsp;&nbsp; □ No</div>
+      <div class="p2-note">* You have the right to refuse the collection and use of personal information, and if you do so, you will not be able to apply for admission to graduate school.</div>
+
+      <div class="p2-label-line">&lt;Consent to Collection and Use of Unique Identification Information&gt;<br>
+        Unique identification information is being collected for graduate school application and admission screening.
+      </div>
+
+      <table class="p2-table">
+        <colgroup>
+          <col style="width:50%;">
+          <col style="width:24%;">
+          <col style="width:26%;">
+        </colgroup>
+        <tr>
+          <th>Unique identification information item</th>
+          <th>Purpose of collection</th>
+          <th>Retention period</th>
+        </tr>
+        <tr>
+          <td><b>Passport number, alien registration number</b></td>
+          <td>Admissions processing</td>
+          <td style="font-size:10px;font-weight:700;">10 years</td>
+        </tr>
+      </table>
+      <div class="p2-agree">Do you agree to the collection and use of personal information? &nbsp;&nbsp;&nbsp;&nbsp; ✓ Yes &nbsp;&nbsp;&nbsp;&nbsp; □ No</div>
+      <div class="p2-note">* You have the right to refuse the collection and use of unique identification information, and if you do so, you will not be able to apply for admission to graduate school.</div>
+
+      <div class="p2-label-line">&lt;Consent to the provision of personal information to a third party&gt;<br>
+        Personal information is provided to third parties as follows.
+      </div>
+
+      <table class="p2-table">
+        <colgroup>
+          <col style="width:15%;">
+          <col style="width:43%;">
+          <col style="width:22%;">
+          <col style="width:20%;">
+        </colgroup>
+        <tr>
+          <th>Personal information<br>Recipient</th>
+          <th>Personal information items to be provided</th>
+          <th>Of the recipient<br>Purpose of using personal information</th>
+          <th>Of the recipient<br>Retention/use period</th>
+        </tr>
+        <tr>
+          <td>Applicant origin<br>University (won)</td>
+          <td>
+            Name, date of birth, school from which you graduated, department and major, graduation status,
+            graduation date, degree registration number
+          </td>
+          <td>Academic background inquiry and newsletter</td>
+          <td>Admissions process</td>
+        </tr>
+      </table>
+      <div class="p2-agree">Do you agree to the provision of personal information to a third party? &nbsp;&nbsp;&nbsp;&nbsp; ✓ Yes &nbsp;&nbsp;&nbsp;&nbsp; □ No</div>
+      <div class="p2-note">* If you refuse to provide personal information to a third party, you will not be able to apply for admission to graduate school.</div>
+
+      <div class="p2-bottom">&lt;Information on identification and prevention of false support and manipulation of application qualifications&gt;</div>
+      <div class="p2-bullets">
+        <div>- This application can only be completed and applied by the applicant himself. Violation of this may result in problems such as invalidation of admission.</div>
+        <div>- If you apply for a false graduate school application, you are a criminal offense of business obstruction, and you may be punished accordingly.</div>
+        <div>- If it is found that the applicant's qualifications are false when applying for special screening, admission will be canceled.</div>
+        <div>- I have understood the contents of this agreement, and have confirmed the applicant's right to collect, use, and provide personal information.</div>
+      </div>
+
+      <div class="p2-date-row">2026&nbsp;&nbsp;Year&nbsp;&nbsp;&nbsp;02&nbsp;&nbsp;Month&nbsp;&nbsp;&nbsp;19&nbsp;&nbsp;Day</div>
+
+      <div class="p2-applicant">
+        Applicant :&nbsp; SHAHRIAR MAHIR &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (Signature)
+        <span class="p2-sign-inline">{% if hanseo_sign_uri %}<img src="{{ hanseo_sign_uri }}" alt="" />{% endif %}</span><br>
+        (Date of Birth :&nbsp;&nbsp;&nbsp;&nbsp; 2004-12-15 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)
+      </div>
+
+      <div class="p2-president">To the President of Hanseo University</div>
+    </div>
+
+    <div class="page-no">- 4 -</div>
+  </div>
+
+
+</body>
+</html>

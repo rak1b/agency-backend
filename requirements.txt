@@ -24,3 +24,4 @@ minio
 openpyxl
 celery[redis]
 redis
+weasyprint==68.1

@@ -16,6 +16,7 @@ from authentication.tenant_utils import (
 from ...models import (
     Agency,
     AppliedUniversity,
+    Business,
     Country,
     Customer,
     OfficeCost,
@@ -207,6 +208,7 @@ class StudentFileSerializer(serializers.ModelSerializer):
             "applied_university_details",
             "workflow_steps",
             "generated_student_credentials",
+            "website_submission_uuid",
         ]
 
     def get_agency_details(self, obj):
@@ -670,6 +672,137 @@ class StudentFileSerializer(serializers.ModelSerializer):
         self._create_or_sync_student_portal_user(student_file)
         return student_file
 
+
+class PublicCountryCatalogSerializer(serializers.ModelSerializer):
+    """
+    Public website serializer for country cards and country details.
+    Includes basic info fields shown in destination quick facts blocks.
+    """
+
+    class Meta:
+        model = Country
+        fields = [
+            "id",
+            "name",
+            "slug",
+            "avg_tuition_public",
+            "living_cost",
+            "language",
+            "intake_periods",
+            "ielts_required",
+            "scholarship",
+            "visa_type",
+            "work_rights",
+        ]
+
+
+class PublicUniversityCatalogSerializer(serializers.ModelSerializer):
+    country_name = serializers.CharField(source="country.name", read_only=True)
+
+    class Meta:
+        model = University
+        fields = [
+            "id",
+            "university_name",
+            "slug",
+            "country",
+            "country_name",
+            "image_url",
+            "minimum_ielts_score",
+            "notes",
+        ]
+
+
+class PublicStudentFileCreateSerializer(serializers.Serializer):
+    """
+    Public website student file payload.
+    Creates a student file + optional applied university link and triggers
+    student portal credential generation email.
+    """
+
+    business = serializers.PrimaryKeyRelatedField(queryset=Business.objects.all(), required=False, allow_null=True)
+    business_slug = serializers.CharField(required=False, allow_blank=False)
+    given_name = serializers.CharField(max_length=100)
+    surname = serializers.CharField(max_length=100)
+    middle_name = serializers.CharField(max_length=100, required=False, allow_blank=True, allow_null=True)
+    passport_number = serializers.CharField(max_length=100)
+    phone_whatsapp = serializers.CharField(max_length=30)
+    email = serializers.EmailField()
+    date_of_birth = serializers.DateField()
+    father_name = serializers.CharField(max_length=150)
+    mother_name = serializers.CharField(max_length=150)
+    country = serializers.PrimaryKeyRelatedField(queryset=Country.objects.all(), required=False, allow_null=True)
+    university = serializers.PrimaryKeyRelatedField(queryset=University.objects.all(), required=False, allow_null=True)
+    intake = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    subject = serializers.PrimaryKeyRelatedField(
+        queryset=UniversityProgramSubject.objects.all(),
+        required=False,
+        allow_null=True,
+    )
+    message = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+
+    def validate(self, attrs):
+        selected_business = attrs.get("business")
+        selected_business_slug = (attrs.get("business_slug") or "").strip()
+        if not selected_business and not selected_business_slug:
+            raise serializers.ValidationError({"business": "Provide either business id or business_slug."})
+        if not selected_business and selected_business_slug:
+            selected_business = Business.objects.filter(slug=selected_business_slug, is_active=True).first()
+            if not selected_business:
+                raise serializers.ValidationError({"business_slug": "Business not found."})
+            attrs["business"] = selected_business
+
+        selected_country = attrs.get("country")
+        selected_university = attrs.get("university")
+        selected_subject = attrs.get("subject")
+
+        if selected_country and selected_country.business_id != selected_business.id:
+            raise serializers.ValidationError({"country": "Selected country does not belong to the selected business."})
+        if selected_university and selected_university.business_id != selected_business.id:
+            raise serializers.ValidationError(
+                {"university": "Selected university does not belong to the selected business."}
+            )
+        if selected_country and selected_university and selected_university.country_id != selected_country.id:
+            raise serializers.ValidationError({"university": "University must belong to the selected country."})
+        if selected_subject and selected_university and selected_subject.program.university_id != selected_university.id:
+            raise serializers.ValidationError({"subject": "Subject must belong to the selected university."})
+        return attrs
+
+    @transaction.atomic
+    def create(self, validated_data):
+        validated_data.pop("business_slug", None)
+        selected_country = validated_data.pop("country", None)
+        selected_university = validated_data.pop("university", None)
+        selected_intake = validated_data.pop("intake", None)
+        selected_subject = validated_data.pop("subject", None)
+        message = validated_data.pop("message", None)
+        selected_business = validated_data["business"]
+
+        student_file = StudentFile.objects.create(
+            agency=None,
+            business=selected_business,
+            is_website_submission=True,
+            notes=message,
+            **validated_data,
+        )
+
+        if selected_university or selected_country or selected_subject or selected_intake:
+            applied_university = AppliedUniversity.objects.create(
+                agency=None,
+                business=selected_business,
+                university=selected_university,
+                country=selected_country,
+                intake=selected_intake,
+                subject=selected_subject,
+                application_status=ReviewStatusChoice.PENDING,
+            )
+            student_file.applied_universities.add(applied_university)
+
+        # Reuse the same logic as internal student-file creation:
+        # create portal user and queue login credentials email to the student.
+        internal_student_serializer = StudentFileSerializer(context=self.context)
+        internal_student_serializer._create_or_sync_student_portal_user(student_file)
+        return student_file
 
 class UniversityIntakeSerializer(serializers.ModelSerializer):
     country_name = serializers.CharField(source="university.country.name", read_only=True)

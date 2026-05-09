@@ -50,7 +50,7 @@ class ProgramAdmin(admin.ModelAdmin):
 
 @register(Country, site=master_admin_site)
 class CountryAdmin(admin.ModelAdmin):
-    list_display = ("id", "business", "name", "agency", "created_at", "is_active")
+    list_display = ("id", "business", "name", "agency", "avg_tuition_public", "living_cost", "created_at", "is_active")
     list_filter = ("business", "agency", "is_active", "is_deleted")
     search_fields = ("name", "agency__name")
     readonly_fields = ("slug", "created_at", "updated_at")
@@ -86,6 +86,8 @@ class StudentFileAdmin(admin.ModelAdmin):
         "id",
         "business",
         "student_file_id",
+        "website_submission_uuid",
+        "is_website_submission",
         "given_name",
         "surname",
         "agency",
@@ -93,7 +95,7 @@ class StudentFileAdmin(admin.ModelAdmin):
         "passport_number",
         "created_at",
     )
-    list_filter = ("business", "current_status", "agency", "file_from", "is_active", "is_deleted")
+    list_filter = ("business", "is_website_submission", "current_status", "agency", "file_from", "is_active", "is_deleted")
     search_fields = ("student_file_id", "passport_number", "given_name", "surname", "email", "phone_whatsapp")
     readonly_fields = ("slug", "created_at", "updated_at")
 
@@ -116,7 +118,16 @@ class AppliedUniversityAdmin(admin.ModelAdmin):
 
 @register(University, site=master_admin_site)
 class UniversityAdmin(admin.ModelAdmin):
-    list_display = ("id", "business", "university_name", "agency", "country", "created_at", "is_active")
+    list_display = (
+        "id",
+        "business",
+        "university_name",
+        "agency",
+        "country",
+        "minimum_ielts_score",
+        "created_at",
+        "is_active",
+    )
     list_filter = ("business", "agency", "country", "is_active", "is_deleted")
     search_fields = ("university_name", "country__name", "agency__name")
     readonly_fields = ("slug", "created_at", "updated_at")

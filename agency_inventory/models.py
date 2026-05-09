@@ -1,3 +1,5 @@
+import uuid
+
 from django.core.exceptions import ValidationError
 from django.db import models
 
@@ -151,7 +153,7 @@ class StudentFile(BaseModel):
     """
     Dedicated student file entity aligned with the student-file creation form.
     """
-
+    passport_photo_url = models.URLField(max_length=1000, blank=True, null=True)
     student_file_id = models.CharField(max_length=20, unique=True, blank=True, null=True)
     slug = models.SlugField(max_length=255, unique=True, null=True, blank=True, editable=False)
     agency = models.ForeignKey(
@@ -180,6 +182,40 @@ class StudentFile(BaseModel):
     date_of_birth = models.DateField()
     father_name = models.CharField(max_length=150)
     mother_name = models.CharField(max_length=150)
+    gender = models.CharField(
+        max_length=20,
+        choices=GenderChoice.choices,
+        default=GenderChoice.OTHER,
+        help_text="Stored like Customer; shown on Hanseo and similar admission forms.",
+    )
+    nationality = models.CharField(max_length=100, blank=True, default="")
+    place_of_birth = models.CharField(max_length=150, blank=True, default="")
+    present_address = models.TextField(blank=True, default="")
+    permanent_address = models.TextField(blank=True, default="")
+    # Rows for Hanseo "Academic Background" / agreement: list of dicts with keys
+    # degree, institution, study_period, result, graduation_date, institution_phone,
+    # admission_date (optional, YYYY-MM-DD).
+    education_background = models.JSONField(null=True, blank=True)
+    # Rows for "Family Particulars": relation, name, date_of_birth, occupation,
+    # monthly_income, workplace, workplace_phone.
+    family_particulars = models.JSONField(null=True, blank=True)
+    # Optional page-3 translator block (nationality, name, date_of_birth, gender, address, home_phone, mobile).
+    translator_profile = models.JSONField(null=True, blank=True)
+    translated_documents_note = models.CharField(
+        max_length=500,
+        blank=True,
+        default="",
+        help_text="Short list for the Hanseo translation form (e.g. APPLICANT NID, PARENTS NID).",
+    )
+    application_statement = models.TextField(
+        blank=True,
+        default="",
+        help_text="Statement of purpose line on page 1 of the Hanseo pack; a sensible default is applied in the PDF if empty.",
+    )
+    highest_education_postal_code = models.CharField(max_length=30, blank=True, default="")
+    highest_education_address = models.CharField(max_length=500, blank=True, default="")
+    highest_education_fax = models.CharField(max_length=80, blank=True, default="")
+    highest_education_website = models.CharField(max_length=500, blank=True, default="")
     attachments = models.ManyToManyField(
         "StudentFileAttachment",
         related_name="student_files",
@@ -198,6 +234,17 @@ class StudentFile(BaseModel):
     file_from = models.CharField(max_length=20, choices=FileFromChoice.choices, default=FileFromChoice.AGENCY_OWN)
     created_by = models.ForeignKey("authentication.User", on_delete=models.SET_NULL, null=True, blank=True)
     notes = models.TextField(blank=True, null=True)
+    is_website_submission = models.BooleanField(
+        default=False,
+        help_text="True when this file is submitted from the public website flow.",
+    )
+    website_submission_uuid = models.UUIDField(
+        unique=True,
+        null=True,
+        blank=True,
+        editable=False,
+        help_text="Stable public reference id for website-submitted student files.",
+    )
 
     class Meta:
         ordering = ["-created_at"]
@@ -211,6 +258,8 @@ class StudentFile(BaseModel):
         if not self.slug:
             slug_source = f"{self.given_name}-{self.surname}-{self.passport_number}"
             self.slug = generate_unique_slug(slug_source, self)
+        if self.is_website_submission and not self.website_submission_uuid:
+            self.website_submission_uuid = uuid.uuid4()
         if self.business_id is None and self.agency_id:
             self.business_id = _agency_business_pk(self.agency_id)
         super().save(*args, **kwargs)
@@ -543,6 +592,14 @@ class Country(BaseModel):
         blank=True,
     )
     name = models.CharField(max_length=120)
+    avg_tuition_public = models.CharField(max_length=255, blank=True, default="")
+    living_cost = models.CharField(max_length=255, blank=True, default="")
+    language = models.CharField(max_length=255, blank=True, default="")
+    intake_periods = models.CharField(max_length=255, blank=True, default="")
+    ielts_required = models.CharField(max_length=255, blank=True, default="")
+    scholarship = models.CharField(max_length=255, blank=True, default="")
+    visa_type = models.CharField(max_length=255, blank=True, default="")
+    work_rights = models.CharField(max_length=255, blank=True, default="")
     slug = models.SlugField(max_length=255, unique=True, null=True, blank=True, editable=False)
 
     class Meta:
@@ -581,6 +638,14 @@ class University(BaseModel):
         blank=True,
     )
     university_name = models.CharField(max_length=255)
+    image_url = models.URLField(max_length=1000, blank=True, null=True)
+    minimum_ielts_score = models.DecimalField(
+        max_digits=3,
+        decimal_places=1,
+        blank=True,
+        null=True,
+        help_text="Minimum IELTS score required for this university.",
+    )
     slug = models.SlugField(max_length=255, unique=True, null=True, blank=True, editable=False)
     country = models.ForeignKey(Country, on_delete=models.PROTECT, related_name="universities")
     notes = models.TextField(blank=True, null=True)

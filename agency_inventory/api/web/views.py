@@ -13,9 +13,19 @@ from datetime import date, timedelta
 from rest_framework import filters, status
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny
 from django.db.models import Count, Prefetch, Sum
 from django.db.models.functions import TruncMonth
+import base64
+import mimetypes
+from pathlib import Path
+
+from django.conf import settings
 from django.utils import timezone
+from django.utils.safestring import mark_safe
+from django.http import HttpResponse
+from django.template.loader import render_to_string
+from weasyprint import HTML
 from drf_spectacular.utils import OpenApiExample, OpenApiResponse, extend_schema
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -30,6 +40,7 @@ from ...services.application_progress import (
 
 from ...models import (
     Agency,
+    Business,
     Country,
     Customer,
     OfficeCost,
@@ -63,6 +74,9 @@ from .serializers import (
     InventoryDashboardQuerySerializer,
     OfficeCostSerializer,
     ProgramSerializer,
+    PublicCountryCatalogSerializer,
+    PublicStudentFileCreateSerializer,
+    PublicUniversityCatalogSerializer,
     StudentCostSerializer,
     StudentFileSerializer,
     UniversityIntakeSerializer,
@@ -385,6 +399,203 @@ class InventoryDashboardAPIView(APIView):
         return inventory_add_months(value, months)
 
 
+class PublicCountryCatalogAPIView(APIView):
+    """
+    Public destination countries list with strict business scoping.
+    Optional filters:
+    - search=<country name>
+    - course=<program id>
+    - ielts_score=<float>
+    """
+
+    permission_classes = [AllowAny]
+
+    def get(self, request, *args, **kwargs):
+        business_param = (request.query_params.get("business") or "").strip()
+        if not business_param:
+            return Response({"detail": "Query parameter 'business' is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        business_queryset = Business.objects.filter(is_active=True)
+        if business_param.isdigit():
+            business_object = business_queryset.filter(pk=int(business_param)).first()
+        else:
+            business_object = business_queryset.filter(slug=business_param).first()
+        if not business_object:
+            return Response({"detail": "Business not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        country_queryset = Country.objects.filter(
+            business_id=business_object.id,
+            is_active=True,
+            universities__is_active=True,
+        )
+
+        search_text = (request.query_params.get("search") or "").strip()
+        if search_text:
+            country_queryset = country_queryset.filter(name__icontains=search_text)
+
+        selected_program = (request.query_params.get("course") or "").strip()
+        if selected_program:
+            country_queryset = country_queryset.filter(universities__programs__program_id=selected_program)
+
+        requested_ielts_score = (request.query_params.get("ielts_score") or "").strip()
+        if requested_ielts_score:
+            try:
+                requested_ielts_score_value = float(requested_ielts_score)
+            except (TypeError, ValueError):
+                return Response(
+                    {"detail": "Invalid ielts_score. Provide a numeric value like 6.5."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            country_queryset = country_queryset.filter(universities__minimum_ielts_score__lte=requested_ielts_score_value)
+
+        serialized_countries = PublicCountryCatalogSerializer(country_queryset.distinct().order_by("name"), many=True)
+        return Response(
+            {
+                "business": {"id": business_object.id, "name": business_object.name, "slug": business_object.slug},
+                "count": len(serialized_countries.data),
+                "results": serialized_countries.data,
+            }
+        )
+
+
+class PublicUniversityCatalogAPIView(APIView):
+    """
+    Public universities list with country/program/IELTS filters.
+    """
+
+    permission_classes = [AllowAny]
+
+    def get(self, request, *args, **kwargs):
+        business_param = (request.query_params.get("business") or "").strip()
+        if not business_param:
+            return Response({"detail": "Query parameter 'business' is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        business_queryset = Business.objects.filter(is_active=True)
+        if business_param.isdigit():
+            business_object = business_queryset.filter(pk=int(business_param)).first()
+        else:
+            business_object = business_queryset.filter(slug=business_param).first()
+        if not business_object:
+            return Response({"detail": "Business not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        university_queryset = University.objects.select_related("country").filter(
+            business_id=business_object.id,
+            is_active=True,
+            country__is_active=True,
+        )
+
+        selected_country = (request.query_params.get("country") or "").strip()
+        if selected_country:
+            university_queryset = university_queryset.filter(country_id=selected_country)
+
+        selected_program = (request.query_params.get("course") or "").strip()
+        if selected_program:
+            university_queryset = university_queryset.filter(programs__program_id=selected_program)
+
+        requested_ielts_score = (request.query_params.get("ielts_score") or "").strip()
+        if requested_ielts_score:
+            try:
+                requested_ielts_score_value = float(requested_ielts_score)
+            except (TypeError, ValueError):
+                return Response(
+                    {"detail": "Invalid ielts_score. Provide a numeric value like 6.5."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            university_queryset = university_queryset.filter(minimum_ielts_score__lte=requested_ielts_score_value)
+
+        search_text = (request.query_params.get("search") or "").strip()
+        if search_text:
+            university_queryset = university_queryset.filter(university_name__icontains=search_text)
+
+        serialized_universities = PublicUniversityCatalogSerializer(
+            university_queryset.distinct().order_by("university_name"),
+            many=True,
+        )
+        return Response(
+            {
+                "business": {"id": business_object.id, "name": business_object.name, "slug": business_object.slug},
+                "count": len(serialized_universities.data),
+                "results": serialized_universities.data,
+            }
+        )
+
+
+class PublicUniversitySelectionAPIView(APIView):
+    """
+    Public university detail endpoint for varsity selection step.
+    """
+
+    permission_classes = [AllowAny]
+
+    def get(self, request, slug, *args, **kwargs):
+        business_param = (request.query_params.get("business") or "").strip()
+        if not business_param:
+            return Response({"detail": "Query parameter 'business' is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        business_queryset = Business.objects.filter(is_active=True)
+        if business_param.isdigit():
+            business_object = business_queryset.filter(pk=int(business_param)).first()
+        else:
+            business_object = business_queryset.filter(slug=business_param).first()
+        if not business_object:
+            return Response({"detail": "Business not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        selected_university = (
+            University.objects.select_related("country")
+            .prefetch_related("intakes", "programs__program", "programs__subjects")
+            .filter(business_id=business_object.id, slug=slug, is_active=True)
+            .first()
+        )
+        if not selected_university:
+            return Response({"detail": "University not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        return Response(
+            {
+                "university": PublicUniversityCatalogSerializer(selected_university).data,
+                "country": PublicCountryCatalogSerializer(selected_university.country).data,
+                "intakes": [
+                    {"id": intake.id, "name": intake.intake_name}
+                    for intake in selected_university.intakes.filter(is_active=True).order_by("intake_name")
+                ],
+                "programs": [
+                    {
+                        "id": university_program.program_id,
+                        "name": university_program.program.name,
+                        "subjects": [
+                            {"id": subject.id, "subject_name": subject.subject_name, "track_name": subject.track_name}
+                            for subject in university_program.subjects.filter(is_active=True).order_by("id")
+                        ],
+                    }
+                    for university_program in selected_university.programs.filter(is_active=True)
+                ],
+            }
+        )
+
+
+class PublicStudentFileCreateAPIView(APIView):
+    """
+    Public website endpoint to submit student files.
+    Creates student file, links selected university data, and triggers email credentials.
+    """
+
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        serializer = PublicStudentFileCreateSerializer(data=request.data, context={"request": request})
+        serializer.is_valid(raise_exception=True)
+        created_student_file = serializer.save()
+        return Response(
+            {
+                "detail": "Student file submitted successfully.",
+                "student_file_id": created_student_file.student_file_id,
+                "website_submission_uuid": created_student_file.website_submission_uuid,
+                "student_file_slug": created_student_file.slug,
+                "current_status": created_student_file.current_status,
+            },
+            status=status.HTTP_201_CREATED,
+        )
+
+
 class AgencyViewSet(BaseModelViewSet):
     queryset = Agency.objects.select_related("business", "created_by").all()
     serializer_class = AgencySerializer
@@ -677,7 +888,7 @@ class UniversityViewSet(StudentPortalReadOnlyMixin, TenantHomeAgencyRowMixin, Ba
     permission_classes = [IsAuthenticated ]
     lookup_field = "slug"
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ["business", "country", "agency", "is_active"]
+    filterset_fields = ["business", "country", "agency", "is_active", "programs__program"]
     search_fields = ["university_name", "country__name"]
     ordering_fields = ["created_at", "updated_at", "university_name", "country__name"]
 
@@ -734,3 +945,56 @@ class StudentCostViewSet(StudentPortalReadOnlyMixin, TenantHomeAgencyRowMixin, B
         "student_file__student_file_id",
     ]
     ordering_fields = ["created_at", "updated_at", "amount", "title"]
+
+
+def _hanseo_image_data_uri(filename: str) -> str:
+    """
+    Embed a Hanseo template asset as a data URI so WeasyPrint always inlines it.
+
+    Relative ``file://`` bases are unreliable in some PDF runtimes; base64 avoids that.
+    """
+    path = Path(settings.BASE_DIR) / "templates" / "images" / "hanseo" / filename
+    if not path.is_file():
+        return ""
+    raw = path.read_bytes()
+    mime, _ = mimetypes.guess_type(path.name)
+    if not mime:
+        ext = path.suffix.lower()
+        if ext in (".jpg", ".jpeg"):
+            mime = "image/jpeg"
+        elif ext == ".png":
+            mime = "image/png"
+        else:
+            mime = "application/octet-stream"
+    encoded = base64.b64encode(raw).decode("ascii")
+    return mark_safe(f"data:{mime};base64,{encoded}")
+
+
+class UniversityFormDownloadAPIView(APIView):
+    """
+    Renders the Hanseo admission form template to PDF (public download).
+
+    Uses WeasyPrint so ``@page`` and print-oriented CSS in the template are honored.
+    """
+
+    permission_classes = [AllowAny]
+
+    def get(self, request, *args, **kwargs):
+        hanseo_assets_dir = Path(settings.BASE_DIR) / "templates" / "images" / "hanseo"
+        asset_base_url = hanseo_assets_dir.as_uri() + "/"
+        context = {
+            "hanseo_passport_uri": _hanseo_image_data_uri("bablu_passport.jpeg"),
+            "hanseo_logo_uri": _hanseo_image_data_uri("logo.png"),
+            "hanseo_sign_uri": _hanseo_image_data_uri("dummy_sign.jpg"),
+        }
+        html_string = render_to_string(
+            "university_templates/hanseo.html",
+            context,
+            request=request,
+        )
+        pdf_bytes = HTML(string=html_string, base_url=asset_base_url).write_pdf()
+        response = HttpResponse(pdf_bytes, content_type="application/pdf")
+        response["Content-Disposition"] = (
+            'attachment; filename="hanseo-application-of-admission.pdf"'
+        )
+        return response
