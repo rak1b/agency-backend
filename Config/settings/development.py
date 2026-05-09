@@ -1,48 +1,57 @@
-from ntpath import join
+"""
+Local development defaults.
+
+**Dokploy demo (``dev`` branch, ``IS_LIVE=false``):** set ``DB_HOST`` (and DB_NAME / DB_USER /
+DB_PASSWORD) like production. When ``DB_HOST`` is non-empty, this module uses PostgreSQL and
+defaults Celery to ``redis://redis:6379/0`` so the same Compose/Dokploy stack as live works
+without forcing ``IS_LIVE=true``.
+"""
+
+from decouple import config
+
 from .base import *
+from .db_utils import redis_url_local_fallback, resolved_tcp_host
 
 DEBUG = True
-ALLOWED_HOSTS = ['*','inventory.payinpos.com' ]
+ALLOWED_HOSTS = ["*", "inventory.payinpos.com"]
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': config('DB_NAME'),
-#         'USER': config('DB_USER'),
-#         'PASSWORD': config('DB_PASSWORD'),
-#         'HOST': config('DB_HOST'),
-#         'PORT': config('DB_PORT', cast=int),
-#     }
-# }
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+_db_host = config("DB_HOST", default="").strip()
+
+if _db_host:
+    # Container / Dokploy: Postgres service (same contract as production when not on SQLite).
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": config("DB_NAME"),
+            "USER": config("DB_USER"),
+            "PASSWORD": config("DB_PASSWORD"),
+            "HOST": resolved_tcp_host(_db_host),
+            "PORT": config("DB_PORT", default=5432, cast=int),
+        }
     }
-}
-# Cache (Cache settings)
-# CACHES = {
-#     "default": {
-#         "BACKEND": "django_redis.cache.RedisCache",
-#         "LOCATION": "redis://127.0.0.1:6379/1",
-#         "OPTIONS": {
-#             "CLIENT_CLASS": "django_redis.client.DefaultClient",
-#         }
-#     }
-# }
+    _default_docker_redis = "redis://redis:6379/0"
+    CELERY_BROKER_URL = redis_url_local_fallback(
+        config("CELERY_BROKER_URL", default=_default_docker_redis)
+    )
+    CELERY_RESULT_BACKEND = redis_url_local_fallback(
+        config("CELERY_RESULT_BACKEND", default=_default_docker_redis)
+    )
+else:
+    # Laptop: file-backed SQLite, local Redis (or set CELERY_TASK_ALWAYS_EAGER=True).
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
+        }
+    }
+    CELERY_BROKER_URL = "redis://127.0.0.1:6379/0"
+    CELERY_RESULT_BACKEND = "redis://127.0.0.1:6379/0"
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/3.0/howto/static-files/
-STATIC_URL = '/static/'
-# STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]  # this points to /app/static
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # this is where collectstatic copies files
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-#for testing celery with redis
-CELERY_BROKER_URL = 'redis://127.0.0.1:6379/0'
-CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'
-
-# Optional: run Celery tasks synchronously (no Redis required) when enabled via env
-CELERY_TASK_ALWAYS_EAGER = config('CELERY_TASK_ALWAYS_EAGER', default=False, cast=bool)
+CELERY_TASK_ALWAYS_EAGER = config("CELERY_TASK_ALWAYS_EAGER", default=False, cast=bool)
 CELERY_TASK_EAGER_PROPAGATES = True
+
+STATIC_URL = "/static/"
+STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+MEDIA_URL = "/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
