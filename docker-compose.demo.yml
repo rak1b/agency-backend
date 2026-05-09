@@ -1,0 +1,74 @@
+# =============================================================================
+# Demo stack (Dokploy / dev branch) — standalone compose file
+# =============================================================================
+# Use this file alone so volumes, networks, and ports do not clash with live
+# or other copies of docker-compose.yml on the same host.
+#
+# Local:
+#   docker compose -f docker-compose.demo.yml --env-file .env up -d --build
+#
+# Dokploy: set the application "Docker Compose" path to this file
+#   docker-compose.demo.yml
+#
+# Required in .env (same variable names as production):
+#   SECRET_KEY, DEBUG, DB_NAME, DB_USER, DB_PASSWORD
+#   DB_HOST=db   (service name below)
+# Optional:
+#   IS_LIVE=false          (default dev settings; set DB_HOST=db for Postgres)
+#   DEMO_WEB_PORT=38200    (host port if 38180 is already taken)
+#   CELERY_TASK_ALWAYS_EAGER=true   (if you skip Redis for a minimal demo)
+# =============================================================================
+
+name: agency-backend-demo
+
+networks:
+  agency_demo_net:
+
+services:
+  web:
+    build: .
+    restart: always
+    env_file:
+      - .env
+    command: >
+      sh -c "python manage.py migrate --noinput &&
+             gunicorn Config.wsgi:application --bind 0.0.0.0:8000"
+    volumes:
+      - ./static:/app/static
+      - ./media:/app/media
+      - ./logs:/app/logs
+    ports:
+      - "${DEMO_WEB_PORT:-38180}:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - agency_demo_net
+
+  db:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data_demo:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - agency_demo_net
+
+  redis:
+    image: redis:7-alpine
+    restart: always
+    networks:
+      - agency_demo_net
+
+volumes:
+  postgres_data_demo:
