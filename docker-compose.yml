@@ -2,6 +2,7 @@
 # docker-compose.demo.yml instead.
 #
 # Host publish port: set WEB_PORT in .env / Dokploy if you see "port is already allocated".
+# ``IS_LIVE=true`` in .env for this stack (Postgres). ``IS_LIVE=false`` = local laptop only (SQLite).
 networks:
   ps_inventory_net:
 

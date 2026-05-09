@@ -10,11 +10,11 @@
 # Dokploy: set the application "Docker Compose" path to this file
 #   docker-compose.demo.yml
 #
-# Required in .env (same variable names as production):
-#   SECRET_KEY, DEBUG, DB_NAME, DB_USER, DB_PASSWORD
-#   DB_HOST=db   (service name below)
+# Required in .env (same as live / production):
+#   SECRET_KEY, DEBUG, DB_NAME, DB_USER, DB_PASSWORD, DB_HOST=db
+# This compose file sets IS_LIVE=true on the web service so Django uses production
+# settings (Postgres + redis://redis:6379/0). Local laptop dev: use IS_LIVE=false only.
 # Optional:
-#   IS_LIVE=false          (default dev settings; set DB_HOST=db for Postgres)
 #   DEMO_WEB_PORT=38200    (host port if 38180 is already taken)
 #   CELERY_TASK_ALWAYS_EAGER=true   (if you skip Redis for a minimal demo)
 #
@@ -31,6 +31,9 @@ services:
     restart: always
     env_file:
       - .env
+    environment:
+      # Match live: Postgres/Redis from production settings (see Config.settings.production).
+      IS_LIVE: "true"
     # Startup: use image ENTRYPOINT only (migrate, collectstatic, gunicorn). A duplicate
     # ``command`` is ignored by entrypoint.sh but confuses operators; omit it.
     volumes:
