@@ -30,7 +30,7 @@ from ...models import (
     UniversityProgramSubject,
     _agency_business_pk,
 )
-from ...constants import ReviewStatusChoice
+from ...constants import GenderChoice, ReviewStatusChoice
 from ...services.application_progress import STEP_KEYS
 
 
@@ -740,6 +740,21 @@ class PublicStudentFileCreateSerializer(serializers.Serializer):
         allow_null=True,
     )
     message = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    gender = serializers.ChoiceField(choices=GenderChoice.choices, required=False, default=GenderChoice.OTHER)
+    nationality = serializers.CharField(max_length=100, required=False, allow_blank=True)
+    place_of_birth = serializers.CharField(max_length=150, required=False, allow_blank=True)
+    present_address = serializers.CharField(required=False, allow_blank=True)
+    permanent_address = serializers.CharField(required=False, allow_blank=True)
+    passport_photo_url = serializers.URLField(max_length=1000, required=False, allow_blank=True, allow_null=True)
+    education_background = serializers.JSONField(required=False, allow_null=True)
+    family_particulars = serializers.JSONField(required=False, allow_null=True)
+    translator_profile = serializers.JSONField(required=False, allow_null=True)
+    translated_documents_note = serializers.CharField(max_length=500, required=False, allow_blank=True)
+    application_statement = serializers.CharField(required=False, allow_blank=True)
+    highest_education_postal_code = serializers.CharField(max_length=30, required=False, allow_blank=True)
+    highest_education_address = serializers.CharField(max_length=500, required=False, allow_blank=True)
+    highest_education_fax = serializers.CharField(max_length=80, required=False, allow_blank=True)
+    highest_education_website = serializers.CharField(max_length=500, required=False, allow_blank=True)
 
     def validate(self, attrs):
         selected_business = attrs.get("business")

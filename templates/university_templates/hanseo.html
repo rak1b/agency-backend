@@ -687,7 +687,10 @@
 
   <!-- ================= PAGE 1 ================= -->
   <div class="page">
-    <div class="p1-title">2026-02-19 Application of Admission</div>
+    <div class="p1-title">{{ form_title }}</div>
+    {% if student_file_id %}
+    <div class="p1-ref tiny center" style="margin-bottom:3mm;">Student file: {{ student_file_id }}</div>
+    {% endif %}
 
     <div class="p1-box">
       <table class="p1-personal">
@@ -702,44 +705,44 @@
         <tr>
           <td rowspan="2" class="p1-label">Full Name</td>
           <td class="p1-sub-label">Surname</td>
-          <td class="p1-value p1-big">SHAHRIAR</td>
+          <td class="p1-value p1-big">{{ surname|upper }}</td>
           <td rowspan="5" colspan="2" class="p1-photo">
             {% if hanseo_passport_uri %}<img src="{{ hanseo_passport_uri }}" alt="" />{% endif %}
           </td>
         </tr>
         <tr>
           <td class="p1-sub-label">Given name</td>
-          <td class="p1-value p1-big">MAHIR</td>
+          <td class="p1-value p1-big">{{ given_name_line|upper }}</td>
         </tr>
         <tr>
           <td class="p1-label">Date of Birth</td>
-          <td class="p1-value p1-big p1-dob">2004&nbsp;DEC&nbsp;15</td>
+          <td class="p1-value p1-big p1-dob">{{ dob_display }}</td>
           <td class="no-pad">
             <table>
               <tr>
                 <td style="width:26%; border-left:0; border-top:0; border-bottom:0;" class="p1-label">Sex</td>
-                <td style="border-right:0; border-top:0; border-bottom:0;" class="p1-value p1-big">MALE</td>
+                <td style="border-right:0; border-top:0; border-bottom:0;" class="p1-value p1-big">{{ gender_label }}</td>
               </tr>
             </table>
           </td>
         </tr>
         <tr>
           <td class="p1-label">Nationality</td>
-          <td colspan="2" class="p1-value p1-big center">BANGLADESHI</td>
+          <td colspan="2" class="p1-value p1-big center">{{ nationality }}</td>
         </tr>
         <tr>
           <td class="p1-label">Place of Birth</td>
-          <td colspan="2" class="p1-value p1-big center">TANGAIL</td>
+          <td colspan="2" class="p1-value p1-big center">{{ place_of_birth }}</td>
         </tr>
         <tr>
           <td class="p1-label">Present Address</td>
-          <td colspan="2" class="p1-value small">Kamar Nowga , Gurguriata, Delduar , Armoista -1910 , Tangail</td>
+          <td colspan="2" class="p1-value small">{{ present_address }}</td>
           <td class="p1-label">Mobile</td>
-          <td class="p1-contact-value">+880 1810402349</td>
+          <td class="p1-contact-value">{{ phone_whatsapp }}</td>
         </tr>
         <tr>
           <td class="p1-label">Permanent<br>Address</td>
-          <td colspan="2" class="p1-value small">Kamar Nowga , Gurguriata, Delduar , Armoista -1910 , Tangail</td>
+          <td colspan="2" class="p1-value small">{{ permanent_address }}</td>
           <td class="no-pad">
             <table>
               <tr><td class="p1-label" style="border-left:0;border-right:0;border-top:0;">Phone</td></tr>
@@ -748,8 +751,8 @@
           </td>
           <td class="no-pad">
             <table>
-              <tr><td class="p1-contact-value" style="border-left:0;border-right:0;border-top:0;">+880 1810402349</td></tr>
-              <tr><td class="p1-contact-value" style="border-left:0;border-right:0;border-bottom:0;">sharifahamed7739@gmail.com</td></tr>
+              <tr><td class="p1-contact-value" style="border-left:0;border-right:0;border-top:0;">{{ phone_whatsapp }}</td></tr>
+              <tr><td class="p1-contact-value" style="border-left:0;border-right:0;border-bottom:0;">{{ email }}</td></tr>
             </table>
           </td>
         </tr>
@@ -774,26 +777,16 @@
           <th>Date of<br>Graduation</th>
           <th>Phone(Institution)</th>
         </tr>
+        {% for row in education_rows %}
         <tr>
-          <td class="bold">Elementary School</td>
-          <td>Bathuli High School</td>
-          <td>2019-2021</td>
-          <td>GPA: 3.39</td>
-          <td>2021-12-30</td>
-          <td>+88 01961163336</td>
+          <td class="bold">{{ row.degree }}</td>
+          <td>{{ row.institution|linebreaksbr }}</td>
+          <td>{{ row.study_period }}</td>
+          <td>{{ row.result }}</td>
+          <td>{{ row.graduation_date }}</td>
+          <td class="p1-contact-value">{{ row.institution_phone }}</td>
         </tr>
-        <tr>
-          <td class="bold">College</td>
-          <td>Vibekananda High<br>School and college</td>
-          <td>2021-2023</td>
-          <td>GPA: 4.08</td>
-          <td>2023-11-26</td>
-          <td>+88 01309114679</td>
-        </tr>
-        <tr>
-          <td class="bold">University</td>
-          <td></td><td></td><td></td><td></td><td></td>
-        </tr>
+        {% endfor %}
       </table>
 
       <div class="p1-section-title">Family Particulars</div>
@@ -817,36 +810,27 @@
           <th>Name of<br>Work Place</th>
           <th>Phone<br>(workplace)</th>
         </tr>
-        <tr>
-          <td class="bold">FATHER</td>
-          <td class="bold">AZHARUL ISLAM</td>
-          <td class="nowrap">1975-02-01</td>
-          <td>HOME-MAKER</td>
-          <td>00.00</td>
-          <td></td>
-          <td></td>
+        {% for row in family_rows %}
+        <tr{% if not row.relation and not row.name %} class="empty-row"{% endif %}>
+          <td class="bold">{{ row.relation }}</td>
+          <td class="bold">{{ row.name }}</td>
+          <td class="nowrap">{{ row.date_of_birth }}</td>
+          <td>{{ row.occupation }}</td>
+          <td>{{ row.monthly_income }}</td>
+          <td>{{ row.workplace }}</td>
+          <td class="p1-contact-value">{{ row.workplace_phone }}</td>
         </tr>
-        <tr>
-          <td class="bold">MOTHER</td>
-          <td class="bold">MITHE AKTER</td>
-          <td class="nowrap">1983-11-11</td>
-          <td>BUSINESS</td>
-          <td>19500$</td>
-          <td>Kaji Fashion &amp; Boutique</td>
-          <td class="p1-contact-value">+880 1810402349</td>
-        </tr>
-        <tr class="empty-row"><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-        <tr class="empty-row"><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+        {% endfor %}
       </table>
 
       <div class="p1-statement">
         <div class="p1-statement-text">
-          I am applying for admission at the institute of Language and Culture Education.
+          {{ application_statement }}
         </div>
         <div class="p1-seal-space">
           {% if hanseo_logo_uri %}<img src="{{ hanseo_logo_uri }}" alt="Hanseo University" />{% endif %}
         </div>
-        <div class="p1-date">2026/02/19</div>
+        <div class="p1-date">{{ statement_date }}</div>
         <div class="p1-sign-row">
           <div class="p1-sign-cluster">
             <span class="p1-sign-label">Signature</span>
@@ -881,7 +865,7 @@
     <div class="p3-body">
       <div class="p3-to">To whom it may concern:</div>
       <div class="p3-line">
-        I attended (&nbsp;&nbsp; Vibekananda High School and college &nbsp;&nbsp;) from (&nbsp;&nbsp; 2021 &nbsp;&nbsp;) to (&nbsp;&nbsp; 2023 &nbsp;&nbsp;).
+        I attended (&nbsp;&nbsp; {{ agreement_school_name }} &nbsp;&nbsp;) from (&nbsp;&nbsp; {{ agreement_from_year }} &nbsp;&nbsp;) to (&nbsp;&nbsp; {{ agreement_to_year }} &nbsp;&nbsp;).
       </div>
 
       <div class="p3-paragraph">
@@ -896,40 +880,40 @@
           <tr>
             <td>
               <div class="p3-label2">Date of birth:</div>
-              *<span class="p3-u p3-u-md">2004</span>
-              &nbsp;-&nbsp;<span class="p3-u p3-u-sm">12</span>
-              &nbsp;-&nbsp;<span class="p3-u p3-u-sm">15</span>
+              *<span class="p3-u p3-u-md">{{ dob_y }}</span>
+              &nbsp;-&nbsp;<span class="p3-u p3-u-sm">{{ dob_m }}</span>
+              &nbsp;-&nbsp;<span class="p3-u p3-u-sm">{{ dob_d }}</span>
             </td>
           </tr>
           <tr>
             <td>
               <div class="p3-label2">Date of admission (transfer from another school):</div>
-              *<span class="p3-u p3-u-md">2021</span>
-              &nbsp;-&nbsp;<span class="p3-u p3-u-sm">11</span>
-              &nbsp;-&nbsp;<span class="p3-u p3-u-sm">12</span>
+              *<span class="p3-u p3-u-md">{{ agreement_admit_y }}</span>
+              &nbsp;-&nbsp;<span class="p3-u p3-u-sm">{{ agreement_admit_m }}</span>
+              &nbsp;-&nbsp;<span class="p3-u p3-u-sm">{{ agreement_admit_d }}</span>
             </td>
           </tr>
           <tr>
             <td>
               <div class="p3-label2">Date of graduation (transfer to another school):</div>
-              *<span class="p3-u p3-u-md">2023</span>
-              &nbsp;-&nbsp;<span class="p3-u p3-u-sm">10</span>
-              &nbsp;-&nbsp;<span class="p3-u p3-u-sm">18</span>
+              *<span class="p3-u p3-u-md">{{ agreement_grad_y }}</span>
+              &nbsp;-&nbsp;<span class="p3-u p3-u-sm">{{ agreement_grad_m }}</span>
+              &nbsp;-&nbsp;<span class="p3-u p3-u-sm">{{ agreement_grad_d }}</span>
             </td>
           </tr>
           <tr>
             <td>
               <div class="p3-label2">Name and Signature</div>
-              *<span class="p3-u p3-u-lg">SHAHRIAR MAHIR</span>
+              *<span class="p3-u p3-u-lg">{{ agreement_full_name }}</span>
               <span class="p3-sign-slot">{% if hanseo_sign_uri %}<img src="{{ hanseo_sign_uri }}" alt="" />{% endif %}</span>
             </td>
           </tr>
           <tr>
             <td>
               <div class="p3-label2">Date</div>
-              *<span class="p3-u p3-u-md">2026</span>
-              &nbsp;-&nbsp;<span class="p3-u p3-u-sm">02</span>
-              &nbsp;-&nbsp;<span class="p3-u p3-u-sm">19</span>
+              *<span class="p3-u p3-u-md">{{ agreement_date_y }}</span>
+              &nbsp;-&nbsp;<span class="p3-u p3-u-sm">{{ agreement_date_m }}</span>
+              &nbsp;-&nbsp;<span class="p3-u p3-u-sm">{{ agreement_date_d }}</span>
             </td>
           </tr>
         </table>
@@ -937,10 +921,10 @@
     </div>
 
     <div class="p3-bottom-info">
-      The highest level of education ZIP/postal code: 1910<br>
-      The highest level of education Address: TANGAIL, BANGLADESH<br>
-      The highest level of education Fax Number:<br>
-      The highest level of education Website URL:
+      The highest level of education ZIP/postal code: {{ highest_education_postal_code }}<br>
+      The highest level of education Address: {{ highest_education_address }}<br>
+      The highest level of education Fax Number: {{ highest_education_fax }}<br>
+      The highest level of education Website URL: {{ highest_education_website }}
     </div>
 
     <div class="page-no">- 2 -</div>
@@ -967,23 +951,22 @@
           <th>성별<br>(Gender)</th>
         </tr>
         <tr>
-          <td>BANGLADESHI</td>
-          <td>MD. HASIBUR RAHMAN BHUIYAN</td>
-          <td>년&nbsp;&nbsp;월&nbsp;&nbsp;일<br>(1999 08-05)</td>
-          <td>남(✓) / 여( )<br>(Male)&nbsp;&nbsp;&nbsp;&nbsp;(Female)</td>
+          <td>{{ translator_nationality }}</td>
+          <td>{{ translator_name }}</td>
+          <td>년&nbsp;&nbsp;월&nbsp;&nbsp;일<br>({{ translator_dob_display }})</td>
+          <td>남({% if translator_gender_male %}✓{% else %} {% endif %}) / 여({% if translator_gender_female %}✓{% else %} {% endif %})<br>(Male)&nbsp;&nbsp;&nbsp;&nbsp;(Female)</td>
         </tr>
         <tr class="p4-head">
           <th>주 소<br>(Address)</th>
           <td colspan="1" rowspan="2" style="text-align:left;padding-left:6px;">
-            Room 4A, Level-4, Kazi Tower, A-57/1, Kuril,<br>
-            Pragati Swarani, Bhatara, Dhaka-1229
+            {{ translator_address|linebreaksbr }}
           </td>
           <th colspan="2">연락처<br>(Contact Information)</th>
         </tr>
         <tr>
           <td class="p4-head"></td>
-          <td>(Home phone)</td>
-          <td>(Mobile)</td>
+          <td>{{ translator_home_phone }}</td>
+          <td>{{ translator_mobile }}</td>
         </tr>
       </table>
 
@@ -1002,15 +985,15 @@
           <th>성별<br>(Gender)</th>
         </tr>
         <tr>
-          <td>BANGLADESHI</td>
-          <td>SHAHRIAR MAHIR</td>
-          <td>년&nbsp;&nbsp;월&nbsp;&nbsp;일<br>(2004-12-15)</td>
-          <td>남(✓) / 여( )<br>(Male)&nbsp;&nbsp;&nbsp;&nbsp;(Female)</td>
+          <td>{{ owner_nationality }}</td>
+          <td>{{ owner_name_display }}</td>
+          <td>년&nbsp;&nbsp;월&nbsp;&nbsp;일<br>{{ owner_dob_paren }}</td>
+          <td>남({% if gender_is_male %}✓{% else %} {% endif %}) / 여({% if gender_is_female %}✓{% else %} {% endif %})<br>(Male)&nbsp;&nbsp;&nbsp;&nbsp;(Female)</td>
         </tr>
       </table>
 
       <div class="p4-section-label">번역대상물 (Translated Documents)</div>
-      <div class="p4-doc-box">APPLICANT NID, PARENTS NID</div>
+      <div class="p4-doc-box">{{ translated_documents_note }}</div>
 
       <div class="p4-cert">
         사실대로 번역하였으며,<br>
@@ -1019,7 +1002,7 @@
         Otherwise, I will take all legal responsibilities.)
       </div>
 
-      <div class="p4-date">2026 .02 .19</div>
+      <div class="p4-date">{{ p4_sign_date_y }} .{{ p4_sign_date_m }} .{{ p4_sign_date_d }}</div>
       <div class="p4-sign">
         <span>번역자(Translator):</span>
         <span class="p4-sign-img-wrap">{% if hanseo_sign_uri %}<img src="{{ hanseo_sign_uri }}" alt="" />{% endif %}</span>
@@ -1155,12 +1138,12 @@
         <div>- I have understood the contents of this agreement, and have confirmed the applicant's right to collect, use, and provide personal information.</div>
       </div>
 
-      <div class="p2-date-row">2026&nbsp;&nbsp;Year&nbsp;&nbsp;&nbsp;02&nbsp;&nbsp;Month&nbsp;&nbsp;&nbsp;19&nbsp;&nbsp;Day</div>
+      <div class="p2-date-row">{{ p2_date_y }}&nbsp;&nbsp;Year&nbsp;&nbsp;&nbsp;{{ p2_date_m }}&nbsp;&nbsp;Month&nbsp;&nbsp;&nbsp;{{ p2_date_d }}&nbsp;&nbsp;Day</div>
 
       <div class="p2-applicant">
-        Applicant :&nbsp; SHAHRIAR MAHIR &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (Signature)
+        Applicant :&nbsp; {{ agreement_full_name }} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (Signature)
         <span class="p2-sign-inline">{% if hanseo_sign_uri %}<img src="{{ hanseo_sign_uri }}" alt="" />{% endif %}</span><br>
-        (Date of Birth :&nbsp;&nbsp;&nbsp;&nbsp; 2004-12-15 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)
+        (Date of Birth :&nbsp;&nbsp;&nbsp;&nbsp; {{ dob_iso }} &nbsp;&nbsp;&nbsp;&nbsp; Passport :&nbsp; {{ passport_number }} &nbsp;&nbsp;)
       </div>
 
       <div class="p2-president">To the President of Hanseo University</div>

@@ -16,17 +16,14 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.permissions import AllowAny
 from django.db.models import Count, Prefetch, Sum
 from django.db.models.functions import TruncMonth
-import base64
-import mimetypes
 from pathlib import Path
 
 from django.conf import settings
 from django.utils import timezone
-from django.utils.safestring import mark_safe
 from django.http import HttpResponse
 from django.template.loader import render_to_string
 from weasyprint import HTML
-from drf_spectacular.utils import OpenApiExample, OpenApiResponse, extend_schema
+from drf_spectacular.utils import OpenApiExample, OpenApiParameter, OpenApiResponse, extend_schema
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -37,6 +34,7 @@ from ...services.application_progress import (
     parse_admin_progress_payload,
     serialize_application_progress,
 )
+from ...services.hanseo_pdf_context import build_hanseo_template_context, scoped_student_files_queryset
 
 from ...models import (
     Agency,
@@ -947,54 +945,76 @@ class StudentCostViewSet(StudentPortalReadOnlyMixin, TenantHomeAgencyRowMixin, B
     ordering_fields = ["created_at", "updated_at", "amount", "title"]
 
 
-def _hanseo_image_data_uri(filename: str) -> str:
-    """
-    Embed a Hanseo template asset as a data URI so WeasyPrint always inlines it.
-
-    Relative ``file://`` bases are unreliable in some PDF runtimes; base64 avoids that.
-    """
-    path = Path(settings.BASE_DIR) / "templates" / "images" / "hanseo" / filename
-    if not path.is_file():
-        return ""
-    raw = path.read_bytes()
-    mime, _ = mimetypes.guess_type(path.name)
-    if not mime:
-        ext = path.suffix.lower()
-        if ext in (".jpg", ".jpeg"):
-            mime = "image/jpeg"
-        elif ext == ".png":
-            mime = "image/png"
-        else:
-            mime = "application/octet-stream"
-    encoded = base64.b64encode(raw).decode("ascii")
-    return mark_safe(f"data:{mime};base64,{encoded}")
-
-
+@extend_schema(
+    summary="Hanseo application pack (PDF)",
+    description=(
+        "Renders ``hanseo.html`` with data from the given student file. "
+        "Requires authentication; visibility matches the student-files API."
+    ),
+    parameters=[
+        OpenApiParameter(
+            name="student_file_id",
+            type=str,
+            location=OpenApiParameter.QUERY,
+            description="Student file public id (e.g. STF…).",
+        ),
+        OpenApiParameter(
+            name="slug",
+            type=str,
+            location=OpenApiParameter.QUERY,
+            description="Alternate lookup: student file slug.",
+        ),
+        OpenApiParameter(
+            name="id",
+            type=int,
+            location=OpenApiParameter.QUERY,
+            description="Alternate lookup: numeric primary key of the student file.",
+        ),
+    ],
+)
 class UniversityFormDownloadAPIView(APIView):
     """
-    Renders the Hanseo admission form template to PDF (public download).
+    Renders the Hanseo admission form template to PDF for one ``StudentFile``.
 
+    Pass ``student_file_id`` (recommended) or ``slug`` as query parameters.
     Uses WeasyPrint so ``@page`` and print-oriented CSS in the template are honored.
     """
 
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
+        student_file_id = (request.query_params.get("student_file_id") or "").strip()
+        slug = (request.query_params.get("slug") or "").strip()
+        raw_pk = (request.query_params.get("id") or "").strip()
+        if not student_file_id and not slug and not raw_pk:
+            return Response(
+                {"detail": "Provide query parameter student_file_id, slug, or id."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        qs = scoped_student_files_queryset(request)
+        student_file = None
+        if student_file_id:
+            student_file = qs.filter(student_file_id=student_file_id).first()
+        if student_file is None and slug:
+            student_file = qs.filter(slug=slug).first()
+        if student_file is None and raw_pk.isdigit():
+            student_file = qs.filter(pk=int(raw_pk)).first()
+        if student_file is None:
+            return Response({"detail": "Student file not found."}, status=status.HTTP_404_NOT_FOUND)
+
         hanseo_assets_dir = Path(settings.BASE_DIR) / "templates" / "images" / "hanseo"
         asset_base_url = hanseo_assets_dir.as_uri() + "/"
-        context = {
-            "hanseo_passport_uri": _hanseo_image_data_uri("bablu_passport.jpeg"),
-            "hanseo_logo_uri": _hanseo_image_data_uri("logo.png"),
-            "hanseo_sign_uri": _hanseo_image_data_uri("dummy_sign.jpg"),
-        }
+        context = build_hanseo_template_context(student_file)
         html_string = render_to_string(
             "university_templates/hanseo.html",
             context,
             request=request,
         )
         pdf_bytes = HTML(string=html_string, base_url=asset_base_url).write_pdf()
+        safe_name_part = student_file.student_file_id or str(student_file.pk)
         response = HttpResponse(pdf_bytes, content_type="application/pdf")
         response["Content-Disposition"] = (
-            'attachment; filename="hanseo-application-of-admission.pdf"'
+            f'attachment; filename="hanseo-application-{safe_name_part}.pdf"'
         )
         return response

@@ -1,0 +1,343 @@
+"""
+Build template context for the Hanseo university PDF pack (WeasyPrint).
+
+``education_background`` / ``family_particulars`` / ``translator_profile`` are
+optional JSON blobs on ``StudentFile``; this module normalizes them into rows
+and display strings for the HTML template.
+"""
+
+from __future__ import annotations
+
+import base64
+import calendar
+import mimetypes
+import re
+from datetime import date
+from pathlib import Path
+from typing import Any
+from urllib.error import URLError
+from urllib.request import Request, urlopen
+
+from django.conf import settings
+from django.utils.safestring import mark_safe
+
+from agency_inventory.constants import GenderChoice
+from agency_inventory.models import StudentFile
+
+
+def _hanseo_asset_data_uri(filename: str) -> str:
+    """Load a bundled Hanseo asset from ``templates/images/hanseo`` as a data URI."""
+    path = Path(settings.BASE_DIR) / "templates" / "images" / "hanseo" / filename
+    if not path.is_file():
+        return ""
+    raw = path.read_bytes()
+    mime, _ = mimetypes.guess_type(path.name)
+    if not mime:
+        ext = path.suffix.lower()
+        if ext in (".jpg", ".jpeg"):
+            mime = "image/jpeg"
+        elif ext == ".png":
+            mime = "image/png"
+        else:
+            mime = "application/octet-stream"
+    encoded = base64.b64encode(raw).decode("ascii")
+    return mark_safe(f"data:{mime};base64,{encoded}")
+
+
+def _remote_url_to_data_uri(url: str, *, timeout: int = 20) -> str:
+    """Fetch an http(s) image URL and return a data URI for embedding in PDF."""
+    if not url or not isinstance(url, str):
+        return ""
+    url = url.strip()
+    if not url.startswith(("http://", "https://")):
+        return ""
+    try:
+        req = Request(url, headers={"User-Agent": "Agency-backend/1.0 (Hanseo PDF)"})
+        with urlopen(req, timeout=timeout) as resp:
+            raw = resp.read()
+        content_type = resp.headers.get_content_type() if hasattr(resp.headers, "get_content_type") else None
+        mime = content_type or mimetypes.guess_type(url)[0] or "application/octet-stream"
+        encoded = base64.b64encode(raw).decode("ascii")
+        return mark_safe(f"data:{mime};base64,{encoded}")
+    except (URLError, OSError, ValueError):
+        return ""
+
+
+def _split_date_string(value: str | None) -> tuple[str, str, str]:
+    """Return (yyyy, mm, dd) strings from YYYY-MM-DD / similar; blanks if unparsable."""
+    if not value or not isinstance(value, str):
+        return "", "", ""
+    cleaned = value.strip().replace("/", "-").replace(".", "-")
+    parts = [p for p in cleaned.split("-") if p]
+    if len(parts) >= 3:
+        y, m, d = parts[0], parts[1].zfill(2), parts[2].zfill(2)
+        if y.isdigit() and m.isdigit() and d.isdigit():
+            return y, m, d
+    return "", "", ""
+
+
+def _format_dob_banner(d: date) -> str:
+    """Example: 2004 DEC 15 (matches the legacy static Hanseo layout; plain spaces + nowrap CSS)."""
+    mon = calendar.month_abbr[d.month].upper()
+    return f"{d.year} {mon} {d.day:02d}"
+
+
+def _gender_label(gender_value: str) -> str:
+    if gender_value == GenderChoice.MALE:
+        return "MALE"
+    if gender_value == GenderChoice.FEMALE:
+        return "FEMALE"
+    return "OTHER"
+
+
+def _default_education_rows() -> list[dict[str, str]]:
+    return [
+        {"degree": "Elementary School", "institution": "", "study_period": "", "result": "", "graduation_date": "", "institution_phone": ""},
+        {"degree": "College", "institution": "", "study_period": "", "result": "", "graduation_date": "", "institution_phone": ""},
+        {"degree": "University", "institution": "", "study_period": "", "result": "", "graduation_date": "", "institution_phone": ""},
+    ]
+
+
+def _merge_education_rows(stored: list[Any] | None) -> list[dict[str, str]]:
+    defaults = _default_education_rows()
+    rows = list(stored or [])
+    merged: list[dict[str, str]] = []
+    for i, slot in enumerate(defaults):
+        src = rows[i] if i < len(rows) and isinstance(rows[i], dict) else {}
+        merged.append(
+            {
+                "degree": str(src.get("degree") or slot["degree"]),
+                "institution": str(src.get("institution") or ""),
+                "study_period": str(src.get("study_period") or ""),
+                "result": str(src.get("result") or ""),
+                "graduation_date": str(src.get("graduation_date") or ""),
+                "institution_phone": str(src.get("institution_phone") or ""),
+                "admission_date": str(src.get("admission_date") or ""),
+            }
+        )
+    return merged
+
+
+def _pick_college_row(merged_education: list[dict[str, str]]) -> dict[str, str]:
+    for row in merged_education:
+        deg = (row.get("degree") or "").lower()
+        if "college" in deg or "higher secondary" in deg or "high school" in deg:
+            return row
+    if len(merged_education) >= 2:
+        return merged_education[1]
+    return merged_education[0] if merged_education else {}
+
+
+def _study_period_years(study_period: str) -> tuple[str, str]:
+    if not study_period:
+        return "", ""
+    m = re.search(r"(\d{4})\s*[-–]\s*(\d{4})", study_period)
+    if m:
+        return m.group(1), m.group(2)
+    return "", ""
+
+
+def _default_family_template() -> list[dict[str, str]]:
+    return [
+        {"relation": "FATHER", "name": "", "date_of_birth": "", "occupation": "", "monthly_income": "", "workplace": "", "workplace_phone": ""},
+        {"relation": "MOTHER", "name": "", "date_of_birth": "", "occupation": "", "monthly_income": "", "workplace": "", "workplace_phone": ""},
+        {"relation": "", "name": "", "date_of_birth": "", "occupation": "", "monthly_income": "", "workplace": "", "workplace_phone": ""},
+    ]
+
+
+def _merge_family_rows(sf: StudentFile, stored: list[Any] | None) -> list[dict[str, str]]:
+    defaults = _default_family_template()
+    rows = list(stored or [])
+    if not rows and (sf.father_name or sf.mother_name):
+        rows = [
+            {
+                "relation": "FATHER",
+                "name": sf.father_name or "",
+                "date_of_birth": "",
+                "occupation": "",
+                "monthly_income": "",
+                "workplace": "",
+                "workplace_phone": "",
+            },
+            {
+                "relation": "MOTHER",
+                "name": sf.mother_name or "",
+                "date_of_birth": "",
+                "occupation": "",
+                "monthly_income": "",
+                "workplace": "",
+                "workplace_phone": "",
+            },
+        ]
+    merged: list[dict[str, str]] = []
+    for i, slot in enumerate(defaults):
+        src = rows[i] if i < len(rows) and isinstance(rows[i], dict) else {}
+        merged.append(
+            {
+                "relation": str(src.get("relation") or slot["relation"]),
+                "name": str(src.get("name") or ""),
+                "date_of_birth": str(src.get("date_of_birth") or ""),
+                "occupation": str(src.get("occupation") or ""),
+                "monthly_income": str(src.get("monthly_income") or ""),
+                "workplace": str(src.get("workplace") or ""),
+                "workplace_phone": str(src.get("workplace_phone") or ""),
+            }
+        )
+    return merged
+
+
+def build_hanseo_template_context(
+    student_file: StudentFile,
+    *,
+    form_date: date | None = None,
+    fallback_passport_asset: str = "bablu_passport.jpeg",
+) -> dict[str, Any]:
+    """
+    Map a ``StudentFile`` into the variables expected by ``hanseo.html``.
+
+    ``form_date`` defaults to today (local) and drives title / signature dates.
+    """
+    sf = student_file
+    today = form_date or date.today()
+
+    dob = sf.date_of_birth
+    dob_y, dob_m, dob_d = str(dob.year), f"{dob.month:02d}", f"{dob.day:02d}"
+
+    given_line = " ".join(p for p in (sf.given_name, (sf.middle_name or "").strip()) if p).strip()
+    full_name_caps = f"{sf.given_name} {sf.surname}".strip().upper()
+    if sf.middle_name:
+        full_name_caps = f"{sf.given_name} {sf.middle_name.strip()} {sf.surname}".strip().upper()
+
+    gender_val: str = str(sf.gender or GenderChoice.OTHER)
+    gender_label = _gender_label(gender_val)
+    gender_is_male = gender_val == GenderChoice.MALE
+    gender_is_female = gender_val == GenderChoice.FEMALE
+
+    education_rows = _merge_education_rows(sf.education_background)
+    college = _pick_college_row(education_rows)
+    admit_y, admit_m, admit_d = _split_date_string(college.get("admission_date"))
+    grad_y, grad_m, grad_d = _split_date_string(college.get("graduation_date"))
+    span_from, span_to = _study_period_years(college.get("study_period", ""))
+    if not admit_y and span_from:
+        admit_y = span_from
+    if not grad_y and span_to:
+        grad_y = span_to
+
+    family_rows = _merge_family_rows(sf, sf.family_particulars)
+
+    translator = sf.translator_profile if isinstance(sf.translator_profile, dict) else {}
+    tr_gender = (translator.get("gender") or "").upper()
+    tr_is_male = tr_gender in ("M", "MALE", GenderChoice.MALE)
+    tr_is_female = tr_gender in ("F", "FEMALE", GenderChoice.FEMALE)
+
+    passport_uri = _remote_url_to_data_uri(sf.passport_photo_url or "")
+    if not passport_uri:
+        passport_uri = _hanseo_asset_data_uri(fallback_passport_asset)
+
+    default_statement = (
+        "I am applying for admission at the institute of Language and Culture Education."
+    )
+    statement = (sf.application_statement or "").strip() or default_statement
+
+    translated_note = (sf.translated_documents_note or "").strip() or "—"
+
+    title_date = today.strftime("%Y-%m-%d")
+    form_title = f"{title_date} Application of Admission"
+
+    return {
+        "form_title": form_title,
+        "student_file_id": sf.student_file_id or "",
+        "surname": sf.surname,
+        "given_name": sf.given_name,
+        "given_name_line": given_line,
+        "full_name_caps": full_name_caps,
+        "dob_display": _format_dob_banner(dob),
+        "dob_iso": dob.isoformat(),
+        "dob_y": dob_y,
+        "dob_m": dob_m,
+        "dob_d": dob_d,
+        "nationality": (sf.nationality or "").upper() or "—",
+        "place_of_birth": (sf.place_of_birth or "").upper() or "—",
+        "gender_label": gender_label,
+        "gender_is_male": gender_is_male,
+        "gender_is_female": gender_is_female,
+        "present_address": sf.present_address or "—",
+        "permanent_address": sf.permanent_address or "—",
+        "phone_whatsapp": sf.phone_whatsapp or "—",
+        "email": sf.email or "—",
+        "education_rows": education_rows,
+        "family_rows": family_rows,
+        "application_statement": statement,
+        "statement_date": today.strftime("%Y/%m/%d"),
+        "agreement_school_name": college.get("institution") or "—",
+        "agreement_from_year": span_from or admit_y or "—",
+        "agreement_to_year": span_to or grad_y or "—",
+        "agreement_admit_y": admit_y or "",
+        "agreement_admit_m": admit_m or "",
+        "agreement_admit_d": admit_d or "",
+        "agreement_grad_y": grad_y or "",
+        "agreement_grad_m": grad_m or "",
+        "agreement_grad_d": grad_d or "",
+        "agreement_full_name": full_name_caps,
+        "agreement_date_y": str(today.year),
+        "agreement_date_m": f"{today.month:02d}",
+        "agreement_date_d": f"{today.day:02d}",
+        "highest_education_postal_code": sf.highest_education_postal_code or "",
+        "highest_education_address": sf.highest_education_address or "",
+        "highest_education_fax": sf.highest_education_fax or "",
+        "highest_education_website": sf.highest_education_website or "",
+        "translator_nationality": (translator.get("nationality") or "").upper() or "—",
+        "translator_name": translator.get("name") or "—",
+        "translator_dob_display": translator.get("date_of_birth") or "—",
+        "translator_gender_male": tr_is_male,
+        "translator_gender_female": tr_is_female,
+        "translator_address": translator.get("address") or "—",
+        "translator_home_phone": translator.get("home_phone") or "",
+        "translator_mobile": translator.get("mobile") or "",
+        "owner_nationality": (sf.nationality or "").upper() or "—",
+        "owner_name_display": full_name_caps,
+        "owner_dob_paren": f"({dob.isoformat()})",
+        "translated_documents_note": translated_note,
+        "p4_sign_date_y": str(today.year),
+        "p4_sign_date_m": f"{today.month:02d}",
+        "p4_sign_date_d": f"{today.day:02d}",
+        "p2_date_y": str(today.year),
+        "p2_date_m": f"{today.month:02d}",
+        "p2_date_d": f"{today.day:02d}",
+        "passport_number": sf.passport_number or "",
+        "hanseo_passport_uri": passport_uri,
+        "hanseo_logo_uri": _hanseo_asset_data_uri("logo.png"),
+        "hanseo_sign_uri": _hanseo_asset_data_uri("dummy_sign.jpg"),
+    }
+
+
+def scoped_student_files_queryset(request):
+    """
+    Same visibility as ``StudentFileViewSet`` for non-list access: business tenant,
+    B2B agency stamp, student portal linked file only.
+    """
+    from authentication.tenant_utils import (
+        apply_b2b_agency_scope_to_queryset,
+        is_student_portal_user,
+        tenant_business_id,
+        user_is_master_admin,
+    )
+
+    user = getattr(request, "user", None)
+    qs = StudentFile.objects.select_related("agency", "business", "created_by").all()
+    if not user or not user.is_authenticated:
+        return StudentFile.objects.none()
+    if user_is_master_admin(user):
+        scoped = qs
+    else:
+        business_id = tenant_business_id(user)
+        if not business_id:
+            return StudentFile.objects.none()
+        scoped = qs.filter(business_id=business_id)
+    scoped = apply_b2b_agency_scope_to_queryset(scoped, user)
+    if is_student_portal_user(user):
+        linked = getattr(user, "linked_student_file_id", None)
+        if linked:
+            return scoped.filter(pk=linked)
+        return StudentFile.objects.none()
+    return scoped
