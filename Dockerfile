@@ -9,6 +9,7 @@ WORKDIR /app
 
 # Install system dependencies (WeasyPrint needs Pango/Cairo stack for HTML→PDF)
 # Liberation + DejaVu: slim images have no MS fonts; without these, PDFs use random fallbacks vs macOS/Windows.
+# Noto CJK is required for Korean labels in the Hanseo WeasyPrint PDFs.
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     libpq-dev \
@@ -24,6 +25,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     fontconfig \
     fonts-liberation \
     fonts-dejavu-core \
+    fonts-noto-cjk \
     && fc-cache -f -v \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*

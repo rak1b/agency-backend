@@ -7,6 +7,7 @@
     /* One inner width for every sheet so PDF pages look aligned (WeasyPrint / print). */
     :root {
       --doc-inner-width: 170mm;
+      --korean-sans: "Noto Sans CJK KR", "Noto Sans CJK", "Noto Sans KR", "Liberation Sans", Arial, Helvetica, sans-serif;
     }
 
     @page {
@@ -575,6 +576,13 @@
       line-height: 2.1;
     }
 
+    .p3-sub-title,
+    .p4-title-ko,
+    .p4-body,
+    .p4-minister-ko {
+      font-family: var(--korean-sans);
+    }
+
     /* ---------------- PAGE 4 ---------------- */
     .p4-title-ko {
       text-align: center;
@@ -596,7 +604,6 @@
       width: 100%;
       max-width: var(--doc-inner-width);
       margin: 0 auto;
-      font-family: "Liberation Sans", Arial, Helvetica, sans-serif;
       font-size: 8px;
       line-height: 1.2;
     }
