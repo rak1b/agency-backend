@@ -23,6 +23,18 @@ def _clean_date(value):
     return None
 
 
+def _clean_degree(value):
+    value = _clean_text(value).strip()
+    aliases = {
+        "elementary_school": "Elementary School",
+        "elementary school": "Elementary School",
+        "school": "Elementary School",
+        "college": "College",
+        "university": "University",
+    }
+    return aliases.get(value.lower(), value)
+
+
 def copy_json_rows(apps, _schema_editor):
     StudentFile = apps.get_model("agency_inventory", "StudentFile")
     StudentEducationBackground = apps.get_model("agency_inventory", "StudentEducationBackground")
@@ -39,7 +51,7 @@ def copy_json_rows(apps, _schema_editor):
                 education_rows.append(
                     StudentEducationBackground(
                         student_file_id=student_file.id,
-                        degree=_clean_text(row.get("degree")),
+                        degree=_clean_degree(row.get("degree")),
                         institution=_clean_text(row.get("institution")),
                         study_period=_clean_text(row.get("study_period")),
                         result=_clean_text(row.get("result")),
@@ -96,7 +108,7 @@ class Migration(migrations.Migration):
                 ("is_deleted", models.BooleanField(default=False)),
                 ("deleted_at", models.DateTimeField(blank=True, null=True)),
                 ("is_active", models.BooleanField(default=True)),
-                ("degree", models.CharField(max_length=150)),
+                ("degree", models.CharField(choices=[("Elementary School", "Elementary School"), ("College", "College"), ("University", "University")], max_length=50)),
                 ("institution", models.CharField(blank=True, default="", max_length=255)),
                 ("study_period", models.CharField(blank=True, default="", max_length=100)),
                 ("result", models.CharField(blank=True, default="", max_length=100)),
@@ -162,7 +174,7 @@ class Migration(migrations.Migration):
                 ("is_deleted", models.BooleanField(default=False)),
                 ("deleted_at", models.DateTimeField(blank=True, null=True)),
                 ("is_active", models.BooleanField(default=True)),
-                ("degree", models.CharField(max_length=150)),
+                ("degree", models.CharField(choices=[("Elementary School", "Elementary School"), ("College", "College"), ("University", "University")], max_length=50)),
                 ("institution", models.CharField(blank=True, default="", max_length=255)),
                 ("study_period", models.CharField(blank=True, default="", max_length=100)),
                 ("result", models.CharField(blank=True, default="", max_length=100)),

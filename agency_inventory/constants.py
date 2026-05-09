@@ -28,6 +28,12 @@ class GenderChoice(models.TextChoices):
     OTHER = "OTHER", _("Other")
 
 
+class AcademicDegreeChoice(models.TextChoices):
+    ELEMENTARY_SCHOOL = "Elementary School", _("Elementary School")
+    COLLEGE = "College", _("College")
+    UNIVERSITY = "University", _("University")
+
+
 class UniversityProgramChoice(models.TextChoices):
     """
     Stored values align with typical frontend ``PROGRAM_LEVELS`` ids (EAP, KLP, DIPLOMA,

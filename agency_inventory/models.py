@@ -7,6 +7,7 @@ from authentication.base import BaseModel
 from utils.slug_utils import generate_unique_code, generate_unique_slug
 from .constants import (
     AgencyStatusChoice,
+    AcademicDegreeChoice,
     ApplicationProgressStepState,
     CustomerStatusChoice,
     FileFromChoice,
@@ -268,7 +269,7 @@ class StudentEducationBackground(BaseModel):
         on_delete=models.CASCADE,
         related_name="education_background_rows",
     )
-    degree = models.CharField(max_length=150)
+    degree = models.CharField(max_length=50, choices=AcademicDegreeChoice.choices)
     institution = models.CharField(max_length=255, blank=True, default="")
     study_period = models.CharField(max_length=100, blank=True, default="")
     result = models.CharField(max_length=100, blank=True, default="")
