@@ -170,10 +170,10 @@
       letter-spacing: 0;
     }
 
-    /* Korean visa height 45mm; photo cell narrowed so image can span full width (less side gap) */
+    /* Korean visa height 36mm; photo spans the first four personal-info rows */
     .p1-photo {
-      height: 45mm;
-      min-height: 45mm;
+      height: 36mm;
+      min-height: 36mm;
       padding: 0 !important;
       vertical-align: middle;
       text-align: center;
@@ -182,7 +182,7 @@
     .p1-photo img {
       display: block;
       width: 100%;
-      height: 45mm;
+      height: 36mm;
       margin: 0;
       object-fit: cover;
       object-position: center 22%;
@@ -696,10 +696,10 @@
     <div class="p1-box">
       <table class="p1-personal">
         <colgroup>
-          <col style="width:16%;">
+          <col style="width:17%;">
           <col style="width:14%;">
-          <col style="width:49%;">
-          <col style="width:9%;">
+          <col style="width:44%;">
+          <col style="width:13%;">
           <col style="width:12%;">
         </colgroup>
 
@@ -707,7 +707,7 @@
           <td rowspan="2" class="p1-label">Full Name</td>
           <td class="p1-sub-label">Surname</td>
           <td class="p1-value p1-big">{{ surname|upper }}</td>
-          <td rowspan="5" colspan="2" class="p1-photo">
+          <td rowspan="4" colspan="2" class="p1-photo">
             {% if hanseo_passport_uri %}<img src="{{ hanseo_passport_uri }}" alt="" />{% endif %}
           </td>
         </tr>
@@ -729,11 +729,15 @@
         </tr>
         <tr>
           <td class="p1-label">Nationality</td>
-          <td colspan="2" class="p1-value p1-big center">{{ nationality }}</td>
-        </tr>
-        <tr>
-          <td class="p1-label">Place of Birth</td>
-          <td colspan="2" class="p1-value p1-big center">{{ place_of_birth }}</td>
+          <td class="p1-value p1-big center">{{ nationality }}</td>
+          <td class="no-pad">
+            <table>
+              <tr>
+                <td style="width:38%; border-left:0; border-top:0; border-bottom:0;" class="p1-label nowrap">Place of Birth</td>
+                <td style="border-right:0; border-top:0; border-bottom:0;" class="p1-value p1-big">{{ place_of_birth }}</td>
+              </tr>
+            </table>
+          </td>
         </tr>
         <tr>
           <td class="p1-label">Present Address</td>
