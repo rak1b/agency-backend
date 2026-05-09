@@ -8,7 +8,8 @@ ENV PYTHONUNBUFFERED=1
 WORKDIR /app
 
 # Install system dependencies (WeasyPrint needs Pango/Cairo stack for HTML→PDF)
-RUN apt-get update && apt-get install -y \
+# Liberation + DejaVu: slim images have no MS fonts; without these, PDFs use random fallbacks vs macOS/Windows.
+RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     libpq-dev \
     default-libmysqlclient-dev \
@@ -20,7 +21,12 @@ RUN apt-get update && apt-get install -y \
     libgdk-pixbuf-2.0-0 \
     libffi-dev \
     shared-mime-info \
-    && apt-get clean
+    fontconfig \
+    fonts-liberation \
+    fonts-dejavu-core \
+    && fc-cache -f -v \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
 COPY requirements.txt .
