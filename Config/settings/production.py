@@ -3,6 +3,8 @@ from .db_utils import redis_url_local_fallback, resolved_tcp_host
 
 DEBUG = config('DEBUG', cast=bool)
 ALLOWED_HOSTS = [
+    "127.0.0.1",
+    "localhost",
     "agency-backend.devsstream.com",
     "agency-demo-backend.devsstream.com",
     "agency.devsstream.com",
