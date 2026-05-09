@@ -11,9 +11,7 @@ services:
     restart: always
     env_file:
       - .env
-    command: >
-      sh -c "python manage.py migrate &&
-             gunicorn Config.wsgi:application --bind 0.0.0.0:8000"
+    # Startup: Dockerfile ENTRYPOINT (entrypoint.sh) runs migrate, collectstatic, gunicorn.
     volumes:
       - ./static:/app/static
       - ./media:/app/media
@@ -25,6 +23,18 @@ services:
         condition: service_healthy
       redis:
         condition: service_started
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health/', timeout=5)",
+        ]
+      interval: 15s
+      timeout: 10s
+      retries: 6
+      start_period: 90s
     networks:
       - ps_inventory_net
 

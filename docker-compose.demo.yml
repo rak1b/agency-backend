@@ -35,9 +35,8 @@ services:
     environment:
       # Without this, Config/api/base.py never mounts /api/schema/ or /api/docs/ when DEBUG=false.
       ENABLE_API_DOCS: "true"
-    command: >
-      sh -c "python manage.py migrate --noinput &&
-             gunicorn Config.wsgi:application --bind 0.0.0.0:8000"
+    # Startup: use image ENTRYPOINT only (migrate, collectstatic, gunicorn). A duplicate
+    # ``command`` is ignored by entrypoint.sh but confuses operators; omit it.
     volumes:
       - ./static:/app/static
       - ./media:/app/media
@@ -49,6 +48,18 @@ services:
         condition: service_healthy
       redis:
         condition: service_started
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health/', timeout=5)",
+        ]
+      interval: 15s
+      timeout: 10s
+      retries: 6
+      start_period: 90s
     networks:
       - agency_demo_net
 

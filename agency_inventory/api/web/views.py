@@ -22,7 +22,6 @@ from django.conf import settings
 from django.utils import timezone
 from django.http import HttpResponse
 from django.template.loader import render_to_string
-from weasyprint import HTML
 from drf_spectacular.utils import OpenApiExample, OpenApiParameter, OpenApiResponse, extend_schema
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -1011,7 +1010,10 @@ class UniversityFormDownloadAPIView(APIView):
             context,
             request=request,
         )
-        pdf_bytes = HTML(string=html_string, base_url=asset_base_url).write_pdf()
+        # Import here so a broken WeasyPrint/GTK stack does not prevent the rest of the API from booting.
+        from weasyprint import HTML as WeasyHTML
+
+        pdf_bytes = WeasyHTML(string=html_string, base_url=asset_base_url).write_pdf()
         safe_name_part = student_file.student_file_id or str(student_file.pk)
         response = HttpResponse(pdf_bytes, content_type="application/pdf")
         response["Content-Disposition"] = (
