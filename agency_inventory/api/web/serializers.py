@@ -21,6 +21,8 @@ from ...models import (
     Customer,
     OfficeCost,
     Program,
+    StudentEducationBackground,
+    StudentFamilyParticular,
     StudentFile,
     StudentFileAttachment,
     StudentCost,
@@ -32,6 +34,8 @@ from ...models import (
 )
 from ...constants import GenderChoice, ReviewStatusChoice
 from ...services.application_progress import STEP_KEYS
+
+_MISSING = object()
 
 
 def _ensure_agency_in_tenant_business(serializer, agency):
@@ -175,6 +179,59 @@ class AppliedUniversityPayloadSerializer(serializers.Serializer):
     review_note = serializers.CharField(required=False, allow_blank=True, allow_null=True)
 
 
+class StudentEducationBackgroundSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(required=False)
+
+    class Meta:
+        model = StudentEducationBackground
+        fields = [
+            "id",
+            "degree",
+            "institution",
+            "study_period",
+            "result",
+            "graduation_date",
+            "institution_phone",
+            "admission_date",
+            "sort_order",
+        ]
+        extra_kwargs = {
+            "degree": {"required": False, "allow_blank": True},
+            "institution": {"required": False, "allow_blank": True},
+            "study_period": {"required": False, "allow_blank": True},
+            "result": {"required": False, "allow_blank": True},
+            "institution_phone": {"required": False, "allow_blank": True},
+            "sort_order": {"required": False},
+        }
+
+
+class StudentFamilyParticularSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(required=False)
+
+    class Meta:
+        model = StudentFamilyParticular
+        fields = [
+            "id",
+            "relation",
+            "name",
+            "date_of_birth",
+            "occupation",
+            "monthly_income",
+            "workplace",
+            "workplace_phone",
+            "sort_order",
+        ]
+        extra_kwargs = {
+            "relation": {"required": False, "allow_blank": True},
+            "name": {"required": False, "allow_blank": True},
+            "occupation": {"required": False, "allow_blank": True},
+            "monthly_income": {"required": False, "allow_blank": True},
+            "workplace": {"required": False, "allow_blank": True},
+            "workplace_phone": {"required": False, "allow_blank": True},
+            "sort_order": {"required": False},
+        }
+
+
 class StudentFileSerializer(serializers.ModelSerializer):
     """
     Student file API: includes ``is_own_agency`` (all non soft-delete model fields are exposed via ``exclude``).
@@ -188,6 +245,18 @@ class StudentFileSerializer(serializers.ModelSerializer):
     attachment_details = serializers.SerializerMethodField(read_only=True)
     applied_universities = AppliedUniversityPayloadSerializer(many=True, required=False, write_only=True)
     applied_university_details = serializers.SerializerMethodField(read_only=True)
+    education_background = StudentEducationBackgroundSerializer(
+        source="education_background_rows",
+        many=True,
+        required=False,
+        allow_null=True,
+    )
+    family_particulars = StudentFamilyParticularSerializer(
+        source="family_particular_rows",
+        many=True,
+        required=False,
+        allow_null=True,
+    )
     workflow_steps = serializers.SerializerMethodField(read_only=True)
     generated_student_credentials = serializers.SerializerMethodField(read_only=True)
 
@@ -642,14 +711,60 @@ class StudentFileSerializer(serializers.ModelSerializer):
         else:
             student_file.applied_universities.add(*applied_university_ids)
 
+    def _replace_education_background(self, student_file, rows_data):
+        student_file.education_background_rows.all().delete()
+        rows = []
+        for index, row in enumerate(rows_data or []):
+            rows.append(
+                StudentEducationBackground(
+                    student_file=student_file,
+                    degree=row.get("degree") or "",
+                    institution=row.get("institution") or "",
+                    study_period=row.get("study_period") or "",
+                    result=row.get("result") or "",
+                    graduation_date=row.get("graduation_date"),
+                    institution_phone=row.get("institution_phone") or "",
+                    admission_date=row.get("admission_date"),
+                    sort_order=row.get("sort_order", index),
+                )
+            )
+        if rows:
+            StudentEducationBackground.objects.bulk_create(rows)
+
+    def _replace_family_particulars(self, student_file, rows_data):
+        student_file.family_particular_rows.all().delete()
+        rows = []
+        for index, row in enumerate(rows_data or []):
+            rows.append(
+                StudentFamilyParticular(
+                    student_file=student_file,
+                    relation=row.get("relation") or "",
+                    name=row.get("name") or "",
+                    date_of_birth=row.get("date_of_birth"),
+                    occupation=row.get("occupation") or "",
+                    monthly_income=row.get("monthly_income") or "",
+                    workplace=row.get("workplace") or "",
+                    workplace_phone=row.get("workplace_phone") or "",
+                    sort_order=row.get("sort_order", index),
+                )
+            )
+        if rows:
+            StudentFamilyParticular.objects.bulk_create(rows)
+
     @transaction.atomic
     def create(self, validated_data):
         attachments_data = validated_data.pop("attachments", [])
         applied_universities_data = validated_data.pop("applied_universities", [])
+        education_background_data = validated_data.pop("education_background_rows", [])
+        family_particulars_data = validated_data.pop("family_particular_rows", [])
         request = self.context.get("request")
         if request and hasattr(request, "user"):
             validated_data["created_by"] = request.user
         student_file = StudentFile.objects.create(**validated_data)
+        if education_background_data:
+            self._replace_education_background(student_file, education_background_data)
+        if family_particulars_data:
+            self._replace_family_particulars(student_file, family_particulars_data)
         if attachments_data:
             self._upsert_attachments(student_file, attachments_data)
         if applied_universities_data:
@@ -661,10 +776,16 @@ class StudentFileSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         attachments_data = validated_data.pop("attachments", None)
         applied_universities_data = validated_data.pop("applied_universities", None)
+        education_background_data = validated_data.pop("education_background_rows", _MISSING)
+        family_particulars_data = validated_data.pop("family_particular_rows", _MISSING)
         request = self.context.get("request")
         request_user = getattr(request, "user", None) if request else None
         is_student_user = bool(request_user and is_student_portal_user(request_user))
         student_file = super().update(instance, validated_data)
+        if education_background_data is not _MISSING:
+            self._replace_education_background(student_file, education_background_data)
+        if family_particulars_data is not _MISSING:
+            self._replace_family_particulars(student_file, family_particulars_data)
         if attachments_data is not None:
             self._upsert_attachments(student_file, attachments_data, replace_links=not is_student_user)
         if applied_universities_data is not None:
@@ -746,8 +867,8 @@ class PublicStudentFileCreateSerializer(serializers.Serializer):
     present_address = serializers.CharField(required=False, allow_blank=True)
     permanent_address = serializers.CharField(required=False, allow_blank=True)
     passport_photo_url = serializers.URLField(max_length=1000, required=False, allow_blank=True, allow_null=True)
-    education_background = serializers.JSONField(required=False, allow_null=True)
-    family_particulars = serializers.JSONField(required=False, allow_null=True)
+    education_background = StudentEducationBackgroundSerializer(many=True, required=False, allow_null=True)
+    family_particulars = StudentFamilyParticularSerializer(many=True, required=False, allow_null=True)
     translator_profile = serializers.JSONField(required=False, allow_null=True)
     translated_documents_note = serializers.CharField(max_length=500, required=False, allow_blank=True)
     application_statement = serializers.CharField(required=False, allow_blank=True)
@@ -791,6 +912,8 @@ class PublicStudentFileCreateSerializer(serializers.Serializer):
         selected_intake = validated_data.pop("intake", None)
         selected_subject = validated_data.pop("subject", None)
         message = validated_data.pop("message", None)
+        education_background_data = validated_data.pop("education_background", [])
+        family_particulars_data = validated_data.pop("family_particulars", [])
         selected_business = validated_data["business"]
 
         student_file = StudentFile.objects.create(
@@ -800,6 +923,11 @@ class PublicStudentFileCreateSerializer(serializers.Serializer):
             notes=message,
             **validated_data,
         )
+        internal_student_serializer = StudentFileSerializer(context=self.context)
+        if education_background_data:
+            internal_student_serializer._replace_education_background(student_file, education_background_data)
+        if family_particulars_data:
+            internal_student_serializer._replace_family_particulars(student_file, family_particulars_data)
 
         if selected_university or selected_country or selected_subject or selected_intake:
             applied_university = AppliedUniversity.objects.create(
@@ -815,7 +943,6 @@ class PublicStudentFileCreateSerializer(serializers.Serializer):
 
         # Reuse the same logic as internal student-file creation:
         # create portal user and queue login credentials email to the student.
-        internal_student_serializer = StudentFileSerializer(context=self.context)
         internal_student_serializer._create_or_sync_student_portal_user(student_file)
         return student_file
 

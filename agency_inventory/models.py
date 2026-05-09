@@ -192,13 +192,6 @@ class StudentFile(BaseModel):
     place_of_birth = models.CharField(max_length=150, blank=True, default="")
     present_address = models.TextField(blank=True, default="")
     permanent_address = models.TextField(blank=True, default="")
-    # Rows for Hanseo "Academic Background" / agreement: list of dicts with keys
-    # degree, institution, study_period, result, graduation_date, institution_phone,
-    # admission_date (optional, YYYY-MM-DD).
-    education_background = models.JSONField(null=True, blank=True)
-    # Rows for "Family Particulars": relation, name, date_of_birth, occupation,
-    # monthly_income, workplace, workplace_phone.
-    family_particulars = models.JSONField(null=True, blank=True)
     # Optional page-3 translator block (nationality, name, date_of_birth, gender, address, home_phone, mobile).
     translator_profile = models.JSONField(null=True, blank=True)
     translated_documents_note = models.CharField(
@@ -263,6 +256,58 @@ class StudentFile(BaseModel):
         if self.business_id is None and self.agency_id:
             self.business_id = _agency_business_pk(self.agency_id)
         super().save(*args, **kwargs)
+
+
+class StudentEducationBackground(BaseModel):
+    """
+    Academic background rows for a student file.
+    """
+
+    student_file = models.ForeignKey(
+        StudentFile,
+        on_delete=models.CASCADE,
+        related_name="education_background_rows",
+    )
+    degree = models.CharField(max_length=150)
+    institution = models.CharField(max_length=255, blank=True, default="")
+    study_period = models.CharField(max_length=100, blank=True, default="")
+    result = models.CharField(max_length=100, blank=True, default="")
+    graduation_date = models.DateField(null=True, blank=True)
+    institution_phone = models.CharField(max_length=50, blank=True, default="")
+    admission_date = models.DateField(null=True, blank=True)
+    sort_order = models.PositiveSmallIntegerField(default=0)
+
+    class Meta:
+        ordering = ["sort_order", "id"]
+
+    def __str__(self):
+        return f"{self.student_file_id} - {self.degree}"
+
+
+class StudentFamilyParticular(BaseModel):
+    """
+    Family particulars rows for a student file.
+    """
+
+    student_file = models.ForeignKey(
+        StudentFile,
+        on_delete=models.CASCADE,
+        related_name="family_particular_rows",
+    )
+    relation = models.CharField(max_length=100)
+    name = models.CharField(max_length=255, blank=True, default="")
+    date_of_birth = models.DateField(null=True, blank=True)
+    occupation = models.CharField(max_length=150, blank=True, default="")
+    monthly_income = models.CharField(max_length=100, blank=True, default="")
+    workplace = models.CharField(max_length=255, blank=True, default="")
+    workplace_phone = models.CharField(max_length=50, blank=True, default="")
+    sort_order = models.PositiveSmallIntegerField(default=0)
+
+    class Meta:
+        ordering = ["sort_order", "id"]
+
+    def __str__(self):
+        return f"{self.student_file_id} - {self.relation}"
 
 
 class StudentApplicationProgress(BaseModel):

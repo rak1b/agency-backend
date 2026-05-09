@@ -1,9 +1,8 @@
 """
 Build template context for the Hanseo university PDF pack (WeasyPrint).
 
-``education_background`` / ``family_particulars`` / ``translator_profile`` are
-optional JSON blobs on ``StudentFile``; this module normalizes them into rows
-and display strings for the HTML template.
+Student education/family rows and the optional ``translator_profile`` JSON blob
+are normalized into display strings for the HTML template.
 """
 
 from __future__ import annotations
@@ -118,6 +117,21 @@ def _merge_education_rows(stored: list[Any] | None) -> list[dict[str, str]]:
     return merged
 
 
+def _student_education_rows(sf: StudentFile) -> list[dict[str, str]]:
+    return [
+        {
+            "degree": row.degree,
+            "institution": row.institution,
+            "study_period": row.study_period,
+            "result": row.result,
+            "graduation_date": row.graduation_date.isoformat() if row.graduation_date else "",
+            "institution_phone": row.institution_phone,
+            "admission_date": row.admission_date.isoformat() if row.admission_date else "",
+        }
+        for row in sf.education_background_rows.all()
+    ]
+
+
 def _pick_college_row(merged_education: list[dict[str, str]]) -> dict[str, str]:
     for row in merged_education:
         deg = (row.get("degree") or "").lower()
@@ -186,6 +200,21 @@ def _merge_family_rows(sf: StudentFile, stored: list[Any] | None) -> list[dict[s
     return merged
 
 
+def _student_family_rows(sf: StudentFile) -> list[dict[str, str]]:
+    return [
+        {
+            "relation": row.relation,
+            "name": row.name,
+            "date_of_birth": row.date_of_birth.isoformat() if row.date_of_birth else "",
+            "occupation": row.occupation,
+            "monthly_income": row.monthly_income,
+            "workplace": row.workplace,
+            "workplace_phone": row.workplace_phone,
+        }
+        for row in sf.family_particular_rows.all()
+    ]
+
+
 def build_hanseo_template_context(
     student_file: StudentFile,
     *,
@@ -213,7 +242,7 @@ def build_hanseo_template_context(
     gender_is_male = gender_val == GenderChoice.MALE
     gender_is_female = gender_val == GenderChoice.FEMALE
 
-    education_rows = _merge_education_rows(sf.education_background)
+    education_rows = _merge_education_rows(_student_education_rows(sf))
     college = _pick_college_row(education_rows)
     admit_y, admit_m, admit_d = _split_date_string(college.get("admission_date"))
     grad_y, grad_m, grad_d = _split_date_string(college.get("graduation_date"))
@@ -223,7 +252,7 @@ def build_hanseo_template_context(
     if not grad_y and span_to:
         grad_y = span_to
 
-    family_rows = _merge_family_rows(sf, sf.family_particulars)
+    family_rows = _merge_family_rows(sf, _student_family_rows(sf))
 
     translator = sf.translator_profile if isinstance(sf.translator_profile, dict) else {}
     tr_gender = (translator.get("gender") or "").upper()

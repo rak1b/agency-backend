@@ -13,6 +13,8 @@ from .models import (
     Program,
     StudentApplicationProgress,
     StudentCost,
+    StudentEducationBackground,
+    StudentFamilyParticular,
     StudentFile,
     StudentFileAttachment,
     University,
@@ -20,6 +22,16 @@ from .models import (
     UniversityProgram,
     UniversityProgramSubject,
 )
+
+
+class StudentEducationBackgroundInline(admin.TabularInline):
+    model = StudentEducationBackground
+    extra = 0
+
+
+class StudentFamilyParticularInline(admin.TabularInline):
+    model = StudentFamilyParticular
+    extra = 0
 
 
 @register(Business, site=master_admin_site)
@@ -98,6 +110,23 @@ class StudentFileAdmin(admin.ModelAdmin):
     list_filter = ("business", "is_website_submission", "current_status", "agency", "file_from", "is_active", "is_deleted")
     search_fields = ("student_file_id", "passport_number", "given_name", "surname", "email", "phone_whatsapp")
     readonly_fields = ("slug", "created_at", "updated_at")
+    inlines = (StudentEducationBackgroundInline, StudentFamilyParticularInline)
+
+
+@register(StudentEducationBackground, site=master_admin_site)
+class StudentEducationBackgroundAdmin(admin.ModelAdmin):
+    list_display = ("id", "student_file", "degree", "institution", "study_period", "result", "sort_order")
+    list_filter = ("student_file__business", "student_file__agency", "is_active", "is_deleted")
+    search_fields = ("student_file__student_file_id", "degree", "institution")
+    autocomplete_fields = ("student_file",)
+
+
+@register(StudentFamilyParticular, site=master_admin_site)
+class StudentFamilyParticularAdmin(admin.ModelAdmin):
+    list_display = ("id", "student_file", "relation", "name", "occupation", "monthly_income", "sort_order")
+    list_filter = ("student_file__business", "student_file__agency", "is_active", "is_deleted")
+    search_fields = ("student_file__student_file_id", "relation", "name")
+    autocomplete_fields = ("student_file",)
 
 
 @register(StudentFileAttachment, site=master_admin_site)

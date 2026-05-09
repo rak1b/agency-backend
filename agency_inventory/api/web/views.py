@@ -679,6 +679,8 @@ class StudentFileViewSet(StudentPortalReadOnlyMixin, TenantHomeAgencyRowMixin, B
     queryset = StudentFile.objects.select_related("agency", "business", "created_by").prefetch_related(
         "attachments",
         "applied_universities",
+        "education_background_rows",
+        "family_particular_rows",
     ).all()
     serializer_class = StudentFileSerializer
     permission_classes = [IsAuthenticated ]
