@@ -58,6 +58,10 @@ INSTALLED_APPS = [
     'django_cleanup.apps.CleanupConfig',
 ]
 
+# django-ckeditor still ships CKEditor 4 (EOL); plan migration to CKEditor 5 / django-ckeditor-5.
+# Until then, silence deploy-time noise (see https://ckeditor.com/ckeditor-4-support/).
+SILENCED_SYSTEM_CHECKS = ["ckeditor.W001"]
+
 SITE_ID = 1
 
 MIDDLEWARE = [

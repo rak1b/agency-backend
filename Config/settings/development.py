@@ -21,6 +21,7 @@ CSRF_TRUSTED_ORIGINS = list(
         [
             *CSRF_TRUSTED_ORIGINS,
             "https://agency-demo-backend.devsstream.com",
+            "http://agency-demo-backend.devsstream.com",
         ]
     )
 )

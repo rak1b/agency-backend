@@ -21,6 +21,7 @@ CSRF_TRUSTED_ORIGINS = [
     "https://ps-inventory-demo-backend.devsstream.com",
     "https://agency-backend.devsstream.com",
     "https://agency-demo-backend.devsstream.com",
+    "http://agency-demo-backend.devsstream.com",
     "https://agency.devsstream.com",
 
     # Add specific Traefik origin (wildcards not supported in older Django)
