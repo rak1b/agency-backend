@@ -1023,3 +1023,14 @@ class UniversityFormDownloadAPIView(APIView):
             f'attachment; filename="hanseo-application-{safe_name_part}.pdf"'
         )
         return response
+
+
+class UniversityFormViewAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        student_file = StudentFile.objects.get(student_file_id="STF00000001")
+
+        context = build_hanseo_template_context(student_file)
+        html = render_to_string("university_templates/hanseo.html", context, request=request)
+        return HttpResponse(html, content_type="text/html")

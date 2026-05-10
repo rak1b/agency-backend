@@ -130,7 +130,7 @@
     /* Narrow contact columns: allow long phones / emails to wrap instead of clipping */
     .p1-contact-value {
       font-family: "Liberation Sans", Arial, Helvetica, sans-serif;
-      font-size: 8.5px;
+      font-size: 9.5px;
       line-height: 1.15;
       text-align: center;
       white-space: normal;
@@ -159,14 +159,14 @@
     }
 
     .p1-big {
-      font-size: 13px;
+      font-size: 10px;
       font-weight: 700;
       text-align: center;
     }
 
     /* One line in the narrow DOB cell (PDF engines may still wrap plain spaces) */
     .p1-value.p1-dob {
-      font-size: 10px;
+      font-size: 11px;
       white-space: nowrap;
       letter-spacing: 0;
     }
@@ -273,7 +273,7 @@
 
     .p1-sign-row {
       position: absolute;
-      top: 40mm;
+      top: 42mm;
       left: 0;
       right: 0;
       display: flex;
@@ -281,18 +281,19 @@
       align-items: flex-end;
     }
 
-    /* Label above rule; image centered on the rule (avoids sideways drift) */
+    /* Label and signature image sit on a single baseline (label left, image right) */
     .p1-sign-cluster {
       display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 2px;
+      flex-direction: row;
+      align-items: flex-end;
+      gap: 4mm;
     }
 
     .p1-sign-label {
-      font-size: 11px;
+      font-size: 12px;
       font-weight: 700;
       line-height: 1;
+      padding-bottom: 1.5mm;
     }
 
     .p1-sign-wrap {
@@ -300,7 +301,7 @@
       justify-content: center;
       align-items: flex-end;
       width: 52mm;
-      min-height: 11mm;
+      min-height: 9mm;
       border-bottom: 1px solid #000;
       padding: 0 3mm 1px;
       box-sizing: border-box;
@@ -309,7 +310,7 @@
     .p1-sign-wrap img {
       display: block;
       margin: 0 auto;
-      max-height: 10mm;
+      max-height: 8mm;
       width: auto;
       max-width: 48mm;
       object-fit: contain;
@@ -696,17 +697,14 @@
   <!-- ================= PAGE 1 ================= -->
   <div class="page">
     <div class="p1-title">{{ form_title }}</div>
-    {% if student_file_id %}
-    <div class="p1-ref tiny center" style="margin-bottom:3mm;">Student file: {{ student_file_id }}</div>
-    {% endif %}
 
     <div class="p1-box">
       <table class="p1-personal">
         <colgroup>
           <col style="width:17%;">
           <col style="width:14%;">
-          <col style="width:44%;">
-          <col style="width:7%;">
+          <col style="width:40%;">
+          <col style="width:11%;">
           <col style="width:18%;">
         </colgroup>
 
@@ -728,7 +726,7 @@
           <td class="no-pad">
             <table>
               <tr>
-                <td style="width:26%; border-left:0; border-top:0; border-bottom:0;" class="p1-label">Sex</td>
+                <td style="width:38%; border-left:0; border-top:0; border-bottom:0;" class="p1-label">Sex</td>
                 <td style="border-right:0; border-top:0; border-bottom:0;" class="p1-value p1-big">{{ gender_label }}</td>
               </tr>
             </table>
@@ -747,24 +745,30 @@
           </td>
         </tr>
         <tr>
-          <td class="p1-label">Present Address</td>
-          <td colspan="2" class="p1-value small">{{ present_address }}</td>
-          <td class="p1-label">Mobile</td>
-          <td class="p1-contact-value">{{ phone_whatsapp }}</td>
-        </tr>
-        <tr>
-          <td class="p1-label">Permanent<br>Address</td>
-          <td colspan="2" class="p1-value small">{{ permanent_address }}</td>
-          <td class="no-pad">
+          <td colspan="5" class="no-pad" style="border:0;">
             <table>
-              <tr><td class="p1-label" style="border-left:0;border-right:0;border-top:0;">Phone</td></tr>
-              <tr><td class="p1-label" style="border-left:0;border-right:0;border-bottom:0;">E-mail</td></tr>
-            </table>
-          </td>
-          <td class="no-pad">
-            <table>
-              <tr><td class="p1-contact-value" style="border-left:0;border-right:0;border-top:0;">{{ phone_whatsapp }}</td></tr>
-              <tr><td class="p1-contact-value" style="border-left:0;border-right:0;border-bottom:0;">{{ email }}</td></tr>
+              <colgroup>
+                <col style="width:17%;">
+                <col style="width:43%;">
+                <col style="width:11%;">
+                <col style="width:29%;">
+              </colgroup>
+              <tr>
+                <td class="p1-label" style="border-left:0;border-top:0;">Present Address</td>
+                <td class="p1-value small" style="border-top:0;">{{ present_address }}</td>
+                <td class="p1-label" style="border-top:0;">Mobile</td>
+                <td class="p1-contact-value" style="border-right:0;border-top:0;">{{ phone_whatsapp }}</td>
+              </tr>
+              <tr>
+                <td rowspan="2" class="p1-label" style="border-left:0;border-bottom:0;">Permanent<br>Address</td>
+                <td rowspan="2" class="p1-value small" style="border-bottom:0;">{{ permanent_address }}</td>
+                <td class="p1-label">Phone</td>
+                <td class="p1-contact-value" style="border-right:0;">{{ phone_whatsapp }}</td>
+              </tr>
+              <tr>
+                <td class="p1-label" style="border-bottom:0;">E-mail</td>
+                <td class="p1-contact-value" style="border-right:0;border-bottom:0;">{{ email }}</td>
+              </tr>
             </table>
           </td>
         </tr>
@@ -789,7 +793,7 @@
           <th>Date of<br>Graduation</th>
           <th>Phone(Institution)</th>
         </tr>
-        {# Degree column matches AcademicDegreeChoice: SSC, HSC, Bachelor, Master's, PhD (five placeholder rows when empty). #}
+        {# Degree column is the Hanseo grouping: Elementary School (SSC), College (HSC), University (BACHELOR + MASTERS). #}
         {% for row in education_rows %}
         <tr>
           <td class="bold">{{ row.degree }}</td>

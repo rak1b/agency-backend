@@ -100,77 +100,107 @@ def _academic_degree_display(value: str) -> str:
     return raw
 
 
-def _default_education_rows() -> list[dict[str, str]]:
-    empty = {"institution": "", "study_period": "", "result": "", "graduation_date": "", "institution_phone": ""}
-    return [
-        {**empty, "degree": str(label)}
-        for _value, label in AcademicDegreeChoice.choices
+# Hanseo Application of Admission groups stored degrees into three lines:
+#   Elementary School ← SSC, College ← HSC, University ← BACHELOR (+ MASTERS).
+HANSEO_ELEMENTARY_LABEL = "Elementary School"
+HANSEO_COLLEGE_LABEL = "College"
+HANSEO_UNIVERSITY_LABEL = "University"
+
+
+def _empty_education_row(label: str) -> dict[str, str]:
+    return {
+        "degree": label,
+        "institution": "",
+        "study_period": "",
+        "result": "",
+        "graduation_date": "",
+        "institution_phone": "",
+        "admission_date": "",
+    }
+
+
+def _education_row_payload(label: str, src) -> dict[str, str]:
+    """Project a ``StudentEducationBackground`` row onto the Hanseo template shape."""
+    if src is None:
+        return _empty_education_row(label)
+    return {
+        "degree": label,
+        "institution": src.institution or "",
+        "study_period": src.study_period or "",
+        "result": src.result or "",
+        "graduation_date": src.graduation_date.isoformat() if src.graduation_date else "",
+        "institution_phone": src.institution_phone or "",
+        "admission_date": src.admission_date.isoformat() if src.admission_date else "",
+    }
+
+
+def _hanseo_education_rows(sf: StudentFile) -> list[dict[str, str]]:
+    """
+    Build the Hanseo-style academic background rows:
+        Elementary School  ← stored SSC row
+        College            ← stored HSC row
+        University         ← stored BACHELOR row (+ a second University row for MASTERS,
+                              when both are present).
+
+    A single "University" row is rendered when only one of BACHELOR / MASTERS exists
+    (or as an empty placeholder when neither is provided). PhD rows are intentionally
+    not surfaced on this admission form.
+    """
+    by_degree: dict[str, list] = {}
+    for row in sf.education_background_rows.all():
+        by_degree.setdefault(str(row.degree), []).append(row)
+
+    def _first(degree_value: str):
+        bucket = by_degree.get(degree_value) or []
+        return bucket[0] if bucket else None
+
+    ssc = _first(str(AcademicDegreeChoice.SSC))
+    hsc = _first(str(AcademicDegreeChoice.HSC))
+    bachelor = _first(str(AcademicDegreeChoice.BACHELOR))
+    masters = _first(str(AcademicDegreeChoice.MASTERS))
+
+    rows: list[dict[str, str]] = [
+        _education_row_payload(HANSEO_ELEMENTARY_LABEL, ssc),
+        _education_row_payload(HANSEO_COLLEGE_LABEL, hsc),
     ]
+    if bachelor and masters:
+        rows.append(_education_row_payload(HANSEO_UNIVERSITY_LABEL, bachelor))
+        rows.append(_education_row_payload(HANSEO_UNIVERSITY_LABEL, masters))
+    elif bachelor:
+        rows.append(_education_row_payload(HANSEO_UNIVERSITY_LABEL, bachelor))
+    elif masters:
+        rows.append(_education_row_payload(HANSEO_UNIVERSITY_LABEL, masters))
+    else:
+        rows.append(_empty_education_row(HANSEO_UNIVERSITY_LABEL))
+    return rows
 
 
-def _merge_education_rows(stored: list[Any] | None) -> list[dict[str, str]]:
-    defaults = _default_education_rows()
-    rows = list(stored or [])
-    merged: list[dict[str, str]] = []
-    for i, slot in enumerate(defaults):
-        src = rows[i] if i < len(rows) and isinstance(rows[i], dict) else {}
-        merged.append(
-            {
-                "degree": _academic_degree_display(str(src.get("degree") or "")) or slot["degree"],
-                "institution": str(src.get("institution") or ""),
-                "study_period": str(src.get("study_period") or ""),
-                "result": str(src.get("result") or ""),
-                "graduation_date": str(src.get("graduation_date") or ""),
-                "institution_phone": str(src.get("institution_phone") or ""),
-                "admission_date": str(src.get("admission_date") or ""),
-            }
-        )
-    return merged
+def _pick_college_row(rows: list[dict[str, str]]) -> dict[str, str]:
+    """
+    Pick the row used for the page-2 / page-3 agreement (school name + dates).
 
-
-def _student_education_rows(sf: StudentFile) -> list[dict[str, str]]:
-    return [
-        {
-            "degree": _academic_degree_display(row.degree),
-            "institution": row.institution,
-            "study_period": row.study_period,
-            "result": row.result,
-            "graduation_date": row.graduation_date.isoformat() if row.graduation_date else "",
-            "institution_phone": row.institution_phone,
-            "admission_date": row.admission_date.isoformat() if row.admission_date else "",
-        }
-        for row in sf.education_background_rows.all()
-    ]
-
-
-def _pick_college_row(merged_education: list[dict[str, str]]) -> dict[str, str]:
-    if not merged_education:
+    Priority: filled "College" (HSC) → filled "University" (Bachelor/Masters) →
+    filled "Elementary School" (SSC) → first row carrying any institution → fallback.
+    """
+    if not rows:
         return {}
 
-    def _raw_degree_for_row(row: dict[str, str]) -> str:
-        """Recover stored enum value when possible (merged rows carry display labels)."""
-        displayed = (row.get("degree") or "").strip()
-        for choice_val, choice_label in AcademicDegreeChoice.choices:
-            if displayed == choice_val or displayed == str(choice_label):
-                return choice_val
-        return displayed
+    def _has_institution(row: dict[str, str]) -> bool:
+        return bool((row.get("institution") or "").strip())
 
-    for row in merged_education:
-        if _raw_degree_for_row(row) == AcademicDegreeChoice.HSC:
+    label_priority = (HANSEO_COLLEGE_LABEL, HANSEO_UNIVERSITY_LABEL, HANSEO_ELEMENTARY_LABEL)
+    for label in label_priority:
+        for row in rows:
+            if row.get("degree") == label and _has_institution(row):
+                return row
+    for row in rows:
+        if _has_institution(row):
             return row
-    for row in merged_education:
-        deg = (row.get("degree") or "").lower()
-        if "college" in deg or "higher secondary" in deg or "high school" in deg:
-            return row
-    for row in merged_education:
-        if _raw_degree_for_row(row) == AcademicDegreeChoice.SSC:
-            return row
-    for row in merged_education:
-        if (row.get("institution") or "").strip():
-            return row
-    if len(merged_education) >= 2:
-        return merged_education[1]
-    return merged_education[0]
+    for label in label_priority:
+        for row in rows:
+            if row.get("degree") == label:
+                return row
+    return rows[0]
 
 
 def _study_period_years(study_period: str) -> tuple[str, str]:
@@ -273,7 +303,7 @@ def build_hanseo_template_context(
     gender_is_male = gender_val == GenderChoice.MALE
     gender_is_female = gender_val == GenderChoice.FEMALE
 
-    education_rows = _merge_education_rows(_student_education_rows(sf))
+    education_rows = _hanseo_education_rows(sf)
     college = _pick_college_row(education_rows)
     admit_y, admit_m, admit_d = _split_date_string(college.get("admission_date"))
     grad_y, grad_m, grad_d = _split_date_string(college.get("graduation_date"))
