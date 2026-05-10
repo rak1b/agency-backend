@@ -135,7 +135,7 @@ class StandardUserListPagination(DRFPageNumberPagination):
 
 
 class UserAPI(viewsets.ModelViewSet):
-    queryset = User.objects.all().order_by('-created_at')
+    queryset = User.objects.all().exclude(user_type=constants.UserTypeChoice.STUDENT).order_by('-created_at')
     serializer_class = UserSerializer
     lookup_field = 'slug'
     permission_classes = [AllowAny]
