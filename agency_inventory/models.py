@@ -184,8 +184,8 @@ class StudentFile(BaseModel):
     facebook_id_link = models.URLField(max_length=1000, blank=True, null=True)
     email = models.EmailField(blank=True, null=True)
     date_of_birth = models.DateField()
-    father_name = models.CharField(max_length=150)
-    mother_name = models.CharField(max_length=150)
+    father_name = models.CharField(max_length=150,blank=True, null=True)
+    mother_name = models.CharField(max_length=150,blank=True, null=True)
     gender = models.CharField(
         max_length=20,
         choices=GenderChoice.choices,
