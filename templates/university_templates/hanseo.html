@@ -683,24 +683,32 @@
       margin-top: 2mm;
       font-size: 8px;
       font-weight: 700;
+      line-height: 1.2;
     }
 
-    .p4-sign-img-wrap {
-      display: inline-flex;
-      align-items: flex-end;
-      justify-content: center;
-      min-width: 36mm;
-      min-height: 11mm;
+    .p4-sign-line {
+      display: inline-block;
+      width: 34mm;
+      height: 10px;
       border-bottom: 1px solid #000;
-      padding: 0 2mm 1px;
       vertical-align: bottom;
+      margin: 0 1.5mm;
     }
 
-    .p4-sign-img-wrap img {
-      max-height: 10mm;
+    .p4-sign-inline-img {
+      display: inline-block;
+      vertical-align: bottom;
+      margin: 0 1.5mm;
+      min-width: 34mm;
+      text-align: center;
+    }
+
+    .p4-sign-inline-img img {
+      max-height: 8mm;
       width: auto;
-      max-width: 42mm;
+      max-width: 34mm;
       object-fit: contain;
+      vertical-align: bottom;
     }
 
     .p4-minister-ko {
@@ -1048,7 +1056,11 @@
       <div class="p4-date">{{ p4_sign_date_y }} .{{ p4_sign_date_m }} .{{ p4_sign_date_d }}</div>
       <div class="p4-sign">
         <span>번역자(Translator):</span>
-        <span class="p4-sign-img-wrap">{% if hanseo_sign_uri %}<img src="{{ hanseo_sign_uri }}" alt="" />{% endif %}</span>
+        {% if hanseo_sign_uri %}
+        <span class="p4-sign-inline-img"><img src="{{ hanseo_sign_uri }}" alt="" /></span>
+        {% else %}
+        <span class="p4-sign-line"></span>
+        {% endif %}
         <span>(Signature)</span>
       </div>
 

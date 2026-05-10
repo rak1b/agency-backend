@@ -304,15 +304,15 @@ class StudentFamilyParticular(BaseModel):
         related_name="family_particular_rows",
     )
     relation = models.CharField(max_length=100)
-    name = models.CharField(max_length=255, blank=True, default="")
-    nid_number = models.CharField(max_length=50, blank=True, default="")
-    phone_number = models.CharField(max_length=30, blank=True, default="")
+    name = models.CharField(max_length=255, blank=True,null=True, default="")
+    nid_number = models.CharField(max_length=50, blank=True,null=True, default="")
+    phone_number = models.CharField(max_length=30, blank=True,null=True, default="")
     is_sponsor = models.BooleanField(default=False)
     date_of_birth = models.DateField(null=True, blank=True)
-    occupation = models.CharField(max_length=150, blank=True, default="")
-    monthly_income = models.CharField(max_length=100, blank=True, default="")
-    workplace = models.CharField(max_length=255, blank=True, default="")
-    workplace_phone = models.CharField(max_length=50, blank=True, default="")
+    occupation = models.CharField(max_length=150, blank=True,null=True, default="")
+    monthly_income = models.CharField(max_length=100, blank=True,null=True, default="")
+    workplace = models.CharField(max_length=255, blank=True,null=True, default="")
+    workplace_phone = models.CharField(max_length=50, blank=True,null=True, default="")
     sort_order = models.PositiveSmallIntegerField(default=0)
 
     class Meta:
