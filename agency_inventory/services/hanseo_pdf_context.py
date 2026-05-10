@@ -323,6 +323,9 @@ def build_hanseo_template_context(
     passport_uri = _remote_url_to_data_uri(sf.passport_photo_url or "")
     if not passport_uri:
         passport_uri = _hanseo_asset_data_uri(fallback_passport_asset)
+    signature_uri = _remote_url_to_data_uri(sf.signature_url or "")
+    if not signature_uri:
+        signature_uri = _hanseo_asset_data_uri("dummy_sign.jpg")
 
     default_statement = (
         "I am applying for admission at the institute of Language and Culture Education."
@@ -396,9 +399,10 @@ def build_hanseo_template_context(
         "p2_date_d": f"{today.day:02d}",
         "passport_number": sf.passport_number or "",
         "student_photo_url": sf.passport_photo_url or "",
+        "student_signature_url": sf.signature_url or "",
         "hanseo_passport_uri": passport_uri,
         "hanseo_logo_uri": _hanseo_asset_data_uri("logo.png"),
-        "hanseo_sign_uri": _hanseo_asset_data_uri("dummy_sign.jpg"),
+        "hanseo_sign_uri": signature_uri,
     }
 
 

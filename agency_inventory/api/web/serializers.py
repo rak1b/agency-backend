@@ -973,6 +973,7 @@ class PublicStudentFileCreateSerializer(serializers.Serializer):
     present_address = serializers.CharField(required=False, allow_blank=True)
     permanent_address = serializers.CharField(required=False, allow_blank=True)
     passport_photo_url = serializers.URLField(max_length=1000, required=False, allow_blank=True, allow_null=True)
+    signature_url = serializers.URLField(max_length=1000, required=False, allow_blank=True, allow_null=True)
     marital_status = serializers.ChoiceField(
         choices=MaritalStatusChoice.choices,
         required=False,

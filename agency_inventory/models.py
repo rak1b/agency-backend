@@ -31,6 +31,9 @@ class Business(BaseModel):
     phone = models.CharField(max_length=30, blank=True, default="")
     address = models.TextField(blank=True, default="")
     logo_image_url = models.URLField(max_length=1000, blank=True, null=True)
+    watermark_url = models.URLField(max_length=1000, blank=True, null=True)
+    
+
 
     class Meta:
         ordering = ["-created_at"]
@@ -156,6 +159,7 @@ class StudentFile(BaseModel):
     Dedicated student file entity aligned with the student-file creation form.
     """
     passport_photo_url = models.URLField(max_length=1000, blank=True, null=True,help_text="Passport size photo URL")
+    signature_url = models.URLField(max_length=1000, blank=True, null=True, help_text="Student signature image URL")
     student_file_id = models.CharField(max_length=20, unique=True, blank=True, null=True)
     slug = models.SlugField(max_length=255, unique=True, null=True, blank=True, editable=False)
     agency = models.ForeignKey(
