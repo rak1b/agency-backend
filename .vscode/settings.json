@@ -26,5 +26,6 @@
     "strings": true
   },
   "cursorpyright.analysis.autoImportCompletions": true,
-  "cursorpyright.analysis.typeCheckingMode": "basic"
+  "cursorpyright.analysis.typeCheckingMode": "basic",
+  "djlint.showInstallError": false
 }

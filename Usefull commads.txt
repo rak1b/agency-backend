@@ -2,3 +2,7 @@ Merged live branch into dev branch
 All incoming changes from live have been accepted
 
 git merge live -X theirs --no-edit
+
+
+1.On student file we create  users,dont show it on users list
+2.Crystal's branding,add business info like logo,name,

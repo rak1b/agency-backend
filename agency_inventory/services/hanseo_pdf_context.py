@@ -294,9 +294,9 @@ def build_hanseo_template_context(
     dob_y, dob_m, dob_d = str(dob.year), f"{dob.month:02d}", f"{dob.day:02d}"
 
     given_line = " ".join(p for p in (sf.given_name, (sf.middle_name or "").strip()) if p).strip()
-    full_name_caps = f"{sf.given_name} {sf.surname}".strip().upper()
+    full_name_caps = f"{sf.surname} {sf.given_name}".strip().upper()
     if sf.middle_name:
-        full_name_caps = f"{sf.given_name} {sf.middle_name.strip()} {sf.surname}".strip().upper()
+        full_name_caps = f"{sf.surname} {sf.given_name} {sf.middle_name.strip()}".strip().upper()
 
     gender_val: str = str(sf.gender or GenderChoice.OTHER)
     gender_label = _gender_label(gender_val)
