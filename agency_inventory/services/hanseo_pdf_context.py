@@ -395,6 +395,7 @@ def build_hanseo_template_context(
         "p2_date_m": f"{today.month:02d}",
         "p2_date_d": f"{today.day:02d}",
         "passport_number": sf.passport_number or "",
+        "student_photo_url": sf.passport_photo_url or "",
         "hanseo_passport_uri": passport_uri,
         "hanseo_logo_uri": _hanseo_asset_data_uri("logo.png"),
         "hanseo_sign_uri": _hanseo_asset_data_uri("dummy_sign.jpg"),

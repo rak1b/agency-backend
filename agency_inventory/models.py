@@ -155,7 +155,7 @@ class StudentFile(BaseModel):
     """
     Dedicated student file entity aligned with the student-file creation form.
     """
-    passport_photo_url = models.URLField(max_length=1000, blank=True, null=True)
+    passport_photo_url = models.URLField(max_length=1000, blank=True, null=True,help_text="Passport size photo URL")
     student_file_id = models.CharField(max_length=20, unique=True, blank=True, null=True)
     slug = models.SlugField(max_length=255, unique=True, null=True, blank=True, editable=False)
     agency = models.ForeignKey(
@@ -174,7 +174,7 @@ class StudentFile(BaseModel):
     )
     is_own_agency = models.BooleanField(default=False)
     passport_number = models.CharField(max_length=100)
-    passport_copy_url = models.URLField(max_length=1000, blank=True, null=True)
+    passport_copy_url = models.URLField(max_length=1000, blank=True, null=True,help_text="Passport's copy/scan URL")
     surname = models.CharField(max_length=100)
     given_name = models.CharField(max_length=100)
     middle_name = models.CharField(max_length=100, blank=True, null=True)
