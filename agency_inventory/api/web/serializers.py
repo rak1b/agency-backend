@@ -219,6 +219,7 @@ class StudentFamilyParticularSerializer(serializers.ModelSerializer):
             "name",
             "nid_number",
             "phone_number",
+            "is_sponsor",
             "date_of_birth",
             "occupation",
             "monthly_income",
@@ -231,6 +232,7 @@ class StudentFamilyParticularSerializer(serializers.ModelSerializer):
             "name": {"required": False, "allow_blank": True},
             "nid_number": {"required": False, "allow_blank": True},
             "phone_number": {"required": False, "allow_blank": True},
+            "is_sponsor": {"required": False},
             "occupation": {"required": False, "allow_blank": True},
             "monthly_income": {"required": False, "allow_blank": True},
             "workplace": {"required": False, "allow_blank": True},
@@ -282,6 +284,7 @@ class StudentFileSerializer(serializers.ModelSerializer):
     )
     workflow_steps = serializers.SerializerMethodField(read_only=True)
     generated_student_credentials = serializers.SerializerMethodField(read_only=True)
+    student_nid_number = serializers.CharField(source="nid_number", required=False, allow_blank=True)
 
     class Meta:
         model = StudentFile
@@ -836,6 +839,7 @@ class StudentFileSerializer(serializers.ModelSerializer):
                     name=row.get("name") or "",
                     nid_number=row.get("nid_number") or "",
                     phone_number=row.get("phone_number") or "",
+                    is_sponsor=bool(row.get("is_sponsor", False)),
                     date_of_birth=row.get("date_of_birth"),
                     occupation=row.get("occupation") or "",
                     monthly_income=row.get("monthly_income") or "",

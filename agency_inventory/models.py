@@ -307,6 +307,7 @@ class StudentFamilyParticular(BaseModel):
     name = models.CharField(max_length=255, blank=True, default="")
     nid_number = models.CharField(max_length=50, blank=True, default="")
     phone_number = models.CharField(max_length=30, blank=True, default="")
+    is_sponsor = models.BooleanField(default=False)
     date_of_birth = models.DateField(null=True, blank=True)
     occupation = models.CharField(max_length=150, blank=True, default="")
     monthly_income = models.CharField(max_length=100, blank=True, default="")
