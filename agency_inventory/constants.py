@@ -28,10 +28,20 @@ class GenderChoice(models.TextChoices):
     OTHER = "OTHER", _("Other")
 
 
+class MaritalStatusChoice(models.TextChoices):
+    SINGLE = "SINGLE", _("Single")
+    MARRIED = "MARRIED", _("Married")
+    DIVORCED = "DIVORCED", _("Divorced")
+    WIDOWED = "WIDOWED", _("Widowed")
+    OTHER = "OTHER", _("Other")
+
+
 class AcademicDegreeChoice(models.TextChoices):
-    ELEMENTARY_SCHOOL = "Elementary School", _("Elementary School")
-    COLLEGE = "College", _("College")
-    UNIVERSITY = "University", _("University")
+    SSC = "SSC", _("SSC")
+    HSC = "HSC", _("HSC")
+    BACHELOR = "BACHELOR", _("Bachelor")
+    MASTERS = "MASTERS", _("Master's")
+    PHD = "PHD", _("PhD")
 
 
 class UniversityProgramChoice(models.TextChoices):

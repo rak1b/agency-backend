@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from rest_framework import serializers
 
 from django.db import transaction
@@ -25,6 +27,7 @@ from ...models import (
     StudentFamilyParticular,
     StudentFile,
     StudentFileAttachment,
+    StudentFilePayment,
     StudentCost,
     University,
     UniversityIntake,
@@ -32,7 +35,7 @@ from ...models import (
     UniversityProgramSubject,
     _agency_business_pk,
 )
-from ...constants import GenderChoice, ReviewStatusChoice
+from ...constants import GenderChoice, MaritalStatusChoice, ReviewStatusChoice
 from ...services.application_progress import STEP_KEYS
 
 _MISSING = object()
@@ -214,6 +217,8 @@ class StudentFamilyParticularSerializer(serializers.ModelSerializer):
             "id",
             "relation",
             "name",
+            "nid_number",
+            "phone_number",
             "date_of_birth",
             "occupation",
             "monthly_income",
@@ -224,12 +229,28 @@ class StudentFamilyParticularSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             "relation": {"required": False, "allow_blank": True},
             "name": {"required": False, "allow_blank": True},
+            "nid_number": {"required": False, "allow_blank": True},
+            "phone_number": {"required": False, "allow_blank": True},
             "occupation": {"required": False, "allow_blank": True},
             "monthly_income": {"required": False, "allow_blank": True},
             "workplace": {"required": False, "allow_blank": True},
             "workplace_phone": {"required": False, "allow_blank": True},
             "sort_order": {"required": False},
         }
+
+
+class StudentFilePaymentPayloadSerializer(serializers.Serializer):
+    """
+    Writable payload for ``StudentFile.payments`` (M2M to ``StudentFilePayment``).
+    """
+
+    id = serializers.IntegerField(required=False)
+    payment_reason = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    payment_amount = serializers.DecimalField(max_digits=12, decimal_places=2, required=False, allow_null=True)
+    transaction_id = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    payment_slip_url = serializers.URLField(required=False, allow_blank=True, allow_null=True)
+    status = serializers.ChoiceField(choices=ReviewStatusChoice.choices, required=False, allow_null=True)
+    rejection_reason = serializers.CharField(required=False, allow_blank=True, allow_null=True)
 
 
 class StudentFileSerializer(serializers.ModelSerializer):
@@ -243,6 +264,8 @@ class StudentFileSerializer(serializers.ModelSerializer):
     created_by_details = serializers.SerializerMethodField(read_only=True)
     attachments = StudentFileAttachmentPayloadSerializer(many=True, write_only=True, required=False)
     attachment_details = serializers.SerializerMethodField(read_only=True)
+    payments = StudentFilePaymentPayloadSerializer(many=True, write_only=True, required=False)
+    payment_details = serializers.SerializerMethodField(read_only=True)
     applied_universities = AppliedUniversityPayloadSerializer(many=True, required=False, write_only=True)
     applied_university_details = serializers.SerializerMethodField(read_only=True)
     education_background = StudentEducationBackgroundSerializer(
@@ -274,6 +297,7 @@ class StudentFileSerializer(serializers.ModelSerializer):
             "agency_details",
             "created_by_details",
             "attachment_details",
+            "payment_details",
             "applied_university_details",
             "workflow_steps",
             "generated_student_credentials",
@@ -312,6 +336,20 @@ class StudentFileSerializer(serializers.ModelSerializer):
                 "slug": attachment.slug,
             }
             for attachment in obj.attachments.all()
+        ]
+
+    def get_payment_details(self, obj):
+        return [
+            {
+                "id": payment.id,
+                "payment_reason": payment.payment_reason,
+                "payment_amount": str(payment.payment_amount),
+                "transaction_id": payment.transaction_id,
+                "payment_slip_url": payment.payment_slip_url,
+                "status": payment.status,
+                "rejection_reason": payment.rejection_reason,
+            }
+            for payment in obj.payments.all()
         ]
 
     def get_applied_university_details(self, obj):
@@ -711,6 +749,62 @@ class StudentFileSerializer(serializers.ModelSerializer):
         else:
             student_file.applied_universities.add(*applied_university_ids)
 
+    def _upsert_payments(self, student_file, payments_data, *, replace_links=True):
+        """
+        Staff/dashboard only — student portal PATCH cannot include ``payments`` (validated in ``validate``).
+        Mirrors attachment upsert semantics: replace mode sets exactly the listed payment IDs on the file.
+        """
+        payment_ids = []
+        for row in payments_data:
+            payment_id = row.get("id")
+            reason = row.get("payment_reason")
+            amount_raw = row.get("payment_amount")
+            amount = amount_raw if amount_raw is not None else Decimal("0")
+            transaction_id = row.get("transaction_id")
+            slip_url = row.get("payment_slip_url")
+            requested_status = row.get("status")
+            rejection_reason = row.get("rejection_reason")
+            if payment_id:
+                try:
+                    payment_obj = self._tenant_scoped_queryset(StudentFilePayment.objects.all()).get(id=payment_id)
+                except StudentFilePayment.DoesNotExist:
+                    raise serializers.ValidationError({"payments": f"Payment id {payment_id} does not exist."})
+                linked_ids = set(student_file.payments.values_list("id", flat=True))
+                if payment_obj.id not in linked_ids:
+                    raise serializers.ValidationError(
+                        {"payments": f"Payment id {payment_id} is not linked to this student file."}
+                    )
+                if reason is not None:
+                    payment_obj.payment_reason = reason
+                if amount_raw is not None:
+                    payment_obj.payment_amount = amount
+                if transaction_id is not None:
+                    payment_obj.transaction_id = transaction_id
+                if slip_url is not None:
+                    payment_obj.payment_slip_url = slip_url
+                if requested_status is not None:
+                    payment_obj.status = requested_status
+                if rejection_reason is not None:
+                    payment_obj.rejection_reason = rejection_reason
+                payment_obj.save()
+            else:
+                create_status = requested_status if requested_status is not None else ReviewStatusChoice.APPROVED
+                payment_obj = StudentFilePayment.objects.create(
+                    agency=student_file.agency,
+                    business=getattr(student_file, "business", None),
+                    payment_reason=reason or "",
+                    payment_amount=amount,
+                    transaction_id=transaction_id or "",
+                    payment_slip_url=slip_url,
+                    status=create_status,
+                    rejection_reason=rejection_reason,
+                )
+            payment_ids.append(payment_obj.id)
+        if replace_links:
+            student_file.payments.set(payment_ids)
+        else:
+            student_file.payments.add(*payment_ids)
+
     def _replace_education_background(self, student_file, rows_data):
         student_file.education_background_rows.all().delete()
         rows = []
@@ -740,6 +834,8 @@ class StudentFileSerializer(serializers.ModelSerializer):
                     student_file=student_file,
                     relation=row.get("relation") or "",
                     name=row.get("name") or "",
+                    nid_number=row.get("nid_number") or "",
+                    phone_number=row.get("phone_number") or "",
                     date_of_birth=row.get("date_of_birth"),
                     occupation=row.get("occupation") or "",
                     monthly_income=row.get("monthly_income") or "",
@@ -754,6 +850,7 @@ class StudentFileSerializer(serializers.ModelSerializer):
     @transaction.atomic
     def create(self, validated_data):
         attachments_data = validated_data.pop("attachments", [])
+        payments_data = validated_data.pop("payments", [])
         applied_universities_data = validated_data.pop("applied_universities", [])
         education_background_data = validated_data.pop("education_background_rows", [])
         family_particulars_data = validated_data.pop("family_particular_rows", [])
@@ -767,6 +864,8 @@ class StudentFileSerializer(serializers.ModelSerializer):
             self._replace_family_particulars(student_file, family_particulars_data)
         if attachments_data:
             self._upsert_attachments(student_file, attachments_data)
+        if payments_data:
+            self._upsert_payments(student_file, payments_data)
         if applied_universities_data:
             self._upsert_applied_universities(student_file, applied_universities_data)
         self._create_or_sync_student_portal_user(student_file)
@@ -775,6 +874,7 @@ class StudentFileSerializer(serializers.ModelSerializer):
     @transaction.atomic
     def update(self, instance, validated_data):
         attachments_data = validated_data.pop("attachments", None)
+        payments_data = validated_data.pop("payments", None)
         applied_universities_data = validated_data.pop("applied_universities", None)
         education_background_data = validated_data.pop("education_background_rows", _MISSING)
         family_particulars_data = validated_data.pop("family_particular_rows", _MISSING)
@@ -788,6 +888,8 @@ class StudentFileSerializer(serializers.ModelSerializer):
             self._replace_family_particulars(student_file, family_particulars_data)
         if attachments_data is not None:
             self._upsert_attachments(student_file, attachments_data, replace_links=not is_student_user)
+        if payments_data is not None:
+            self._upsert_payments(student_file, payments_data, replace_links=not is_student_user)
         if applied_universities_data is not None:
             self._upsert_applied_universities(student_file, applied_universities_data, replace_links=not is_student_user)
         self._create_or_sync_student_portal_user(student_file)
@@ -867,6 +969,12 @@ class PublicStudentFileCreateSerializer(serializers.Serializer):
     present_address = serializers.CharField(required=False, allow_blank=True)
     permanent_address = serializers.CharField(required=False, allow_blank=True)
     passport_photo_url = serializers.URLField(max_length=1000, required=False, allow_blank=True, allow_null=True)
+    marital_status = serializers.ChoiceField(
+        choices=MaritalStatusChoice.choices,
+        required=False,
+        default=MaritalStatusChoice.SINGLE,
+    )
+    nid_number = serializers.CharField(max_length=50, required=False, allow_blank=True, default="")
     education_background = StudentEducationBackgroundSerializer(many=True, required=False, allow_null=True)
     family_particulars = StudentFamilyParticularSerializer(many=True, required=False, allow_null=True)
     translator_profile = serializers.JSONField(required=False, allow_null=True)

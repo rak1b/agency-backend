@@ -20,7 +20,7 @@ from urllib.request import Request, urlopen
 from django.conf import settings
 from django.utils.safestring import mark_safe
 
-from agency_inventory.constants import GenderChoice
+from agency_inventory.constants import AcademicDegreeChoice, GenderChoice
 from agency_inventory.models import StudentFile
 
 
@@ -89,11 +89,22 @@ def _gender_label(gender_value: str) -> str:
     return "OTHER"
 
 
+def _academic_degree_display(value: str) -> str:
+    """Human-readable degree for PDF; unknown / legacy strings pass through."""
+    raw = (value or "").strip()
+    if not raw:
+        return ""
+    for choice_val, choice_label in AcademicDegreeChoice.choices:
+        if raw == choice_val:
+            return str(choice_label)
+    return raw
+
+
 def _default_education_rows() -> list[dict[str, str]]:
+    empty = {"institution": "", "study_period": "", "result": "", "graduation_date": "", "institution_phone": ""}
     return [
-        {"degree": "Elementary School", "institution": "", "study_period": "", "result": "", "graduation_date": "", "institution_phone": ""},
-        {"degree": "College", "institution": "", "study_period": "", "result": "", "graduation_date": "", "institution_phone": ""},
-        {"degree": "University", "institution": "", "study_period": "", "result": "", "graduation_date": "", "institution_phone": ""},
+        {**empty, "degree": str(label)}
+        for _value, label in AcademicDegreeChoice.choices
     ]
 
 
@@ -105,7 +116,7 @@ def _merge_education_rows(stored: list[Any] | None) -> list[dict[str, str]]:
         src = rows[i] if i < len(rows) and isinstance(rows[i], dict) else {}
         merged.append(
             {
-                "degree": str(src.get("degree") or slot["degree"]),
+                "degree": _academic_degree_display(str(src.get("degree") or "")) or slot["degree"],
                 "institution": str(src.get("institution") or ""),
                 "study_period": str(src.get("study_period") or ""),
                 "result": str(src.get("result") or ""),
@@ -120,7 +131,7 @@ def _merge_education_rows(stored: list[Any] | None) -> list[dict[str, str]]:
 def _student_education_rows(sf: StudentFile) -> list[dict[str, str]]:
     return [
         {
-            "degree": row.degree,
+            "degree": _academic_degree_display(row.degree),
             "institution": row.institution,
             "study_period": row.study_period,
             "result": row.result,
@@ -133,13 +144,33 @@ def _student_education_rows(sf: StudentFile) -> list[dict[str, str]]:
 
 
 def _pick_college_row(merged_education: list[dict[str, str]]) -> dict[str, str]:
+    if not merged_education:
+        return {}
+
+    def _raw_degree_for_row(row: dict[str, str]) -> str:
+        """Recover stored enum value when possible (merged rows carry display labels)."""
+        displayed = (row.get("degree") or "").strip()
+        for choice_val, choice_label in AcademicDegreeChoice.choices:
+            if displayed == choice_val or displayed == str(choice_label):
+                return choice_val
+        return displayed
+
+    for row in merged_education:
+        if _raw_degree_for_row(row) == AcademicDegreeChoice.HSC:
+            return row
     for row in merged_education:
         deg = (row.get("degree") or "").lower()
         if "college" in deg or "higher secondary" in deg or "high school" in deg:
             return row
+    for row in merged_education:
+        if _raw_degree_for_row(row) == AcademicDegreeChoice.SSC:
+            return row
+    for row in merged_education:
+        if (row.get("institution") or "").strip():
+            return row
     if len(merged_education) >= 2:
         return merged_education[1]
-    return merged_education[0] if merged_education else {}
+    return merged_education[0]
 
 
 def _study_period_years(study_period: str) -> tuple[str, str]:

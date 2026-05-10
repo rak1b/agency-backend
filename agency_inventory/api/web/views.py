@@ -681,6 +681,7 @@ class StudentFileViewSet(StudentPortalReadOnlyMixin, TenantHomeAgencyRowMixin, B
         "applied_universities",
         "education_background_rows",
         "family_particular_rows",
+        "payments",
     ).all()
     serializer_class = StudentFileSerializer
     permission_classes = [IsAuthenticated ]

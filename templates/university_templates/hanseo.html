@@ -789,6 +789,7 @@
           <th>Date of<br>Graduation</th>
           <th>Phone(Institution)</th>
         </tr>
+        {# Degree column matches AcademicDegreeChoice: SSC, HSC, Bachelor, Master's, PhD (five placeholder rows when empty). #}
         {% for row in education_rows %}
         <tr>
           <td class="bold">{{ row.degree }}</td>

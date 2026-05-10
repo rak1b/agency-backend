@@ -12,6 +12,7 @@ from .constants import (
     CustomerStatusChoice,
     FileFromChoice,
     GenderChoice,
+    MaritalStatusChoice,
     ReviewStatusChoice,
 )
 
@@ -177,6 +178,8 @@ class StudentFile(BaseModel):
     surname = models.CharField(max_length=100)
     given_name = models.CharField(max_length=100)
     middle_name = models.CharField(max_length=100, blank=True, null=True)
+    marital_status = models.CharField(max_length=20, choices=MaritalStatusChoice.choices, default=MaritalStatusChoice.SINGLE)
+    nid_number = models.CharField(max_length=50, blank=True, default="")
     phone_whatsapp = models.CharField(max_length=30)
     facebook_id_link = models.URLField(max_length=1000, blank=True, null=True)
     email = models.EmailField(blank=True, null=True)
@@ -212,6 +215,11 @@ class StudentFile(BaseModel):
     highest_education_website = models.CharField(max_length=500, blank=True, default="")
     attachments = models.ManyToManyField(
         "StudentFileAttachment",
+        related_name="student_files",
+        blank=True,
+    )
+    payments = models.ManyToManyField(
+        "StudentFilePayment",
         related_name="student_files",
         blank=True,
     )
@@ -297,6 +305,8 @@ class StudentFamilyParticular(BaseModel):
     )
     relation = models.CharField(max_length=100)
     name = models.CharField(max_length=255, blank=True, default="")
+    nid_number = models.CharField(max_length=50, blank=True, default="")
+    phone_number = models.CharField(max_length=30, blank=True, default="")
     date_of_birth = models.DateField(null=True, blank=True)
     occupation = models.CharField(max_length=150, blank=True, default="")
     monthly_income = models.CharField(max_length=100, blank=True, default="")
@@ -309,6 +319,49 @@ class StudentFamilyParticular(BaseModel):
 
     def __str__(self):
         return f"{self.student_file_id} - {self.relation}"
+
+
+class StudentFilePayment(BaseModel):
+    """
+    Payment line linked to one or more student files via M2M (``StudentFile.payments``).
+    """
+
+    agency = models.ForeignKey(
+        Agency,
+        on_delete=models.SET_NULL,
+        related_name="student_file_payments",
+        null=True,
+        blank=True,
+    )
+    business = models.ForeignKey(
+        Business,
+        on_delete=models.SET_NULL,
+        related_name="business_student_file_payments",
+        null=True,
+        blank=True,
+    )
+    payment_reason = models.CharField(max_length=500, blank=True, default="")
+    payment_amount = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    transaction_id = models.CharField(max_length=120, blank=True, default="")
+    payment_slip_url = models.URLField(max_length=1000, blank=True, null=True)
+    status = models.CharField(
+        max_length=20,
+        choices=ReviewStatusChoice.choices,
+        default=ReviewStatusChoice.PENDING,
+    )
+    rejection_reason = models.TextField(blank=True, null=True)
+
+    class Meta:
+        ordering = ["-created_at", "-id"]
+
+    def __str__(self):
+        return f"Payment {self.pk} ({self.payment_amount})"
+
+    def save(self, *args, **kwargs):
+        if self.business_id is None:
+            if self.agency_id:
+                self.business_id = _agency_business_pk(self.agency_id)
+        super().save(*args, **kwargs)
 
 
 class StudentApplicationProgress(BaseModel):

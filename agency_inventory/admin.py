@@ -17,6 +17,7 @@ from .models import (
     StudentFamilyParticular,
     StudentFile,
     StudentFileAttachment,
+    StudentFilePayment,
     University,
     UniversityIntake,
     UniversityProgram,
@@ -135,6 +136,22 @@ class StudentFileAttachmentAdmin(admin.ModelAdmin):
     list_filter = ("business", "agency", "is_active", "is_deleted")
     search_fields = ("title", "file_url", "agency__name")
     readonly_fields = ("slug", "created_at", "updated_at")
+
+
+@register(StudentFilePayment, site=master_admin_site)
+class StudentFilePaymentAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "business",
+        "payment_amount",
+        "status",
+        "transaction_id",
+        "agency",
+        "created_at",
+    )
+    list_filter = ("business", "agency", "status", "is_active", "is_deleted")
+    search_fields = ("payment_reason", "transaction_id", "agency__name")
+    readonly_fields = ("created_at", "updated_at")
 
 
 @register(AppliedUniversity, site=master_admin_site)
