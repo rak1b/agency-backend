@@ -680,7 +680,7 @@ class Country(BaseModel):
     """
     Country catalog scoped to a single agency tenant.
     """
-
+    slug = models.SlugField(max_length=255, unique=True, null=True, blank=True, editable=False)
     agency = models.ForeignKey(
         Agency,
         on_delete=models.CASCADE,
@@ -695,16 +695,19 @@ class Country(BaseModel):
         null=True,
         blank=True,
     )
+
     name = models.CharField(max_length=120)
-    avg_tuition_public = models.CharField(max_length=255, blank=True, default="")
-    living_cost = models.CharField(max_length=255, blank=True, default="")
-    language = models.CharField(max_length=255, blank=True, default="")
-    intake_periods = models.CharField(max_length=255, blank=True, default="")
-    ielts_required = models.CharField(max_length=255, blank=True, default="")
-    scholarship = models.CharField(max_length=255, blank=True, default="")
-    visa_type = models.CharField(max_length=255, blank=True, default="")
-    work_rights = models.CharField(max_length=255, blank=True, default="")
-    slug = models.SlugField(max_length=255, unique=True, null=True, blank=True, editable=False)
+    image_url = models.CharField(max_length=1000, blank=True, null=True)
+    avg_tuition_public = models.CharField(max_length=255,null=True, blank=True, default="")
+    living_cost = models.CharField(max_length=255,null=True, blank=True, default="")
+    language = models.CharField(max_length=255,null=True, blank=True, default="")
+    intake_periods = models.CharField(max_length=255,null=True, blank=True, default="")
+    ielts_required = models.CharField(max_length=255,null=True, blank=True, default="")
+    scholarship = models.CharField(max_length=255,null=True, blank=True, default="")
+    visa_type = models.CharField(max_length=255,null=True, blank=True, default="")
+    work_rights = models.CharField(max_length=255,null=True, blank=True, default="")
+    why_this_country = models.TextField(blank=True, null=True)
+    
 
     class Meta:
         ordering = ["name"]
