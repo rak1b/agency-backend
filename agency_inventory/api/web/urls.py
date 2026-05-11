@@ -19,6 +19,8 @@ urlpatterns = [
     path('dashboard/', views.InventoryDashboardAPIView.as_view(), name='inventory-dashboard'),
     path('university-form-download/', views.UniversityFormDownloadAPIView.as_view(), name='university-form-download'),
     path('university-form-html/', views.UniversityFormViewAPIView.as_view(), name='university-form-html'),
+    path('visa-form-download/', views.VisaFormDownloadAPIView.as_view(), name='visa-form-download'),
+    path('visa-form-html/', views.VisaFormViewAPIView.as_view(), name='visa-form-html'),
     path("public/countries/", views.PublicCountryCatalogAPIView.as_view(), name="public-country-catalog"),
     path("public/universities/", views.PublicUniversityCatalogAPIView.as_view(), name="public-university-catalog"),
     path(

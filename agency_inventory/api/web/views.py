@@ -1034,3 +1034,174 @@ class UniversityFormViewAPIView(APIView):
         context = build_hanseo_template_context(student_file)
         html = render_to_string("university_templates/hanseo.html", context, request=request)
         return HttpResponse(html, content_type="text/html")
+
+
+def _build_visa_form_context(student_file: "StudentFile | None") -> dict:
+    """
+    Assemble the template context for ``university_templates/visa_form.html``.
+
+    The Korean ``APPLICATION FOR CERTIFICATE OF VISA ELIGIBILITY`` form mostly
+    consists of fields the applicant fills in by hand. We pre-fill what we can
+    confidently derive from a ``StudentFile`` row (name, DOB, contact, passport,
+    address, education, employer, intended study purpose) and leave the rest
+    blank so the printed PDF mirrors the official form exactly.
+
+    Returns a ``{"visa": {...}}`` dict. Missing values default to empty strings
+    so the template's ``|default:''`` filters render an empty cell.
+    """
+    visa: dict[str, object] = {}
+    if student_file is None:
+        return {"visa": visa}
+
+    family_name = (getattr(student_file, "surname", "") or "").strip()
+    given_names = (getattr(student_file, "given_name", "") or "").strip()
+    full_name = " ".join(part for part in (given_names, family_name) if part).strip()
+
+    visa["family_name"] = family_name
+    visa["given_names"] = given_names
+    visa["applicant_full_name"] = full_name
+
+    raw_gender = (getattr(student_file, "gender", "") or "").strip().lower()
+    if raw_gender in {"m", "male"}:
+        visa["sex"] = "M"
+    elif raw_gender in {"f", "female"}:
+        visa["sex"] = "F"
+
+    dob = getattr(student_file, "date_of_birth", None)
+    visa["date_of_birth"] = dob.strftime("%Y/%m/%d") if dob else ""
+
+    nationality = getattr(student_file, "nationality", None) or getattr(student_file, "country_of_citizenship", None)
+    visa["nationality"] = (nationality or "").strip() if isinstance(nationality, str) else ""
+
+    country_of_birth = getattr(student_file, "country_of_birth", None) or getattr(student_file, "birth_country", None)
+    visa["country_of_birth"] = (country_of_birth or "").strip() if isinstance(country_of_birth, str) else ""
+
+    visa["national_id"] = (getattr(student_file, "national_id", "") or "").strip()
+
+    visa["passport_no"] = (getattr(student_file, "passport_number", "") or "").strip()
+    visa["passport_country"] = (getattr(student_file, "passport_country", "") or "").strip()
+    visa["passport_place_of_issue"] = (getattr(student_file, "passport_place_of_issue", "") or "").strip()
+    issue = getattr(student_file, "passport_issue_date", None)
+    expiry = getattr(student_file, "passport_expiry_date", None)
+    visa["passport_issue_date"] = issue.strftime("%Y/%m/%d") if issue else ""
+    visa["passport_expiry_date"] = expiry.strftime("%Y/%m/%d") if expiry else ""
+    visa["passport_type"] = "regular" if visa["passport_no"] else ""
+
+    visa["home_address"] = (getattr(student_file, "permanent_address", "") or getattr(student_file, "address", "") or "").strip()
+    visa["current_address"] = (getattr(student_file, "current_address", "") or "").strip()
+    visa["cell_phone"] = (getattr(student_file, "phone_number", "") or getattr(student_file, "phone", "") or "").strip()
+    visa["telephone"] = (getattr(student_file, "telephone", "") or "").strip()
+    visa["email"] = (getattr(student_file, "email", "") or "").strip()
+
+    visa["school_name"] = (getattr(student_file, "last_institute_name", "") or getattr(student_file, "school_name", "") or "").strip()
+    visa["school_location"] = (getattr(student_file, "last_institute_address", "") or "").strip()
+
+    today = timezone.localdate()
+    visa["application_date_yyyy"] = f"{today.year:04d}"
+    visa["application_date_mm"] = f"{today.month:02d}"
+    visa["application_date_dd"] = f"{today.day:02d}"
+
+    return {"visa": visa}
+
+
+@extend_schema(
+    summary="Korean Visa application form (PDF)",
+    description=(
+        "Renders ``visa_form.html`` (APPLICATION FOR CERTIFICATE OF VISA ELIGIBILITY) "
+        "to PDF, pre-filled from a ``StudentFile``. "
+        "Pass ``student_file_id`` (recommended), ``slug``, or ``id`` as query parameters."
+    ),
+    parameters=[
+        OpenApiParameter(
+            name="student_file_id",
+            type=str,
+            location=OpenApiParameter.QUERY,
+            description="Student file public id (e.g. STF…).",
+        ),
+        OpenApiParameter(
+            name="slug",
+            type=str,
+            location=OpenApiParameter.QUERY,
+            description="Alternate lookup: student file slug.",
+        ),
+        OpenApiParameter(
+            name="id",
+            type=int,
+            location=OpenApiParameter.QUERY,
+            description="Alternate lookup: numeric primary key of the student file.",
+        ),
+    ],
+)
+class VisaFormDownloadAPIView(APIView):
+    """
+    Renders the Korean visa application template to PDF for one ``StudentFile``.
+
+    Uses WeasyPrint so ``@page`` and print-oriented CSS in the template are honored.
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        student_file_id = (request.query_params.get("student_file_id") or "").strip()
+        slug = (request.query_params.get("slug") or "").strip()
+        raw_pk = (request.query_params.get("id") or "").strip()
+        if not student_file_id and not slug and not raw_pk:
+            return Response(
+                {"detail": "Provide query parameter student_file_id, slug, or id."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        qs = scoped_student_files_queryset(request)
+        student_file = None
+        if student_file_id:
+            student_file = qs.filter(student_file_id=student_file_id).first()
+        if student_file is None and slug:
+            student_file = qs.filter(slug=slug).first()
+        if student_file is None and raw_pk.isdigit():
+            student_file = qs.filter(pk=int(raw_pk)).first()
+        if student_file is None:
+            return Response({"detail": "Student file not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        context = _build_visa_form_context(student_file)
+        html_string = render_to_string(
+            "university_templates/visa_form.html",
+            context,
+            request=request,
+        )
+        # Import here so a broken WeasyPrint/GTK stack does not prevent the rest of the API from booting.
+        from weasyprint import HTML as WeasyHTML
+
+        pdf_bytes = WeasyHTML(string=html_string, base_url=request.build_absolute_uri("/")).write_pdf()
+        safe_name_part = student_file.student_file_id or str(student_file.pk)
+        response = HttpResponse(pdf_bytes, content_type="application/pdf")
+        response["Content-Disposition"] = (
+            f'attachment; filename="visa-application-{safe_name_part}.pdf"'
+        )
+        return response
+
+
+class VisaFormViewAPIView(APIView):
+    """Render the Korean visa application template as HTML (preview)."""
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        student_file_id = (request.query_params.get("student_file_id") or "").strip()
+        slug = (request.query_params.get("slug") or "").strip()
+        raw_pk = (request.query_params.get("id") or "").strip()
+
+        student_file = None
+        if student_file_id or slug or raw_pk:
+            qs = scoped_student_files_queryset(request)
+            if student_file_id:
+                student_file = qs.filter(student_file_id=student_file_id).first()
+            if student_file is None and slug:
+                student_file = qs.filter(slug=slug).first()
+            if student_file is None and raw_pk.isdigit():
+                student_file = qs.filter(pk=int(raw_pk)).first()
+        else:
+            student_file = StudentFile.objects.filter(student_file_id="STF00000001").first()
+
+        context = _build_visa_form_context(student_file)
+        html = render_to_string("university_templates/visa_form.html", context, request=request)
+        return HttpResponse(html, content_type="text/html")

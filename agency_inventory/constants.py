@@ -42,6 +42,9 @@ class AcademicDegreeChoice(models.TextChoices):
     BACHELOR = "BACHELOR", _("Bachelor")
     MASTERS = "MASTERS", _("Master's")
     PHD = "PHD", _("PhD")
+    # ELEMENTARY_SCHOOL = "Elementary School", _("Elementary School")
+    # COLLEGE = "College", _("College")
+    # UNIVERSITY = "University", _("University")
 
 
 class UniversityProgramChoice(models.TextChoices):

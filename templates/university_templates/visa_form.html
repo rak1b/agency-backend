@@ -1,0 +1,1384 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Application for Certificate of Visa Eligibility</title>
+  <style>
+    :root {
+      --doc-inner-width: 182mm;
+      --korean-sans: "Noto Sans CJK KR", "Noto Sans CJK", "Noto Sans KR", "Liberation Sans", Arial, Helvetica, sans-serif;
+    }
+
+    @page {
+      size: A4;
+      margin: 10mm 14mm 10mm 14mm;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #fff;
+      color: #000;
+      font-family: "Liberation Sans", Arial, Helvetica, sans-serif;
+    }
+
+    body {
+      width: 100%;
+      max-width: 182mm;
+      margin: 0 auto;
+      font-size: 10px;
+      line-height: 1.25;
+    }
+
+    .page {
+      width: 100%;
+      max-width: 182mm;
+      min-height: 0;
+      margin: 0 auto 4mm;
+      position: relative;
+      padding-bottom: 10mm;
+      page-break-after: auto;
+      break-after: auto;
+    }
+
+    .page + .page {
+      break-before: page;
+      page-break-before: always;
+    }
+
+    /* Top-right page indicator like "(제1쪽 / Page1)" */
+    .page-tag {
+      text-align: right;
+      font-family: var(--korean-sans);
+      font-size: 10px;
+      margin-bottom: 1mm;
+    }
+
+    /* Top-left small heading shown on page 1 only */
+    .doc-id {
+      font-family: var(--korean-sans);
+      font-size: 10px;
+      font-weight: 700;
+      margin-bottom: 3mm;
+    }
+
+    .doc-id::before {
+      content: "■ ";
+    }
+
+    .footer-paper {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      font-family: var(--korean-sans);
+      font-size: 9px;
+    }
+
+    /* Document title block */
+    .title-ko {
+      text-align: center;
+      font-family: var(--korean-sans);
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: 6px;
+      margin: 0 0 1mm;
+    }
+
+    .title-en {
+      text-align: center;
+      font-family: "Liberation Sans", Arial, Helvetica, sans-serif;
+      font-size: 13.5px;
+      font-weight: 700;
+      margin: 0 0 4mm;
+    }
+
+    /* Generic small Korean tag inline with English label, e.g. "성 Family Name" */
+    .ko { font-family: var(--korean-sans); }
+
+    /* How to fill out section */
+    .howto {
+      font-size: 10px;
+      line-height: 1.35;
+      margin: 0 0 3mm;
+    }
+
+    .howto-title {
+      font-family: var(--korean-sans);
+      font-weight: 700;
+      margin-bottom: 0.5mm;
+    }
+
+    .howto ul {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 1.5mm;
+    }
+
+    .howto li {
+      position: relative;
+      padding-left: 4mm;
+      margin: 0;
+      line-height: 1.35;
+    }
+
+    .howto li::before {
+      content: "▸";
+      position: absolute;
+      left: 0;
+      top: 0;
+      font-size: 9px;
+    }
+
+    /* Section header banner (gray bar with "1. 인적사항 / PERSONAL DETAILS") */
+    .section-bar {
+      background: #d9d9d9;
+      border: 1px solid #111;
+      border-bottom: 0;
+      padding: 1.2mm 2mm;
+      font-weight: 700;
+      font-size: 11.5px;
+      font-family: var(--korean-sans);
+      letter-spacing: 0.2px;
+    }
+
+    .section-bar .num {
+      font-weight: 700;
+      margin-right: 1mm;
+    }
+
+    .section-bar .en {
+      font-family: "Liberation Sans", Arial, Helvetica, sans-serif;
+    }
+
+    /* Main form tables */
+    table.form {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+
+    table.form td,
+    table.form th {
+      border: 1px solid #111;
+      padding: 1.2mm 1.8mm;
+      vertical-align: top;
+      font-size: 9.5px;
+      line-height: 1.25;
+      overflow-wrap: break-word;
+      word-break: normal;
+    }
+
+    table.form th {
+      background: #fafafa;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    /* Field labels typically have a number prefix like "1.1" */
+    .field-num {
+      font-weight: 400;
+      margin-right: 1mm;
+      white-space: nowrap;
+    }
+
+    .field-label {
+      font-family: var(--korean-sans);
+      font-size: 9.5px;
+      font-weight: 400;
+    }
+
+    .field-label .en {
+      font-family: "Liberation Sans", Arial, Helvetica, sans-serif;
+    }
+
+    /* Cell that holds a labeled input value (label small at top + value beneath) */
+    .field-cell {
+      min-height: 9mm;
+    }
+
+    .field-cell .value {
+      display: block;
+      min-height: 4mm;
+      padding-top: 1mm;
+      font-family: "Liberation Sans", Arial, Helvetica, sans-serif;
+      font-size: 10px;
+    }
+
+    /* Photo cell on page 1 personal details */
+    .photo-cell {
+      width: 36mm;
+      vertical-align: middle;
+      text-align: center;
+      padding: 1mm;
+      font-family: var(--korean-sans);
+      font-size: 8.5px;
+      line-height: 1.2;
+    }
+
+    .photo-cell .photo-spec {
+      font-family: var(--korean-sans);
+      font-size: 8.5px;
+      line-height: 1.25;
+      text-align: left;
+    }
+
+    .photo-cell .photo-spec b {
+      font-weight: 700;
+    }
+
+    .photo-cell .photo-img {
+      width: 30mm;
+      height: 36mm;
+      margin: 1mm auto;
+      border: 1px dashed #555;
+      display: block;
+    }
+
+    /* Checkbox style */
+    .cb {
+      display: inline-block;
+      width: 3mm;
+      height: 3mm;
+      border: 1px solid #111;
+      margin: 0 1mm 0 0.5mm;
+      vertical-align: middle;
+      background: #fff;
+    }
+
+    .cb.checked {
+      background: #111;
+    }
+
+    .opt {
+      display: inline-block;
+      margin-right: 4mm;
+      white-space: nowrap;
+    }
+
+    /* Inline bracket style "[ ]" used for read-only printable checkbox alternative */
+    .br {
+      font-family: "Liberation Sans", Arial, Helvetica, sans-serif;
+      font-size: 11px;
+      letter-spacing: 1px;
+    }
+
+    /* Empty-line filler used to draw a long underline within a cell */
+    .underline-blank {
+      display: inline-block;
+      border-bottom: 1px solid #000;
+      min-width: 30mm;
+      height: 1px;
+      vertical-align: bottom;
+      margin: 0 1mm;
+    }
+
+    /* No-border helper */
+    .nb { border: 0 !important; }
+    .nb-t { border-top: 0 !important; }
+    .nb-b { border-bottom: 0 !important; }
+    .nb-l { border-left: 0 !important; }
+    .nb-r { border-right: 0 !important; }
+
+    .center { text-align: center; }
+    .right { text-align: right; }
+    .left { text-align: left; }
+    .bold { font-weight: 700; }
+    .small { font-size: 8.5px; }
+    .xs { font-size: 8px; line-height: 1.18; }
+    .ko-sans { font-family: var(--korean-sans); }
+
+    /* Cell with two stacked labels (Korean over English) */
+    .stacked-label .ko-line {
+      font-family: var(--korean-sans);
+      font-size: 9.5px;
+      display: block;
+    }
+
+    .stacked-label .en-line {
+      font-family: "Liberation Sans", Arial, Helvetica, sans-serif;
+      font-size: 9px;
+      display: block;
+    }
+
+    /* Bordered narrative paragraph block, used for declarations */
+    .declaration {
+      padding: 3mm 2mm;
+      font-size: 10px;
+      line-height: 1.4;
+    }
+
+    .declaration p {
+      margin: 1mm 0;
+    }
+
+    .signature-row {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12mm;
+      margin-top: 5mm;
+      padding-right: 2mm;
+      font-size: 10px;
+    }
+
+    .signature-row .sig-cell {
+      min-width: 60mm;
+      text-align: center;
+    }
+
+    .signature-row .sig-line {
+      display: block;
+      border-bottom: 1px solid #000;
+      height: 8mm;
+      margin-bottom: 1mm;
+    }
+
+    /* Notice list on page 5 */
+    .notice-list {
+      padding: 0;
+      margin: 0;
+      list-style: none;
+      counter-reset: notice;
+    }
+
+    .notice-list > li {
+      counter-increment: notice;
+      padding: 1.2mm 0 1.5mm 8mm;
+      position: relative;
+      border-bottom: 1px dashed #888;
+      font-size: 9.5px;
+      line-height: 1.3;
+    }
+
+    .notice-list > li:last-child {
+      border-bottom: 0;
+    }
+
+    .notice-list > li::before {
+      content: counter(notice) ".";
+      position: absolute;
+      left: 1mm;
+      top: 1.2mm;
+      font-weight: 700;
+    }
+
+    .notice-list .ko {
+      display: block;
+      margin-bottom: 0.5mm;
+    }
+
+    /* For Official Use Only grid */
+    .official-grid {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+
+    .official-grid td,
+    .official-grid th {
+      border: 1px solid #111;
+      padding: 2mm;
+      font-size: 9.5px;
+      font-family: var(--korean-sans);
+      vertical-align: top;
+      height: 10mm;
+    }
+
+    /* Procedure flow on page 5 */
+    .flow {
+      display: table;
+      width: 100%;
+      table-layout: fixed;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin-top: 3mm;
+    }
+
+    .flow-row {
+      display: table-row;
+    }
+
+    .flow-cell {
+      display: table-cell;
+      width: 20%;
+      vertical-align: top;
+      text-align: center;
+      padding: 0 1mm;
+      font-family: var(--korean-sans);
+      font-size: 9px;
+      line-height: 1.25;
+      position: relative;
+    }
+
+    .flow-box {
+      border: 1px solid #111;
+      border-radius: 999px;
+      padding: 3mm 1mm;
+      min-height: 18mm;
+      font-size: 9px;
+      line-height: 1.25;
+    }
+
+    .flow-arrow-row .flow-cell {
+      padding: 2mm 1mm;
+    }
+
+    .flow-arrow-row .arrow {
+      display: block;
+      text-align: center;
+      font-size: 16px;
+      line-height: 1;
+    }
+
+    .flow-bottom .flow-box {
+      border-radius: 4px;
+    }
+
+    /* Cross-page common helpers for value rows that look like underline-style input */
+    .value-line {
+      display: block;
+      border-bottom: 1px solid #000;
+      min-height: 5mm;
+      padding-top: 2mm;
+    }
+
+    /* Two-column row inside a cell */
+    .row-2 {
+      display: flex;
+      gap: 3mm;
+    }
+    .row-2 > div { flex: 1; }
+  </style>
+</head>
+<body>
+
+  {# ============================== PAGE 1 ============================== #}
+  <section class="page">
+    <div class="doc-id ko">출입국관리법 시행규칙 [별지 제21호서식]</div>
+    <div class="page-tag ko">(제1쪽 / Page1)</div>
+
+    <h1 class="title-ko">사증발급인정신청서</h1>
+    <h2 class="title-en">APPLICATION FOR CERTIFICATE OF VISA ELIGIBILITY</h2>
+
+    <div class="howto">
+      <div class="howto-title">&lt;신청서 작성방법&gt;</div>
+      <ul>
+        <li class="ko">신청인은 사실에 근거하여 빠짐없이 정확하게 신청서를 작성하여야 합니다.</li>
+        <li class="ko">신청서상의 모든 질문에 대한 답변은 한글 또는 영문으로 기재하여야 합니다.</li>
+        <li class="ko">선택사항은 해당 칸[&nbsp;&nbsp;] 안에 √ 표시를 하시기 바랍니다.</li>
+        <li class="ko">'기타'를 선택한 경우, 상세내용을 기재하시기 바랍니다.</li>
+      </ul>
+      <div class="howto-title">&lt;How to fill out this form&gt;</div>
+      <ul>
+        <li>The applicant must fill out this form completely and correctly.</li>
+        <li>The applicant must write in block letters either in English or Korean.</li>
+        <li>For multiple-choice questions, the applicant must check [&radic;] all that apply.</li>
+        <li>If the applicant selects 'Other', please provide us with more information in the given space.</li>
+      </ul>
+    </div>
+
+    {# ----- Section 1: Personal Details ----- #}
+    <div class="section-bar">
+      <span class="num">1.</span><span class="ko">인적사항</span> / <span class="en">PERSONAL DETAILS</span>
+    </div>
+    <table class="form">
+      <colgroup>
+        <col style="width: 36mm;">
+        <col>
+        <col>
+      </colgroup>
+      <tbody>
+        <tr>
+          <td class="photo-cell" rowspan="4">
+            <div class="photo-spec ko">
+              여권용사진<br>
+              (35mm&times;45mm)<br>
+              - 흰색 바탕에 모자를 쓰지<br>
+              않은 정면 사진으로 촬영일부터<br>
+              6개월이 경과하지 않아야 함
+            </div>
+            <span class="photo-img"></span>
+            <div class="photo-spec">
+              A color photo taken within last 6<br>
+              months(full face without hat,<br>
+              front view against white or<br>
+              off-white background)
+            </div>
+          </td>
+          <td colspan="2" class="field-cell">
+            <span class="field-label"><span class="field-num">1.1</span> <span class="ko">여권에 기재된 영문 성명</span> Full Name in English (as shown in passport)</span>
+            <div class="row-2" style="margin-top:1mm;">
+              <div>
+                <span class="field-label"><span class="ko">성</span> Family Name</span>
+                <span class="value">{{ visa.family_name|default:'' }}</span>
+              </div>
+              <div>
+                <span class="field-label"><span class="ko">명</span> Given Names</span>
+                <span class="value">{{ visa.given_names|default:'' }}</span>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="field-cell">
+            <span class="field-label"><span class="field-num">1.2</span> <span class="ko">한자성명</span> (漢字姓名)</span>
+            <span class="value">{{ visa.hanja_name|default:'' }}</span>
+          </td>
+          <td class="field-cell">
+            <span class="field-label"><span class="field-num">1.3</span> <span class="ko">성별</span> Sex</span>
+            <span class="value">
+              <span class="opt"><span class="ko">남성</span>/Male<span class="br">[&nbsp;{% if visa.sex == 'M' %}&radic;{% else %}&nbsp;{% endif %}&nbsp;]</span></span>
+              <span class="opt"><span class="ko">여성</span>/Female<span class="br">[&nbsp;{% if visa.sex == 'F' %}&radic;{% else %}&nbsp;{% endif %}&nbsp;]</span></span>
+            </span>
+          </td>
+        </tr>
+        <tr>
+          <td class="field-cell">
+            <span class="field-label"><span class="field-num">1.4</span> <span class="ko">생년월일</span> Date of Birth (yyyy/mm/dd)</span>
+            <span class="value">{{ visa.date_of_birth|default:'' }}</span>
+          </td>
+          <td class="field-cell">
+            <span class="field-label"><span class="field-num">1.5</span> <span class="ko">국적</span> Nationality</span>
+            <span class="value">{{ visa.nationality|default:'' }}</span>
+          </td>
+        </tr>
+        <tr>
+          <td class="field-cell">
+            <span class="field-label"><span class="field-num">1.6</span> <span class="ko">출생국가</span> Country of Birth</span>
+            <span class="value">{{ visa.country_of_birth|default:'' }}</span>
+          </td>
+          <td class="field-cell">
+            <span class="field-label"><span class="field-num">1.7</span> <span class="ko">국가신분증번호</span> National Identity No.</span>
+            <span class="value">{{ visa.national_id|default:'' }}</span>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="3" class="field-cell">
+            <span class="field-label"><span class="field-num">1.8</span> <span class="ko">이전에 한국에 출입국하였을 때 다른 성명을 사용했는지 여부</span></span><br>
+            <span class="small">Has the applicant ever used any other names to enter or depart Korea?</span>
+            <div style="margin-top:1mm;">
+              <span class="opt"><span class="ko">아니오</span> No <span class="br">[&nbsp;{% if visa.q18_used_other_names == 'no' %}&radic;{% else %}&nbsp;{% endif %}&nbsp;]</span></span>
+              <span class="opt"><span class="ko">예</span> Yes <span class="br">[&nbsp;{% if visa.q18_used_other_names == 'yes' %}&radic;{% else %}&nbsp;{% endif %}&nbsp;]</span></span>
+              &rarr; <span class="small ko">'예' 선택 시 상세내용 기재</span> <span class="small">If 'Yes', please provide details</span>
+            </div>
+            <div class="row-2" style="margin-top:1mm;">
+              <div>
+                <span class="field-label small"><span class="ko">성</span> Family Name</span>
+                <span class="value">{{ visa.q18_other_family_name|default:'' }}</span>
+              </div>
+              <div>
+                <span class="field-label small"><span class="ko">명</span> Given Names</span>
+                <span class="value">{{ visa.q18_other_given_names|default:'' }}</span>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="3" class="field-cell">
+            <span class="field-label"><span class="field-num">1.9</span> <span class="ko">복수 국적 여부</span> Is the applicant a citizen of more than one country?</span>
+            <span class="opt" style="margin-left:3mm;"><span class="ko">아니오</span> No <span class="br">[&nbsp;{% if visa.q19_multi_nationality == 'no' %}&radic;{% else %}&nbsp;{% endif %}&nbsp;]</span></span>
+            <span class="opt"><span class="ko">예</span> Yes <span class="br">[&nbsp;{% if visa.q19_multi_nationality == 'yes' %}&radic;{% else %}&nbsp;{% endif %}&nbsp;]</span></span>
+            <div style="margin-top:1mm;">
+              &rarr; <span class="ko small">'예' 선택 시 상세내용 기재</span> <span class="small">If 'Yes', please provide details (</span>
+              <span class="underline-blank" style="min-width:100mm;"></span>
+              <span class="small">)</span>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    {# ----- Section 2: Passport Information ----- #}
+    <div class="section-bar" style="margin-top:2mm;">
+      <span class="num">2.</span><span class="ko">여권정보</span> / <span class="en">PASSPORT INFORMATION</span>
+    </div>
+    <table class="form">
+      <tbody>
+        <tr>
+          <td colspan="3" class="field-cell">
+            <span class="field-label"><span class="field-num">2.1</span> <span class="ko">여권종류</span> Passport Type</span>
+            <div style="margin-top:1mm;">
+              <span class="opt"><span class="ko">외교관</span> Diplomatic <span class="br">[&nbsp;{% if visa.passport_type == 'diplomatic' %}&radic;{% else %}&nbsp;{% endif %}&nbsp;]</span></span>
+              <span class="opt"><span class="ko">관용</span> Official <span class="br">[&nbsp;{% if visa.passport_type == 'official' %}&radic;{% else %}&nbsp;{% endif %}&nbsp;]</span></span>
+              <span class="opt"><span class="ko">일반</span> Regular <span class="br">[&nbsp;{% if visa.passport_type == 'regular' %}&radic;{% else %}&nbsp;{% endif %}&nbsp;]</span></span>
+              <span class="opt"><span class="ko">기타</span> Other <span class="br">[&nbsp;{% if visa.passport_type == 'other' %}&radic;{% else %}&nbsp;{% endif %}&nbsp;]</span></span>
+            </div>
+            <div style="margin-top:1mm;">
+              &rarr; <span class="ko small">'기타' 상세내용 If 'Other', please provide details (</span>
+              <span class="underline-blank" style="min-width:100mm;"></span> <span class="small">)</span>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="field-cell">
+            <span class="field-label"><span class="field-num">2.2</span> <span class="ko">여권번호</span> Passport No.</span>
+            <span class="value">{{ visa.passport_no|default:'' }}</span>
+          </td>
+          <td class="field-cell">
+            <span class="field-label"><span class="field-num">2.3</span> <span class="ko">발급국가</span> Country of Passport</span>
+            <span class="value">{{ visa.passport_country|default:'' }}</span>
+          </td>
+          <td class="field-cell">
+            <span class="field-label"><span class="field-num">2.4</span> <span class="ko">발급지</span> Place of Issue</span>
+            <span class="value">{{ visa.passport_place_of_issue|default:'' }}</span>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="2" class="field-cell">
+            <span class="field-label"><span class="field-num">2.5</span> <span class="ko">발급일자</span> Date of Issue</span>
+            <span class="value">{{ visa.passport_issue_date|default:'' }}</span>
+          </td>
+          <td class="field-cell">
+            <span class="field-label"><span class="field-num">2.6</span> <span class="ko">기간만료일</span> Date Of Expiry</span>
+            <span class="value">{{ visa.passport_expiry_date|default:'' }}</span>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="3" class="field-cell">
+            <span class="field-label"><span class="field-num">2.7</span> <span class="ko">다른 여권 소지 여부</span> Does the applicant have any other valid passport?</span>
+            <span class="opt" style="margin-left:3mm;"><span class="ko">아니오</span> No <span class="br">[&nbsp;{% if visa.q27_other_passport == 'no' %}&radic;{% else %}&nbsp;{% endif %}&nbsp;]</span></span>
+            <span class="opt"><span class="ko">예</span> Yes <span class="br">[&nbsp;{% if visa.q27_other_passport == 'yes' %}&radic;{% else %}&nbsp;{% endif %}&nbsp;]</span></span>
+            <div class="small" style="margin-top:1mm;">&rarr; <span class="ko">'예' 선택 시 상세내용 기재</span> If 'Yes', please provide details</div>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="3" class="field-cell">
+            <span class="field-label">a) <span class="ko">여권종류</span> Passport Type</span>
+            <div style="margin-top:1mm;">
+              <span class="opt"><span class="ko">외교관</span> Diplomatic <span class="br">[&nbsp;{% if visa.other_passport_type == 'diplomatic' %}&radic;{% else %}&nbsp;{% endif %}&nbsp;]</span></span>
+              <span class="opt"><span class="ko">관용</span> Official <span class="br">[&nbsp;{% if visa.other_passport_type == 'official' %}&radic;{% else %}&nbsp;{% endif %}&nbsp;]</span></span>
+              <span class="opt"><span class="ko">일반</span> Regular <span class="br">[&nbsp;{% if visa.other_passport_type == 'regular' %}&radic;{% else %}&nbsp;{% endif %}&nbsp;]</span></span>
+              <span class="opt"><span class="ko">기타</span> Other <span class="br">[&nbsp;{% if visa.other_passport_type == 'other' %}&radic;{% else %}&nbsp;{% endif %}&nbsp;]</span></span>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="field-cell">
+            <span class="field-label">b) <span class="ko">여권번호</span> Passport No.</span>
+            <span class="value">{{ visa.other_passport_no|default:'' }}</span>
+          </td>
+          <td class="field-cell">
+            <span class="field-label">c) <span class="ko">발급국가</span> Country of Passport</span>
+            <span class="value">{{ visa.other_passport_country|default:'' }}</span>
+          </td>
+          <td class="field-cell">
+            <span class="field-label">d) <span class="ko">기간만료일</span> Date of Expiry</span>
+            <span class="value">{{ visa.other_passport_expiry|default:'' }}</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="footer-paper ko">210mm × 297mm[ 백상지(80 g/㎡) 또는 중질지(80 g/㎡)]</div>
+  </section>
+
+  {# ============================== PAGE 2 ============================== #}
+  <section class="page">
+    <div class="page-tag ko">(제2쪽 / Page2)</div>
+
+    {# ----- Section 3: Contact Information ----- #}
+    <div class="section-bar">
+      <span class="num">3.</span><span class="ko">연락처</span> / <span class="en">CONTACT INFORMATION</span>
+    </div>
+    <table class="form">
+      <tbody>
+        <tr>
+          <td colspan="3" class="field-cell">
+            <span class="field-label"><span class="field-num">3.1</span> <span class="ko">본국 주소</span> Home Country Address of the Applicant</span>
+            <span class="value">{{ visa.home_address|default:'' }}</span>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="3" class="field-cell">
+            <span class="field-label"><span class="field-num">3.2</span> <span class="ko">현 거주지</span> Current Residential Address <span class="xs">※ <span class="ko">현 거주지가 본국 주소와 다른 경우 기재</span> / Please write the current address if different from above</span></span>
+            <span class="value">{{ visa.current_address|default:'' }}</span>
+          </td>
+        </tr>
+        <tr>
+          <td class="field-cell">
+            <span class="field-label"><span class="field-num">3.3</span> <span class="ko">휴대전화</span> Cell Phone No.</span>
+            <span class="value">{{ visa.cell_phone|default:'' }}</span>
+          </td>
+          <td class="field-cell">
+            <span class="field-label"><span class="field-num">3.4</span> <span class="ko">일반전화</span> Telephone No.</span>
+            <span class="value">{{ visa.telephone|default:'' }}</span>
+          </td>
+          <td class="field-cell">
+            <span class="field-label"><span class="field-num">3.5</span> <span class="ko">이메일</span> E-mail</span>
+            <span class="value">{{ visa.email|default:'' }}</span>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="3" class="field-cell">
+            <span class="field-label"><span class="field-num">3.6</span> <span class="ko">비상시 연락처</span> Emergency Contact Information</span>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="2" class="field-cell">
+            <span class="field-label">a) <span class="ko">성명</span> Full Name in English</span>
+            <span class="value">{{ visa.emergency_name|default:'' }}</span>
+          </td>
+          <td class="field-cell">
+            <span class="field-label">b) <span class="ko">거주국가</span> Country of Residence</span>
+            <span class="value">{{ visa.emergency_country|default:'' }}</span>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="2" class="field-cell">
+            <span class="field-label">c) <span class="ko">전화번호</span> Telephone No.</span>
+            <span class="value">{{ visa.emergency_phone|default:'' }}</span>
+          </td>
+          <td class="field-cell">
+            <span class="field-label">d) <span class="ko">관계</span> Relationship to the applicant</span>
+            <span class="value">{{ visa.emergency_relationship|default:'' }}</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    {# ----- Section 4: Marital Status and Family Details ----- #}
+    <div class="section-bar" style="margin-top:2mm;">
+      <span class="num">4.</span><span class="ko">혼인사항 및 가족사항</span> / <span class="en">MARITAL STATUS AND FAMILY DETAILS</span>
+    </div>
+    <table class="form">
+      <tbody>
+        <tr>
+          <td colspan="3" class="field-cell">
+            <span class="field-label"><span class="field-num">4.1</span> <span class="ko">현재 혼인사항</span> Current Marital Status</span>
+            <div style="margin-top:1mm;">
+              <span class="opt"><span class="ko">기혼</span> Married <span class="br">[&nbsp;{% if visa.marital_status == 'married' %}&radic;{% else %}&nbsp;{% endif %}&nbsp;]</span></span>
+              <span class="opt"><span class="ko">이혼</span> Divorced <span class="br">[&nbsp;{% if visa.marital_status == 'divorced' %}&radic;{% else %}&nbsp;{% endif %}&nbsp;]</span></span>
+              <span class="opt"><span class="ko">미혼</span> Single <span class="br">[&nbsp;{% if visa.marital_status == 'single' %}&radic;{% else %}&nbsp;{% endif %}&nbsp;]</span></span>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="3" class="field-cell">
+            <span class="field-label"><span class="field-num">4.2</span> <span class="ko">배우자 인적사항</span> Personal Information of the applicant's Spouse <span class="xs">※ <span class="ko">기혼으로 표기한 경우에만 기재</span> If 'Married', please provide details of your spouse.</span></span>
+          </td>
+        </tr>
+        <tr>
+          <td class="field-cell">
+            <span class="field-label">a) <span class="ko">성</span> Family Name (in English)</span>
+            <span class="value">{{ visa.spouse_family_name|default:'' }}</span>
+          </td>
+          <td colspan="2" class="field-cell">
+            <span class="field-label">b) <span class="ko">명</span> Given Names (in English)</span>
+            <span class="value">{{ visa.spouse_given_names|default:'' }}</span>
+          </td>
+        </tr>
+        <tr>
+          <td class="field-cell">
+            <span class="field-label">c) <span class="ko">생년월일</span> Date of Birth (yyyy/mm/dd)</span>
+            <span class="value">{{ visa.spouse_dob|default:'' }}</span>
+          </td>
+          <td colspan="2" class="field-cell">
+            <span class="field-label">d) <span class="ko">국적</span> Nationality</span>
+            <span class="value">{{ visa.spouse_nationality|default:'' }}</span>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="2" class="field-cell">
+            <span class="field-label">e) <span class="ko">거주지</span> Residential Address</span>
+            <span class="value">{{ visa.spouse_address|default:'' }}</span>
+          </td>
+          <td class="field-cell">
+            <span class="field-label">f) <span class="ko">연락처</span> Contact No.</span>
+            <span class="value">{{ visa.spouse_phone|default:'' }}</span>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="3" class="field-cell">
+            <span class="field-label"><span class="field-num">4.3</span> <span class="ko">자녀 유무</span> Does the applicant have children?</span>
+            <div style="margin-top:1mm;">
+              <span class="opt"><span class="ko">없음</span> No <span class="br">[&nbsp;{% if visa.has_children == 'no' %}&radic;{% else %}&nbsp;{% endif %}&nbsp;]</span></span>
+              <span class="opt"><span class="ko">있음</span> Yes <span class="br">[&nbsp;{% if visa.has_children == 'yes' %}&radic;{% else %}&nbsp;{% endif %}&nbsp;]</span></span>
+              <span class="opt"><span class="ko">자녀수</span> Number of children <span class="br">[&nbsp;{{ visa.number_of_children|default:'&nbsp;' }}&nbsp;]</span></span>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    {# ----- Section 5: Education ----- #}
+    <div class="section-bar" style="margin-top:2mm;">
+      <span class="num">5.</span><span class="ko">학력</span> / <span class="en">EDUCATION</span>
+    </div>
+    <table class="form">
+      <tbody>
+        <tr>
+          <td colspan="2" class="field-cell">
+            <span class="field-label"><span class="field-num">5.1</span> <span class="ko">최종학력</span> What is the highest degree or level of education the applicant has completed?</span>
+            <div style="margin-top:1mm;">
+              <span class="opt"><span class="ko">박사/박사</span> Master's/Doctoral Degree <span class="br">[&nbsp;{% if visa.education_level == 'masters_doctoral' %}&radic;{% else %}&nbsp;{% endif %}&nbsp;]</span></span>
+              <span class="opt"><span class="ko">대졸</span> Bachelor's Degree <span class="br">[&nbsp;{% if visa.education_level == 'bachelor' %}&radic;{% else %}&nbsp;{% endif %}&nbsp;]</span></span>
+            </div>
+            <div style="margin-top:1mm;">
+              <span class="opt"><span class="ko">고졸</span> High School Diploma <span class="br">[&nbsp;{% if visa.education_level == 'highschool' %}&radic;{% else %}&nbsp;{% endif %}&nbsp;]</span></span>
+              <span class="opt"><span class="ko">기타</span> Other <span class="br">[&nbsp;{% if visa.education_level == 'other' %}&radic;{% else %}&nbsp;{% endif %}&nbsp;]</span></span>
+            </div>
+            <div class="small" style="margin-top:1mm;">
+              &rarr; <span class="ko">'기타' 선택 시 상세내용 기재</span> If 'Other', please provide details (
+              <span class="underline-blank" style="min-width:80mm;"></span> )
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="field-cell">
+            <span class="field-label"><span class="field-num">5.2</span> <span class="ko">학교명</span> Name of School</span>
+            <span class="value">{{ visa.school_name|default:'' }}</span>
+          </td>
+          <td class="field-cell">
+            <span class="field-label"><span class="field-num">5.3</span> <span class="ko">학교 소재지</span> Location of School (city/province/country)</span>
+            <span class="value">{{ visa.school_location|default:'' }}</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    {# ----- Section 6: Employment ----- #}
+    <div class="section-bar" style="margin-top:2mm;">
+      <span class="num">6.</span><span class="ko">직업</span> / <span class="en">EMPLOYMENT</span>
+    </div>
+    <table class="form">
+      <tbody>
+        <tr>
+          <td colspan="2" class="field-cell">
+            <span class="field-label"><span class="field-num">6.1</span> <span class="ko">직업</span> Current personal circumstances</span>
+            <div style="margin-top:1mm;">
+              <span class="opt"><span class="ko">사업가</span> Entrepreneur <span class="br">[&nbsp;{% if visa.occupation == 'entrepreneur' %}&radic;{% else %}&nbsp;{% endif %}&nbsp;]</span></span>
+              <span class="opt"><span class="ko">자영업자</span> Self-Employed <span class="br">[&nbsp;{% if visa.occupation == 'self_employed' %}&radic;{% else %}&nbsp;{% endif %}&nbsp;]</span></span>
+              <span class="opt"><span class="ko">직장인</span> Employed <span class="br">[&nbsp;{% if visa.occupation == 'employed' %}&radic;{% else %}&nbsp;{% endif %}&nbsp;]</span></span>
+            </div>
+            <div style="margin-top:1mm;">
+              <span class="opt"><span class="ko">공무원</span> Civil Servant <span class="br">[&nbsp;{% if visa.occupation == 'civil_servant' %}&radic;{% else %}&nbsp;{% endif %}&nbsp;]</span></span>
+              <span class="opt"><span class="ko">학생</span> Student <span class="br">[&nbsp;{% if visa.occupation == 'student' %}&radic;{% else %}&nbsp;{% endif %}&nbsp;]</span></span>
+              <span class="opt"><span class="ko">퇴직자</span> Retired <span class="br">[&nbsp;{% if visa.occupation == 'retired' %}&radic;{% else %}&nbsp;{% endif %}&nbsp;]</span></span>
+            </div>
+            <div style="margin-top:1mm;">
+              <span class="opt"><span class="ko">무직</span> Unemployed <span class="br">[&nbsp;{% if visa.occupation == 'unemployed' %}&radic;{% else %}&nbsp;{% endif %}&nbsp;]</span></span>
+              <span class="opt"><span class="ko">기타</span> Other <span class="br">[&nbsp;{% if visa.occupation == 'other' %}&radic;{% else %}&nbsp;{% endif %}&nbsp;]</span></span>
+            </div>
+            <div class="small" style="margin-top:1mm;">
+              &rarr; <span class="ko">'기타' 선택 시 상세내용 기재</span> If 'Other', please provide details (
+              <span class="underline-blank" style="min-width:80mm;"></span> )
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="2" class="field-cell">
+            <span class="field-label"><span class="field-num">6.2</span> <span class="ko">직업 상세정보</span> Employment Details</span>
+          </td>
+        </tr>
+        <tr>
+          <td class="field-cell">
+            <span class="field-label">a) <span class="ko">회사/기관/학교명</span> Name of Company/Institute/School</span>
+            <span class="value">{{ visa.employer_name|default:'' }}</span>
+          </td>
+          <td class="field-cell">
+            <span class="field-label">b) <span class="ko">직위/직급</span> Position/Course</span>
+            <span class="value">{{ visa.employer_position|default:'' }}</span>
+          </td>
+        </tr>
+        <tr>
+          <td class="field-cell">
+            <span class="field-label">c) <span class="ko">회사/기관/학교 주소</span> Address of Company/Institute/School</span>
+            <span class="value">{{ visa.employer_address|default:'' }}</span>
+          </td>
+          <td class="field-cell">
+            <span class="field-label">d) <span class="ko">전화번호</span> Telephone No.</span>
+            <span class="value">{{ visa.employer_phone|default:'' }}</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="footer-paper ko">210mm × 297mm[ 백상지(80 g/㎡) 또는 중질지(80 g/㎡)]</div>
+  </section>
+
+  {# ============================== PAGE 3 ============================== #}
+  <section class="page">
+    <div class="page-tag ko">(제3쪽 / Page3)</div>
+
+    {# ----- Section 7: Details of Visit ----- #}
+    <div class="section-bar">
+      <span class="num">7.</span><span class="ko">방문정보</span> / <span class="en">DETAILS OF VISIT</span>
+    </div>
+    <table class="form">
+      <tbody>
+        <tr>
+          <td colspan="3" class="field-cell">
+            <span class="field-label"><span class="field-num">7.1</span> <span class="ko">입국목적</span> Purpose of Visit to Korea</span>
+            <div style="margin-top:1mm;">
+              <span class="opt"><span class="ko">관광/통과</span> Tourism/Transit <span class="br">[&nbsp;{% if visa.purpose == 'tourism' %}&radic;{% else %}&nbsp;{% endif %}&nbsp;]</span></span>
+              <span class="opt"><span class="ko">행사참석/회의</span> Meeting, Conference <span class="br">[&nbsp;{% if visa.purpose == 'meeting' %}&radic;{% else %}&nbsp;{% endif %}&nbsp;]</span></span>
+              <span class="opt"><span class="ko">의료관광</span> Medical Tourism <span class="br">[&nbsp;{% if visa.purpose == 'medical' %}&radic;{% else %}&nbsp;{% endif %}&nbsp;]</span></span>
+            </div>
+            <div style="margin-top:1mm;">
+              <span class="opt"><span class="ko">단기상용</span> Business Trip <span class="br">[&nbsp;{% if visa.purpose == 'business' %}&radic;{% else %}&nbsp;{% endif %}&nbsp;]</span></span>
+              <span class="opt"><span class="ko">유학/연수</span> Study/Training <span class="br">[&nbsp;{% if visa.purpose == 'study' %}&radic;{% else %}&nbsp;{% endif %}&nbsp;]</span></span>
+              <span class="opt"><span class="ko">취업활동</span> Work <span class="br">[&nbsp;{% if visa.purpose == 'work' %}&radic;{% else %}&nbsp;{% endif %}&nbsp;]</span></span>
+            </div>
+            <div style="margin-top:1mm;">
+              <span class="opt"><span class="ko">무역/투자/주재</span> Trade/Investment/Intra-Corporate Transferee <span class="br">[&nbsp;{% if visa.purpose == 'trade' %}&radic;{% else %}&nbsp;{% endif %}&nbsp;]</span></span>
+              <span class="opt"><span class="ko">가족 또는 친지방문</span> Visiting Family/Relatives/Friends <span class="br">[&nbsp;{% if visa.purpose == 'family_visit' %}&radic;{% else %}&nbsp;{% endif %}&nbsp;]</span></span>
+            </div>
+            <div style="margin-top:1mm;">
+              <span class="opt"><span class="ko">결혼이민</span> Marriage Migrant <span class="br">[&nbsp;{% if visa.purpose == 'marriage' %}&radic;{% else %}&nbsp;{% endif %}&nbsp;]</span></span>
+              <span class="opt"><span class="ko">외교/공무</span> Diplomatic/Official <span class="br">[&nbsp;{% if visa.purpose == 'diplomatic' %}&radic;{% else %}&nbsp;{% endif %}&nbsp;]</span></span>
+              <span class="opt"><span class="ko">기타</span> Other <span class="br">[&nbsp;{% if visa.purpose == 'other' %}&radic;{% else %}&nbsp;{% endif %}&nbsp;]</span></span>
+            </div>
+            <div class="small" style="margin-top:1mm;">
+              &rarr; <span class="ko">'기타'선택 시 상세내용 기재</span> If 'Other', please provide details (
+              <span class="underline-blank" style="min-width:80mm;"></span> )
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="2" class="field-cell">
+            <span class="field-label"><span class="field-num">7.2</span> <span class="ko">체류예정기간</span> Intended Period of Stay</span>
+            <span class="value">{{ visa.intended_stay_period|default:'' }}</span>
+          </td>
+          <td class="field-cell">
+            <span class="field-label"><span class="field-num">7.3</span> <span class="ko">입국예정일</span> Intended Date of Entry</span>
+            <span class="value">{{ visa.intended_entry_date|default:'' }}</span>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="2" class="field-cell">
+            <span class="field-label"><span class="field-num">7.4</span> <span class="ko">체류예정지(호텔 포함)</span> Address in Korea (including hotels)</span>
+            <span class="value">{{ visa.address_in_korea|default:'' }}</span>
+          </td>
+          <td class="field-cell">
+            <span class="field-label"><span class="field-num">7.5</span> <span class="ko">한국 내 연락처</span> Contact No. In Korea</span>
+            <span class="value">{{ visa.contact_in_korea|default:'' }}</span>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="3" class="field-cell">
+            <span class="field-label"><span class="field-num">7.6</span> <span class="ko">과거 5년간 한국을 방문한 경력</span> Has the applicant travelled to Korea in the last 5 years?</span>
+            <div style="margin-top:1mm;">
+              <span class="opt"><span class="ko">아니오</span> No <span class="br">[&nbsp;{% if visa.q76_visited_korea == 'no' %}&radic;{% else %}&nbsp;{% endif %}&nbsp;]</span></span>
+              <span class="opt"><span class="ko">예</span> Yes <span class="br">[&nbsp;{% if visa.q76_visited_korea == 'yes' %}&radic;{% else %}&nbsp;{% endif %}&nbsp;]</span></span>
+              &rarr; <span class="small ko">'예'선택 시 상세내용 기재</span> <span class="small">If 'Yes', please provide details of any trips to Korea</span>
+            </div>
+            <div style="margin-top:1mm;">
+              ( <span class="underline-blank" style="min-width:18mm;">{{ visa.q76_times|default:'' }}</span> ) <span class="ko">회</span> times,
+              <span class="ko">최근 방문목적</span> Purpose of Recent Visit (
+              <span class="underline-blank" style="min-width:80mm;">{{ visa.q76_recent_purpose|default:'' }}</span> )
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="3" class="field-cell">
+            <span class="field-label"><span class="field-num">7.7</span> <span class="ko">한국 외 최근 5년간 여행한 국가</span> Has the applicant travelled outside his/her country of residence, excluding Korea, in the last 5 years?</span>
+            <div style="margin-top:1mm;">
+              <span class="opt"><span class="ko">아니오</span> No <span class="br">[&nbsp;{% if visa.q77_travelled_abroad == 'no' %}&radic;{% else %}&nbsp;{% endif %}&nbsp;]</span></span>
+              <span class="opt"><span class="ko">예</span> Yes <span class="br">[&nbsp;{% if visa.q77_travelled_abroad == 'yes' %}&radic;{% else %}&nbsp;{% endif %}&nbsp;]</span></span>
+              &rarr; <span class="small ko">'예'선택 시 상세내용 기재</span> <span class="small">If 'Yes', please provide details of these trips</span>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <th><span class="stacked-label"><span class="ko-line">국가명</span><span class="en-line">Name of Country (in English)</span></span></th>
+          <th><span class="stacked-label"><span class="ko-line">방문목적</span><span class="en-line">Purpose of Visit</span></span></th>
+          <th><span class="stacked-label"><span class="ko-line">방문기간</span><span class="en-line">Period of Stay (yyyy/mm/dd) - (yyyy/mm/dd)</span></span></th>
+        </tr>
+        {% for row in visa.q77_trips %}
+          <tr>
+            <td>{{ row.country|default:'&nbsp;' }}</td>
+            <td>{{ row.purpose|default:'&nbsp;' }}</td>
+            <td>{{ row.period|default:'&nbsp;' }}</td>
+          </tr>
+        {% empty %}
+          <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+          <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+          <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+          <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+        {% endfor %}
+        <tr>
+          <td colspan="3" class="field-cell">
+            <span class="field-label"><span class="field-num">7.8</span> <span class="ko">국내 체류 가족 유무</span> Does the applicant have any family member(s) staying in Korea?</span>
+            <div style="margin-top:1mm;">
+              <span class="opt"><span class="ko">아니오</span> No <span class="br">[&nbsp;{% if visa.q78_family_in_korea == 'no' %}&radic;{% else %}&nbsp;{% endif %}&nbsp;]</span></span>
+              <span class="opt"><span class="ko">예</span> Yes <span class="br">[&nbsp;{% if visa.q78_family_in_korea == 'yes' %}&radic;{% else %}&nbsp;{% endif %}&nbsp;]</span></span>
+              &rarr; <span class="small ko">'예'선택 시 상세내용 기재</span> <span class="small">If 'Yes', please provide details of the family member(s)</span>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <th><span class="stacked-label"><span class="ko-line">성명</span><span class="en-line">Full name in English</span></span></th>
+          <th><span class="stacked-label"><span class="ko-line">생년월일</span><span class="en-line">Date of Birth (yyyy/mm/dd)</span></span></th>
+          <th><span class="stacked-label"><span class="ko-line">국적</span><span class="en-line">Nationality</span></span></th>
+          <th><span class="stacked-label"><span class="ko-line">관계</span><span class="en-line">Relationship to the applicant</span></span></th>
+        </tr>
+        {% for row in visa.q78_family %}
+          <tr>
+            <td>{{ row.name|default:'&nbsp;' }}</td>
+            <td>{{ row.dob|default:'&nbsp;' }}</td>
+            <td>{{ row.nationality|default:'&nbsp;' }}</td>
+            <td>{{ row.relationship|default:'&nbsp;' }}</td>
+          </tr>
+        {% empty %}
+          <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+          <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+          <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+        {% endfor %}
+        <tr>
+          <td colspan="4" class="xs">
+            * <span class="ko">참고: 가족의 범위 - 배우자, 자녀, 부모, 형제</span><br>
+            Note: Scope of family members - Spouse, children, parents, siblings of the applicant
+          </td>
+        </tr>
+        <tr>
+          <td colspan="4" class="field-cell">
+            <span class="field-label"><span class="field-num">7.9</span> <span class="ko">동반입국 가족 유무</span> Is the applicant travelling to Korea with any family member(s)?</span>
+            <div style="margin-top:1mm;">
+              <span class="opt"><span class="ko">아니오</span> No <span class="br">[&nbsp;{% if visa.q79_family_travelling == 'no' %}&radic;{% else %}&nbsp;{% endif %}&nbsp;]</span></span>
+              <span class="opt"><span class="ko">예</span> Yes <span class="br">[&nbsp;{% if visa.q79_family_travelling == 'yes' %}&radic;{% else %}&nbsp;{% endif %}&nbsp;]</span></span>
+              &rarr; <span class="small ko">'예'선택 시 상세내용 기재</span> <span class="small">If 'Yes', please provide details of the family members the applicant is travelling with</span>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <th><span class="stacked-label"><span class="ko-line">성명</span><span class="en-line">Full name in English</span></span></th>
+          <th><span class="stacked-label"><span class="ko-line">생년월일</span><span class="en-line">Date of Birth (yyyy/mm/dd)</span></span></th>
+          <th><span class="stacked-label"><span class="ko-line">국적</span><span class="en-line">Nationality</span></span></th>
+          <th><span class="stacked-label"><span class="ko-line">관계</span><span class="en-line">Relationship to the invitee</span></span></th>
+        </tr>
+        {% for row in visa.q79_family %}
+          <tr>
+            <td>{{ row.name|default:'&nbsp;' }}</td>
+            <td>{{ row.dob|default:'&nbsp;' }}</td>
+            <td>{{ row.nationality|default:'&nbsp;' }}</td>
+            <td>{{ row.relationship|default:'&nbsp;' }}</td>
+          </tr>
+        {% empty %}
+          <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+          <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+          <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+        {% endfor %}
+        <tr>
+          <td colspan="4" class="xs">
+            * <span class="ko">참고: 가족의 범위 - 배우자, 자녀, 부모, 형제</span><br>
+            Note: Scope of family members - Spouse, children, parents, siblings of the applicant
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="footer-paper ko">210mm × 297mm[ 백상지(80 g/㎡) 또는 중질지(80 g/㎡)]</div>
+  </section>
+
+  {# ============================== PAGE 4 ============================== #}
+  <section class="page">
+    <div class="page-tag ko">(제4쪽 / Page4)</div>
+
+    {# ----- Section 8: Assistance with this form ----- #}
+    <div class="section-bar">
+      <span class="num">8.</span><span class="ko">서류 작성 시 도움 여부</span> / <span class="en">ASSISTANCE WITH THIS FORM</span>
+    </div>
+    <table class="form">
+      <colgroup>
+        <col>
+        <col>
+        <col>
+        <col>
+      </colgroup>
+      <tbody>
+        <tr>
+          <td colspan="4" class="field-cell">
+            <span class="field-label"><span class="field-num">8.1</span> <span class="ko">이 신청서를 작성하는데 다른 사람의 도움을 받았습니까?</span> Did the applicant receive assistance in completing this form?</span>
+            <div style="margin-top:1mm;">
+              <span class="opt"><span class="ko">아니오</span> No <span class="br">[&nbsp;{% if visa.q81_assistance == 'no' %}&radic;{% else %}&nbsp;{% endif %}&nbsp;]</span></span>
+              <span class="opt"><span class="ko">예</span> Yes <span class="br">[&nbsp;{% if visa.q81_assistance == 'yes' %}&radic;{% else %}&nbsp;{% endif %}&nbsp;]</span></span>
+              &rarr; <span class="small ko">'예'선택 시 상세내용 기재</span> <span class="small">If 'Yes', please provide details of the person who assisted the applicant.</span>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <th class="stacked-label"><span class="ko-line">성명</span><span class="en-line">Full Name</span></th>
+          <th class="stacked-label"><span class="ko-line">생년월일</span><span class="en-line">Date of Birth (yyyy/mm/dd)</span></th>
+          <th class="stacked-label"><span class="ko-line">연락처</span><span class="en-line">Phone No.</span></th>
+          <th class="stacked-label"><span class="ko-line">관계</span><span class="en-line">Relationship to the applicant</span></th>
+        </tr>
+        <tr>
+          <td>{{ visa.assistance_name|default:'&nbsp;' }}</td>
+          <td>{{ visa.assistance_dob|default:'&nbsp;' }}</td>
+          <td>{{ visa.assistance_phone|default:'&nbsp;' }}</td>
+          <td>{{ visa.assistance_relationship|default:'&nbsp;' }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    {# ----- Section 9: Details of Invitation ----- #}
+    <div class="section-bar" style="margin-top:2mm;">
+      <span class="num">9.</span><span class="ko">초청 정보</span> / <span class="en">DETAILS OF INVITATION</span>
+    </div>
+    <table class="form">
+      <tbody>
+        <tr>
+          <td colspan="2" class="field-cell">
+            <span class="field-label"><span class="field-num">9.1</span> <span class="ko">초청인/초청회사</span> Is there anyone inviting the applicant for the visa?</span>
+            <div style="margin-top:1mm;">
+              <span class="opt"><span class="ko">아니오</span> No <span class="br">[&nbsp;{% if visa.q91_invited == 'no' %}&radic;{% else %}&nbsp;{% endif %}&nbsp;]</span></span>
+              <span class="opt"><span class="ko">예</span> Yes <span class="br">[&nbsp;{% if visa.q91_invited == 'yes' %}&radic;{% else %}&nbsp;{% endif %}&nbsp;]</span></span>
+              &rarr; <span class="small ko">'예' 선택 시 상세내용 기재</span> <span class="small">If 'Yes', please provide details</span>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="2" class="field-cell">
+            <span class="field-label">a) <span class="ko">초청인/초청회사명</span> Name of inviting person/organization (Korean, foreign resident in Korea, company, or institute)</span>
+            <span class="value">{{ visa.inviter_name|default:'' }}</span>
+          </td>
+        </tr>
+        <tr>
+          <td class="field-cell">
+            <span class="field-label">b) <span class="ko">생년월일/사업자등록번호</span> Date of Birth / Business Registration No.</span>
+            <span class="value">{{ visa.inviter_dob_or_brn|default:'' }}</span>
+          </td>
+          <td class="field-cell">
+            <span class="field-label">c) <span class="ko">관계</span> Relationship to the applicant</span>
+            <span class="value">{{ visa.inviter_relationship|default:'' }}</span>
+          </td>
+        </tr>
+        <tr>
+          <td class="field-cell">
+            <span class="field-label">d) <span class="ko">주소</span> Address</span>
+            <span class="value">{{ visa.inviter_address|default:'' }}</span>
+          </td>
+          <td class="field-cell">
+            <span class="field-label">e) <span class="ko">전화번호</span> Phone No.</span>
+            <span class="value">{{ visa.inviter_phone|default:'' }}</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="declaration">
+      <p class="ko">「출입국관리법 시행규칙」 제17조제2항에 따라 위 외국인 <span class="underline-blank" style="min-width:60mm;">{{ visa.applicant_full_name|default:'' }}</span> 에 대한 사증발급인정서를 신청합니다.</p>
+      <p>I hereby apply for Certificate of Visa Eligibility for the applicant <span class="underline-blank" style="min-width:60mm;">{{ visa.applicant_full_name|default:'' }}</span>, in accordance with Article 17(2) of the Enforcement Regulations of the Immigration Act.</p>
+
+      <div style="text-align:center; margin: 3mm 0;">
+        <span class="ko">신청일자</span> ( <span class="ko">년</span>. <span class="ko">월</span>. <span class="ko">일</span> ) DATE OF APPLICATION (yyyy/mm/dd)
+        &nbsp;&nbsp;&nbsp; {{ visa.application_date_yyyy|default:'' }} / {{ visa.application_date_mm|default:'' }} / {{ visa.application_date_dd|default:'' }}
+      </div>
+
+      <div class="signature-row">
+        <div class="sig-cell">
+          <span class="sig-line"></span>
+          <span class="ko">신청인 (초청인) 성명</span> NAME OF APPLICANT (INVITING PERSON)
+        </div>
+        <div class="sig-cell">
+          <span class="sig-line"></span>
+          <span class="ko">신청인 (초청인) 서명(인)</span> SIGNATURE (SEAL) OF APPLICANT (INVITING PERSON)
+        </div>
+      </div>
+
+      <div class="xs center" style="margin-top:3mm;">
+        <span class="ko">(신청인이 17세 미만의 경우 부모 또는 법정대리인의 서명)</span><br>
+        Signature of Parent or Legal Guardian for a Person under 17 years of age
+      </div>
+    </div>
+
+    <table class="form" style="margin-top:2mm;">
+      <colgroup>
+        <col style="width: 30mm;">
+        <col>
+      </colgroup>
+      <tbody>
+        <tr>
+          <td class="ko center bold">첨부서류</td>
+          <td class="ko"><span class="ko">「출입국관리법 시행규칙」 제76조제1항 관련 [별표 5] 사증발급신청 등 첨부서류</span></td>
+        </tr>
+        <tr>
+          <td class="ko center bold">담당공무원<br>확인사항</td>
+          <td class="ko"><span class="ko">「출입국관리법 시행규칙」 제76조제1항 관련 [별표 5] 사증발급신청 등 첨부서류</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="section-bar center" style="margin-top:3mm;">
+      <span class="ko">행정정보 공동이용 동의서</span> / <span class="en">Consent for sharing of administrative information</span>
+    </div>
+    <div class="declaration" style="border:1px solid #111; border-top:0;">
+      <p class="ko bold xs">[초청인용 Only for INVITING PERSON]</p>
+      <p class="ko xs">본인은 이 건 업무처리와 관련하여 담당 공무원이 「전자정부법」 제36조에 따른 행정정보의 공동이용을 통하여 위의 담당 공무원 확인 사항을 확인하는 것에 동의합니다. ※ 동의하지 아니하는 경우에는 신청인이 직접 관련 서류를 제출하여야 합니다.</p>
+      <p class="xs">I, the undersigned, hereby consent to allow all documents and information required for the processing of this application to be viewed by the public servant in charge in accordance with Article 36 (sharing of administrative information) of the Electronic Government Act.</p>
+      <p class="xs">* If 'Disagree', the INVITING PERSON has to submit all required documents IN PERSON.</p>
+
+      <div class="signature-row">
+        <div class="sig-cell">
+          <span class="sig-line"></span>
+          <span class="ko">신청인 성명</span> NAME OF APPLICANT
+        </div>
+        <div class="sig-cell">
+          <span class="sig-line"></span>
+          <span class="ko">신청인 서명(인)</span> SIGNATURE (SEAL) OF APPLICANT
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-paper ko">210mm × 297mm[ 백상지(80 g/㎡) 또는 중질지(80 g/㎡)]</div>
+  </section>
+
+  {# ============================== PAGE 5 ============================== #}
+  <section class="page">
+    <div class="page-tag ko">(제5쪽 / Page5)</div>
+
+    <div class="section-bar center"><span class="ko">유의사항</span> / <span class="en">Notice</span></div>
+    <ol class="notice-list" style="border:1px solid #111; border-top:0; padding: 1.5mm 2mm 1.5mm 8mm;">
+      <li>
+        <span class="ko">위 기재사항과 관련하여 자세한 내용은 별지를 작성하거나 관련 서류를 추가로 제출할 수 있습니다.</span>
+        <span>If extra space is needed to complete any item, record on a separate sheet of paper or submit relevant documents which could support your application.</span>
+      </li>
+      <li>
+        <span class="ko">대한민국 사증발급 승인받은 분 분실 또는 훼손 등의 사유로 여권을 새로 발급받은 경우에는, 성격된 개인정보를 반영할 수 있도록 변경된 여권 정보를 사증심사기관에 통보하여야 합니다.</span>
+        <span>If you received Korean visa approval, and have new passport issued thereafter in lieu of lost/damaged passport, you must notify the concerned visa office of changes in your passport information.</span>
+      </li>
+      <li>
+        <span class="ko">「출입국관리법 시행규칙」 제9조제1항에 따라 C 계열 사증소지자는 입국 후에 체류자격을 변경할 수 없습니다.</span>
+        <span>Please note that category C visa holders are not able to change their status of stay after their entry into Republic of Korea in accordance with Article 9(1) of the Enforcement Regulations of the Immigration Act.</span>
+      </li>
+      <li>
+        <span class="ko">사증심사에 필요한 관련 서류 제출 요구에 따르지 않는 경우, 사증심사가 지연되거나 신청이 불허 될 수 있습니다.</span>
+        <span>Failure to submit all required documents may cause delay or denial of a visa.</span>
+      </li>
+      <li>
+        <span class="ko">사증발급인정서 발급의 신청 결과는 '대한민국 비자포털(www.visa.go.kr)'에서 확인하여야 하며, 사증발급인정서 발급 거부통지서를 문서로 교부받고자 하는 경우에는 정·사무소 또는 출장소에 직접 방문하여 신청하여야 합니다.</span><br>
+        <span class="ko">※ 확인 방법 : 비자포털 초기화면 좌측 '조회/발급' - '진행현황 조회 및 출력' - '비자발급인정서' 를 선택하고 접수번호, 여권번호, 성명, 생년월일 입력 후 조회</span>
+        <span>Visa applicants must check online on the Korea Visa Portal website* (www.visa.go.kr) for visa application results. To receive the disapproval notice in written form, visa applicants must visit the immigration office and apply in person.</span><br>
+        <span>* How to check results: click 'Check Application Status' located on the left side of the Visa Portal main display - click 'Check Application Status &amp; Print' - select 'Confirmation of Visa Issuance' and input information in the blanks.</span>
+      </li>
+    </ol>
+
+    <div class="section-bar center" style="margin-top:3mm;"><span class="ko">공용란</span> / <span class="en">FOR OFFICIAL USE ONLY</span></div>
+    <table class="official-grid" style="border-top:0;">
+      <colgroup>
+        <col style="width:14%">
+        <col style="width:18%">
+        <col style="width:14%">
+        <col style="width:18%">
+        <col style="width:14%">
+        <col style="width:22%">
+      </colgroup>
+      <tbody>
+        <tr>
+          <td class="ko bold">기본사항</td>
+          <td><span class="ko">체류자격</span><br>&nbsp;</td>
+          <td><span class="ko">체류기간</span><br>&nbsp;</td>
+          <td colspan="2"><span class="ko">사증종류</span><br>&nbsp;</td>
+          <td class="ko">단수·복수(2회, 3회 이상)</td>
+        </tr>
+        <tr>
+          <td class="ko bold">접수사항</td>
+          <td><span class="ko">접수일자</span><br>&nbsp;</td>
+          <td colspan="2"><span class="ko">접수번호</span><br>&nbsp;</td>
+          <td colspan="2"><span class="ko">처리과</span><br>&nbsp;</td>
+        </tr>
+        <tr>
+          <td class="ko bold">허가사항</td>
+          <td><span class="ko">허가일자</span><br>&nbsp;</td>
+          <td colspan="2"><span class="ko">인정번호</span><br>&nbsp;</td>
+          <td colspan="2"><span class="ko">고지사항</span><br>&nbsp;</td>
+        </tr>
+        <tr>
+          <td class="ko bold" rowspan="2">결재</td>
+          <td><span class="ko">담당자</span><br>&nbsp;</td>
+          <td colspan="4" rowspan="2"><span class="ko">&lt;심사의견&gt;</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span class="ko">가 [&nbsp;&nbsp;&nbsp;]</span><br>
+            <span class="ko">부 [&nbsp;&nbsp;&nbsp;]</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="section-bar center" style="margin-top:3mm;"><span class="ko">처리절차</span> / <span class="en">Procedure</span></div>
+    <div class="flow" style="border:1px solid #111; border-top:0; padding:3mm 2mm;">
+      <div class="flow-row">
+        <div class="flow-cell">
+          <div class="flow-box">
+            <span class="ko">인정신청서 작성</span><br>
+            <span>Application for Certificate</span>
+          </div>
+        </div>
+        <div class="flow-cell">
+          <div class="flow-box">
+            <span class="ko">접수</span><br>
+            <span>Reception</span>
+          </div>
+        </div>
+        <div class="flow-cell">
+          <div class="flow-box">
+            <span class="ko">심사</span><br>
+            <span>Assessment</span>
+          </div>
+        </div>
+        <div class="flow-cell">
+          <div class="flow-box">
+            <span class="ko">결과통지</span><br>
+            <span>Notification</span>
+          </div>
+        </div>
+        <div class="flow-cell">
+          <div class="flow-box">
+            <span class="ko">사증신청 및 발급</span><br>
+            <span>Visa Application and Issuance</span>
+          </div>
+        </div>
+      </div>
+      <div class="flow-row flow-arrow-row">
+        <div class="flow-cell"><span class="arrow">↓</span></div>
+        <div class="flow-cell"><span class="arrow">↓</span></div>
+        <div class="flow-cell"><span class="arrow">↓</span></div>
+        <div class="flow-cell"><span class="arrow">↓</span></div>
+        <div class="flow-cell"><span class="arrow">↓</span></div>
+      </div>
+      <div class="flow-row flow-bottom">
+        <div class="flow-cell">
+          <div class="flow-box">
+            <span class="ko">신청인 또는 초청인</span><br>
+            <span>Applicant or Inviting person</span>
+          </div>
+        </div>
+        <div class="flow-cell">
+          <div class="flow-box">
+            <span class="ko">처 리 기 관</span><br>
+            <span class="ko">출입국·외국인청<br>(사무소·출장소)</span><br>
+            <span>Immigration Office</span>
+          </div>
+        </div>
+        <div class="flow-cell">
+          <div class="flow-box">
+            <span class="ko">처 리 기 관</span><br>
+            <span class="ko">(최종)</span><br>
+            <span>Immigration Office</span>
+          </div>
+        </div>
+        <div class="flow-cell">
+          <div class="flow-box">
+            <span class="ko">처 리 기 관</span><br>
+            <span class="ko">(최종)</span><br>
+            <span>Immigration Office</span>
+          </div>
+        </div>
+        <div class="flow-cell">
+          <div class="flow-box">
+            <span class="ko">처 리 기 관</span><br>
+            <span class="ko">(재외공관)</span><br>
+            <span>Diplomatic Mission</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-paper ko">210mm × 297mm[ 백상지(80 g/㎡) 또는 중질지(80 g/㎡)]</div>
+  </section>
+
+</body>
+</html>

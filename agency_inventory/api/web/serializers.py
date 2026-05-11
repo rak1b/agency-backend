@@ -56,6 +56,12 @@ def _ensure_agency_in_tenant_business(serializer, agency):
     agency_bid = _agency_business_pk(agency)
 
 
+class BusinessSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Business
+        fields = '__all__'
+        read_only_fields = ["slug", "created_at", "updated_at"]
+
 class AgencySerializer(serializers.ModelSerializer):
     created_by_name = serializers.CharField(source="created_by.name", read_only=True)
     active_customer_count = serializers.IntegerField(source="customers.count", read_only=True)
@@ -264,7 +270,7 @@ class StudentFileSerializer(serializers.ModelSerializer):
     created_by_name = serializers.CharField(source="created_by.name", read_only=True)
     agency_details = serializers.SerializerMethodField(read_only=True)
     created_by_details = serializers.SerializerMethodField(read_only=True)
-    attachments = StudentFileAttachmentPayloadSerializer(many=True, write_only=True, required=False)
+    attachments = StudentFileAttachmentPayloadSerializer(many=True, required=False)
     attachment_details = serializers.SerializerMethodField(read_only=True)
     payments = StudentFilePaymentPayloadSerializer(many=True, write_only=True, required=False)
     payment_details = serializers.SerializerMethodField(read_only=True)

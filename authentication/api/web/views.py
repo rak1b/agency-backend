@@ -77,12 +77,9 @@ def login_agency_and_student_payload(user):
     )
     business_details = None
     direct_business = getattr(user, "parent_business", None)
+    from agency_inventory.api.web.serializers import BusinessSerializer
     if direct_business:
-        business_details = {
-            "id": direct_business.id,
-            "name": direct_business.name,
-            "slug": direct_business.slug,
-        }
+        business_details = BusinessSerializer(direct_business).data
     else:
         bid = tenant_business_id(user)
         if bid:
