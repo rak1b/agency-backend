@@ -75,17 +75,9 @@ def login_agency_and_student_payload(user):
     agency_details = (
         {"id": agency.id, "name": agency.name, "slug": agency.slug} if agency else None
     )
-    business_details = None
     direct_business = getattr(user, "parent_business", None)
     from agency_inventory.api.web.serializers import BusinessSerializer
-    if direct_business:
-        business_details = BusinessSerializer(direct_business).data
-    else:
-        bid = tenant_business_id(user)
-        if bid:
-            row = Business.objects.filter(pk=bid).values("id", "name", "slug").first()
-            if row:
-                business_details = {"id": row["id"], "name": row["name"], "slug": row["slug"]}
+    business_details = BusinessSerializer(direct_business).data if direct_business else None
     linked_details = None
     if linked_sf:
         linked_details = {
@@ -459,7 +451,7 @@ class WebUserLoginView(APIView):
             context['access_token'] = access_token
             context['refresh_token'] = refresh_token
             context['user_slug'] = user_info.slug
-            context['section_wise_permissions'] = login_section_wise_permissions_for_user(user_info)
+            # context['section_wise_permissions'] = login_section_wise_permissions_for_user(user_info)
             context['user_type'] = user_info.user_type
             context['user_type_label'] = user_info.get_user_type_display() if user_info.user_type else None
             context['role_details'] = [
@@ -543,7 +535,7 @@ class WebLoginView(APIView):
             access_token, refresh_token = generate_tokens({'user_id':account.user.id,'user_name':user_info.name,'role':'3','role_title':'merchant'})
             context['access_token'] = access_token
             context['refresh_token'] = refresh_token
-            context['section_wise_permissions'] = login_section_wise_permissions_for_user(user_info)
+            # context['section_wise_permissions'] = login_section_wise_permissions_for_user(user_info)
             context['user_type'] = user_info.user_type
             context['user_type_label'] = user_info.get_user_type_display() if user_info.user_type else None
             context['role_details'] = [
