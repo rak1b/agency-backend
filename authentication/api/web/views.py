@@ -56,6 +56,7 @@ from rest_framework.response import Response
 
 
 def login_agency_and_student_payload(user):
+    from agency_inventory.api.web.serializers import BusinessSerializer,AgencySerializer
     """
     Build ``agency_details``, ``business_details``, and ``linked_student_file`` for login responses.
     Students may only have ``linked_student_file``; agency is taken from that file when needed.
@@ -72,11 +73,8 @@ def login_agency_and_student_payload(user):
     agency = user.parent_agency
     if agency is None and linked_sf and linked_sf.agency_id:
         agency = linked_sf.agency
-    agency_details = (
-        {"id": agency.id, "name": agency.name, "slug": agency.slug} if agency else None
-    )
+    agency_details = AgencySerializer(agency).data if agency else None
     direct_business = getattr(user, "parent_business", None)
-    from agency_inventory.api.web.serializers import BusinessSerializer
     business_details = BusinessSerializer(direct_business).data if direct_business else None
     linked_details = None
     if linked_sf:
